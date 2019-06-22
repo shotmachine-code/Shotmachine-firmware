@@ -92,9 +92,10 @@ class Shotmachine_Interface():
         self.screen.blit(self.background_image, [0, 0])
         image = self.camera.getimage()
         imgsurface = pygame.surfarray.make_surface(image)
-        picturesize = (round(self.screensize[1]*(4/3)), self.screensize[1])
+        picturesize = (1440, 1080)
+        #picturesize = (round(self.screensize[1]*(4/3)), self.screensize[1])
         imgsurface  = pygame.transform.scale(imgsurface, picturesize)
-        self.screen.blit(imgsurface, (round((self.screensize[0]-picturesize[0])/2), 0))
+        self.screen.blit(imgsurface, (270, 0))
         pygame.display.update()
         self.start_showtime = time.time()  
         self.logger.info('Taken picture screen')
@@ -156,8 +157,8 @@ class Shotmachine_Interface():
         self.logger = logging.getLogger(__name__)
         # Initialize program
         pygame.init()
-        self.screen = pygame.display.set_mode(self.screensize)
-        # self.screen = pygame.display.set_mode((0,0),pygame.FULLSCREEN)
+        # self.screen = pygame.display.set_mode(self.screensize)
+        self.screen = pygame.display.set_mode((0,0),pygame.FULLSCREEN)
         screeninfo = pygame.display.Info()
         self.screensize = [screeninfo.current_h, screeninfo.current_w]
         print(self.screensize)
@@ -168,8 +169,7 @@ class Shotmachine_Interface():
         self.background_image = pygame.image.load(background_path).convert()
 
         # Init camera
-        videosize = (round(self.screensize[1]*(4/3)), self.screensize[1])
-        self.camera = camerashotmachine.CameraShotmachine(_windowPosSize=videosize, waittime=3)
+        self.camera = camerashotmachine.CameraShotmachine(_windowPosSize = (270,0,1440, 1080), waittime=3)
         
         
         # Init rollers
@@ -180,6 +180,67 @@ class Shotmachine_Interface():
         # Create screen
         self.load_main_screen()
         current_screen = 'main'
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         time.sleep(0.5)
         self.logger.info('Interface initialised')
 
