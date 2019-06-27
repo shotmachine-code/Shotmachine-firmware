@@ -3,7 +3,6 @@ import queue
 import time
 import logging
 from Functions.Interface import shotmachine_interface
-from Functions.PiVideoStream import pivideostream
 
 logger = logging.getLogger(__name__)
 
@@ -78,20 +77,24 @@ class Shotmachine_controller():
         self.From_interface = _From_interface_queue
         # controller has state
         self.state = 'Boot'
+        self.quitprogram = False
 
         self.thread = threading.Thread(target=self.run, name=_name)
         self.thread.start()
+        #return self
 
     def run(self):
 
-        while True:
-            print('First command')
+        while not self.quitprogram:
+            #print('First command')
             self.To_interface.put('Roll_screen')
             time.sleep(5)
-            self.To_interface.put('Start_roll')
-            time.sleep(15)
+            #self.To_interface.put('Start_roll')
+            #time.sleep(15)
             self.To_interface.put('Take_picture')
-            time.sleep(5)
+            time.sleep(10)
+            self.To_interface.put('Start_roll')
+            time.sleep(10)
             #self.To_interface.put('Show_picture')
             #time.sleep(5)
             #self.To_interface.put('Roll_screen')
@@ -99,11 +102,15 @@ class Shotmachine_controller():
             try:
                 s = self.From_interface.get(block=True, timeout=0.1)
                 print(s)
-                if s == 'Quit':
-                    continue
+                if s == "Quit":
+                    logger.info("interface quit")
+                    self.quitprogram = True
 
             except queue.Empty:
                 continue
+                
+    def check_alive(self):
+        return not self.quitprogram
 
 
 logging.basicConfig(level=logging.DEBUG)
@@ -113,10 +120,12 @@ To_interf_que = queue.Queue()
 From_interf_que = queue.Queue()
 
 shotmachine_interface.Shotmachine_Interface("Interface_main",
-                                                     To_interf_que,
-                                                     From_interf_que)
+                                                    To_interf_que,
+                                                    From_interf_que)
 
-Shotmachine_controller('Main_controller',To_interf_que, From_interf_que)
+main_controller = Shotmachine_controller('Main_controller', 
+                                                    To_interf_que, 
+                                                    From_interf_que)
 
 #sQueue = queue.Queue()
 
@@ -127,9 +136,10 @@ Shotmachine_controller('Main_controller',To_interf_que, From_interf_que)
 
 #motor = MotorReceive("front_left", rQueue)
 
-logger.info("Some test ---")
+#logger.info("Some test ---")
 #rQueue.put("off")
 #rQueue.put("unqrqrqrq")
-
-while True:
-    time.sleep(10)
+controller_alive = True
+while controller_alive:
+    time.sleep(1)
+    controller_alive = not main_controller.quitprogram
