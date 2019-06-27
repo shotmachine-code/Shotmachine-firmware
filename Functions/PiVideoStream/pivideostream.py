@@ -8,8 +8,14 @@ import pygame
 
 class PiVideoStream:
     def __init__(self, resolution=(320, 240), framerate=32):
+        currentOS = platform.system()
+        currentArch = platform.architecture()
+        if (currentOS == 'Linux' and currentArch[0] != '64bit'):
+            self.onRaspberry = True
+        else:
+            self.onRaspberry = False
 
-        if platform.system() == 'Linux':
+        if self.onRaspberry:
             # initialize the camera and stream
             from picamera.array import PiRGBArray
             from picamera import PiCamera
@@ -22,7 +28,7 @@ class PiVideoStream:
                                                      format="bgr", use_video_port=True)
             self.frame = None
 
-        elif platform.system() == 'Windows':
+        else:
             # Create a black frame
             picture = pygame.image.load('Functions/PiVideoStream/testimage.png')
             picture = pygame.transform.scale(picture, resolution)
@@ -35,7 +41,7 @@ class PiVideoStream:
 
     def start(self):
         # start the thread to read frames from the video stream
-        if platform.system() == 'Linux':
+        if self.onRaspberry:
             Thread(target=self.update_camera, args=()).start()
         elif platform.system() == 'Windows':
             pass

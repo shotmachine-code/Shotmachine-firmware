@@ -98,7 +98,7 @@ class Shotmachine_Interface():
         RED = (255, 0, 0)
 
         # Define some general variables
-        screensize = [1500, 900]
+        screensize = [1920, 1080]
         Roll_Images_dir = 'Functions/Interface/Images/Roll_images'
         Background_image_dir = 'Functions/Interface/Images/background_image'
         Appname = "Shotmachine Interface"
