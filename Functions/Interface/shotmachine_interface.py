@@ -11,14 +11,14 @@ import os
 import threading
 import queue
 import time
-import cv2
-import sys
+#import cv2
+#import sys
 import logging
 import psutil
 from random import randint
 from threading import Timer
 from Functions.Interface.roller import Roller
-from Functions.PiVideoStream.PiVideoStream import PiVideoStream
+#from Functions.PiVideoStream.PiVideoStream import PiVideoStream
 from Functions.CameraShotmachine import camerashotmachine
 
 
@@ -136,7 +136,8 @@ class Shotmachine_Interface():
         RED = (255, 0, 0)
 
         # Define some general variables
-        self.screensize = [1500, 900]
+        screensize = [1920, 1080]
+
         Roll_Images_dir = 'Functions/Interface/Images/Roll_images'
         Background_image_dir = 'Functions/Interface/Images/background_image'
         Appname = "Shotmachine Interface"
@@ -157,10 +158,12 @@ class Shotmachine_Interface():
         self.logger = logging.getLogger(__name__)
         # Initialize program
         pygame.init()
-        # self.screen = pygame.display.set_mode(self.screensize)
-        self.screen = pygame.display.set_mode((0,0),pygame.FULLSCREEN)
         screeninfo = pygame.display.Info()
         self.screensize = [screeninfo.current_h, screeninfo.current_w]
+        self.screen = pygame.display.set_mode(self.screensize)
+        # self.screen = pygame.display.set_mode((0,0),pygame.FULLSCREEN)
+
+
         print(self.screensize)
         pygame.display.set_caption(Appname)
         clock = pygame.time.Clock()
