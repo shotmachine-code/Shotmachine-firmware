@@ -97,13 +97,21 @@ class Shotmachine_Interface():
         imgsurface  = pygame.transform.scale(imgsurface, picturesize)
         self.screen.blit(imgsurface, (270, 0))
         pygame.display.update()
-        self.start_showtime = time.time()  
+        self.start_showtime = time.time()
+        imagename = self.camera.getimagename()
+        self.sendbuffer = 'Taken Image:' + imagename
         self.logger.info('Taken picture screen')
 
     def load_config_screen(self):
         self.screen.fill(self.GRAY)
         CPUtemp_raw = psutil.sensors_temperatures()
-        cputemp = str(CPUtemp_raw['cpu-thermal'][0].current).encode("utf-8").decode("utf-8")
+        try:
+            cputemp = str(CPUtemp_raw['cpu-thermal'][0].current).encode("utf-8").decode("utf-8")
+        except KeyError:
+            try:
+                cputemp = str(CPUtemp_raw['coretemp'][0].current).encode("utf-8").decode("utf-8")
+            except:
+                cputemp = "error"
         cputemp_surface = self.myfont.render(cputemp, False, (0, 0, 0))
         self.screen.blit(cputemp_surface,(100,100))
         
@@ -159,7 +167,7 @@ class Shotmachine_Interface():
         # Initialize program
         pygame.init()
         screeninfo = pygame.display.Info()
-        self.screensize = [screeninfo.current_h, screeninfo.current_w]
+        self.screensize = [screeninfo.current_w, screeninfo.current_h]
         self.screen = pygame.display.set_mode(self.screensize)
         # self.screen = pygame.display.set_mode((0,0),pygame.FULLSCREEN)
 
@@ -183,67 +191,7 @@ class Shotmachine_Interface():
         # Create screen
         self.load_main_screen()
         current_screen = 'main'
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+
         time.sleep(0.5)
         self.logger.info('Interface initialised')
 

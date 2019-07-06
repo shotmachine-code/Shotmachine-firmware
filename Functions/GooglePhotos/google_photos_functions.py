@@ -15,8 +15,12 @@ def upload(credentials, file):
         'X-Goog-Upload-Protocol': "raw",
     }
     r = requests.post(url, data=f, headers=headers)
+<<<<<<< HEAD
     upload_token = str(r.content, 'utf-8')
     return upload_token
+=======
+    return str(r.content, 'utf-8')
+>>>>>>> 0d79a4f1f04b2bbd1ed372c846ac8098d389f214
 
 def createItem(credentials, upload_token, albumId, picture_name):
     url = 'https://photoslibrary.googleapis.com/v1/mediaItems:batchCreate'
