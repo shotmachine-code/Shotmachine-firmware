@@ -3,6 +3,7 @@ import queue
 import time
 import logging
 from Functions.Interface import shotmachine_interface
+from Functions.DatabaseSync import databasesync
 
 logger = logging.getLogger(__name__)
 
@@ -71,10 +72,11 @@ class MotorReceive(Receive):
 
 
 class Shotmachine_controller():
-    def __init__(self, _name, _To_interface_queue, _From_interface_queue):
+    def __init__(self, _name, _To_interface_queue, _From_interface_queue, _To_dbsync_queue):
         self.name = _name
         self.To_interface = _To_interface_queue
         self.From_interface = _From_interface_queue
+        self.To_db_sync = _To_dbsync_queue
         # controller has state
         self.state = 'Boot'
         self.quitprogram = False
@@ -105,6 +107,7 @@ class Shotmachine_controller():
                 if s == "Quit":
                     logger.info("interface quit")
                     self.quitprogram = True
+                    self.To_db_sync.put("Quit")
 
             except queue.Empty:
                 continue
@@ -118,14 +121,22 @@ logger.info("Start")
 
 To_interf_que = queue.Queue()
 From_interf_que = queue.Queue()
+From_barcode_que = queue.Queue()
+To_PhotoUploader_que = queue.Queue()
+To_DBSync_que = queue.Queue()
+
 
 shotmachine_interface.Shotmachine_Interface("Interface_main",
                                                     To_interf_que,
                                                     From_interf_que)
 
+db_syncer = databasesync.DatabaseSync(To_DBSync_que)
+
 main_controller = Shotmachine_controller('Main_controller', 
                                                     To_interf_que, 
-                                                    From_interf_que)
+                                                    From_interf_que,
+                                                    To_DBSync_que)
+
 
 #sQueue = queue.Queue()
 

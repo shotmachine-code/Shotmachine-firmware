@@ -4,6 +4,7 @@ from threading import Thread
 import numpy as np
 import time
 import datetime
+from PIL import Image
 
 import os
 import logging
@@ -20,7 +21,7 @@ if (currentOS == 'Linux' and currentArch[0] != '64bit'):
 class CameraShotmachine:
     def __init__(self, _windowPosSize=(200,0,900, 1200), waittime=3, _storagepath = ''):
         if _storagepath == '':
-            self.storagepath = '/home/pi/Desktop/shotmachine2019/TakenImages'
+            self.storagepath = '/TakenImages/NotUploaded'
         else:
             self.storagepath = _storagepath
         self.logger = logging.getLogger(__name__)
@@ -46,9 +47,13 @@ class CameraShotmachine:
             self.camera.rotation = 90
         else:
             # Create a black frame
-            picture = pygame.image.load('Functions/CameraShotmachine/testimage.png')
-            picture = pygame.transform.scale(picture, (1440, 1080))
-            self.boundbox = picture.get_rect()
+            #picture = pygame.image.load('Functions/CameraShotmachine/testimage.png')
+            img = Image.open('Functions/CameraShotmachine/testimage.png')
+            img.load()
+            picture = np.asarray(img, dtype="int32")
+            self.save_image_name = "No picture taken"
+            #picture = pygame.transform.scale(picture, (1440, 1080))
+            #self.boundbox = picture.get_rect()
             self.image = picture
         
         Thread(target=self.run, args=()).start()
@@ -71,10 +76,10 @@ class CameraShotmachine:
                     # self.image = cv2.flip(self.image, 1)
 
                     datetimestring = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
-                    save_image_name = os.path.join(self.storagepath, datetimestring + '.png')
+                    self.save_image_name = os.path.join(self.storagepath, datetimestring + '.png')
                     self.captured_image = cv2.flip(self.captured_image, 1)
-                    cv2.imwrite(save_image_name,self.captured_image)
-                    self.logger.info('Image saved in: ' + save_image_name)
+                    cv2.imwrite(self.save_image_name,self.captured_image)
+                    self.logger.info('Image saved in: ' + self.save_image_name)
                 self.running = False
             time.sleep(0.1)
 
@@ -112,3 +117,6 @@ class CameraShotmachine:
     def requeststop(self):
         # indicate that the thread should be stopped
         self.stop = True
+
+    def getimagename(self):
+        return self.save_image_name
