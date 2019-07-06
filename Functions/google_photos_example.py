@@ -10,8 +10,8 @@ from Functions.GooglePhotos.google_photos_functions import *
 ### Variables ###
 
 scopes = ['https://www.googleapis.com/auth/photoslibrary', 'https://www.googleapis.com/auth/photoslibrary.sharing']
-Album_Id = 'AEMhHtqma5l8RSorkoRzzYtF-nbJu1AiU1hCkSO-8RfYMqYu_ZLmjoY'
-album_name = 'Shotmachine testalbum'
+Album_Id = 'AOivGk-YDEEsGNAF7UfIxI9iGxnaXCmqLgtE6Tbgy1R_VSQaUzzMiLGOPGpJ6UnGeg2duIiTxR_Z'
+album_name = 'Retrorave'
 Create_new_album = False
 
 ### Main code ###
