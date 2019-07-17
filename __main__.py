@@ -3,16 +3,28 @@ import queue
 import time
 import logging
 from Functions.Interface import shotmachine_interface
-#from Functions.DatabaseSync import databasesync
-import RPi.GPIO as GPIO
+from Functions.DatabaseSync import databasesync
+import platform
 import random
 import datetime
 
-from Functions.MCP230XX.MCP230XX import MCP230XX
 
-#!/usr/bin/python
+currentOS = platform.system()
+currentArch = platform.architecture()
+if (currentOS == 'Linux' and currentArch[0] != '64bit'):
+    onRaspberry = True
+else:
+    onRaspberry = False
 
-import spidev
+if onRaspberry:
+    from Functions.MCP230XX.MCP230XX import MCP230XX
+    import RPi.GPIO as GPIO
+    import spidev
+    import smbus
+else:
+    from EmulatorGUI import GPIO
+
+
 
 spi = spidev.SpiDev()
 spi.open(0, 0)
@@ -24,19 +36,14 @@ def write_pot(input):
     lsb = input & 0xFF
     spi.xfer([msb, lsb])
 
-# Repeatedly switch a MCP4151 digital pot off then on
-#while True:
-
 
 logger = logging.getLogger(__name__)
 GPIO.setmode(GPIO.BCM)
-# Zet waarschuwingen uit.
 GPIO.setwarnings(False)
 hendelpin = 23
 fotopin = 24
 enablei2cpin = 4
 
-#GPIO.setup(enablei2cpin, GPIO.OUT)
 GPIO.setup(enablei2cpin, GPIO.OUT)
 GPIO.output(enablei2cpin, 0)
 GPIO.setup(hendelpin , GPIO.IN)
@@ -56,14 +63,8 @@ MCP.output(2,1)
 MCP.output(3,1)
 MCP.output(4,1)
 
-#GPIO.setup(port_or_pin, GPIO.IN)  # set a port/pin as an input  
-#GPIO.setup(port_or_pin, GPIO.OUT) # set a port/pin as an output   
-#GPIO.output(port_or_pin, 1)       # set an output port/pin value to 1/HIGH/True  
-#GPIO.output(port_or_pin, 0)       # set an output port/pin value to 0/LOW/False  
-#i = GPIO.input(port_or_pin)
 
-import smbus
-import time
+
 bus = smbus.SMBus(1)
 address = 0x70
 
@@ -90,12 +91,6 @@ def checkshotglas():
     else:
         return False
 
-
-#while True:
-#        write(0x51)
-#        time.sleep(0.7)
-#        rng = range()
-#        print(rng)
 
 
 class Send():
@@ -281,19 +276,6 @@ main_controller = Shotmachine_controller('Main_controller',
                                                     From_interf_que,
                                                     To_DBSync_que)
 
-
-#sQueue = queue.Queue()
-
-#rQueue = queue.Queue()
-#testSend = TestSend("simulate_send", rQueue)
-
-
-
-#motor = MotorReceive("front_left", rQueue)
-
-#logger.info("Some test ---")
-#rQueue.put("off")
-#rQueue.put("unqrqrqrq")
 controller_alive = True
 while controller_alive:
     time.sleep(1)
