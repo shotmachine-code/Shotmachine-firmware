@@ -152,10 +152,10 @@ class Shotmachine_Interface():
         self.rollerspeed = 50  # defines how fast the rollers move before stopped
 
         # Define positions and size of rollers
-        Roll_1_posx = 400
-        Roll_2_posx = 800
-        Roll_3_posx = 1200
-        Roll_posy = 550
+        Roll_1_posx = 610
+        Roll_2_posx = 965
+        Roll_3_posx = 1320
+        Roll_posy = 300
         Roll_width = 300
         Roll_height = 420  # Must be less than 2x width
         showtime = 5 # Defines how long the taken picture is shown
@@ -168,8 +168,8 @@ class Shotmachine_Interface():
         pygame.init()
         screeninfo = pygame.display.Info()
         self.screensize = [screeninfo.current_w, screeninfo.current_h]
-        self.screen = pygame.display.set_mode(self.screensize)
-        # self.screen = pygame.display.set_mode((0,0),pygame.FULLSCREEN)
+        #self.screen = pygame.display.set_mode(self.screensize)
+        self.screen = pygame.display.set_mode((0,0),pygame.FULLSCREEN)
 
 
         print(self.screensize)
@@ -177,6 +177,7 @@ class Shotmachine_Interface():
         clock = pygame.time.Clock()
         background_file = os.listdir(Background_image_dir)
         background_path = os.path.join(Background_image_dir, background_file[0])
+        print(background_path)
         self.background_image = pygame.image.load(background_path).convert()
 
         # Init camera

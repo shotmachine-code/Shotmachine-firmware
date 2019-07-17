@@ -88,7 +88,7 @@ def create_album(credentials, album_name):
     return albumId, albumUrl
 
 def Save_Credentials(Creds):
-    credentials_file = './GooglePhotos/credentials.json'
+    credentials_file = './Functions/GooglePhotos_final/credentials.json'
     credentials_data = []
     credentials_data.append(Creds.client_id)
     credentials_data.append(Creds.client_secret)
@@ -102,7 +102,7 @@ def Save_Credentials(Creds):
 
 def Get_Credentials():
     try:
-        credentials_file = './GooglePhotos/credentials.json'
+        credentials_file = './Functions/GooglePhotos_final/credentials.json'
         with open(credentials_file, 'r') as f:
             data = json.load(f)
         client_id = data[0]
