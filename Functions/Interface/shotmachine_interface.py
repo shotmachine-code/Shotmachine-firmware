@@ -50,7 +50,7 @@ class Shotmachine_Interface():
                     self.recievebuffer = self.To_interface.get(block=True, timeout=0.1)
                     #print(self.recievebuffer)
                 except queue.Empty:
-                    continue
+                    pass
             if not self.sendbuffer == '':
                 self.logger.info("Sending from interface: " + self.sendbuffer)
                 self.From_interface.put(self.sendbuffer)
@@ -168,8 +168,8 @@ class Shotmachine_Interface():
         pygame.init()
         screeninfo = pygame.display.Info()
         self.screensize = [screeninfo.current_w, screeninfo.current_h]
-        #self.screen = pygame.display.set_mode(self.screensize)
-        self.screen = pygame.display.set_mode((0,0),pygame.FULLSCREEN)
+        self.screen = pygame.display.set_mode(self.screensize)
+        #self.screen = pygame.display.set_mode((0,0),pygame.FULLSCREEN)
 
 
         print(self.screensize)

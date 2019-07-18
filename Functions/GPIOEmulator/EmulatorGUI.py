@@ -1,7 +1,7 @@
 from tkinter import *
 import tkinter as tk
-from PIN import PIN
-from TypeChecker import typeassert
+from Functions.GPIOEmulator.PIN import PIN
+from Functions.GPIOEmulator.TypeChecker import typeassert
 import threading
 import time
 
@@ -475,6 +475,7 @@ class GPIO:
 
     
     def cleanup():
+        app.callback()
         pass
        
                 

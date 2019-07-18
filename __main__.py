@@ -22,16 +22,19 @@ if onRaspberry:
     import spidev
     import smbus
 else:
-    from EmulatorGUI import GPIO
+    from Functions.GPIOEmulator.EmulatorGUI import GPIO
 
 
+EnableSPI = False
+EnableI2C = False
 
-spi = spidev.SpiDev()
-spi.open(0, 0)
-spi.max_speed_hz = 7629
 
-# Split an integer input into a two byte array to send via SPI
-def write_pot(input):
+if EnableSPI:
+    spi = spidev.SpiDev()
+    spi.open(0, 0)
+    spi.max_speed_hz = 7629
+
+def SPIwrite(input):
     msb = input >> 8
     lsb = input & 0xFF
     spi.xfer([msb, lsb])
@@ -51,109 +54,44 @@ GPIO.setup(fotopin , GPIO.IN)
 
 i2cAddress = 0x20
 
-MCP = MCP230XX('MCP23017', i2cAddress, '16bit')
-MCP.set_mode(0, 'output') 
-MCP.set_mode(1, 'output') 
-MCP.set_mode(2, 'output') 
-MCP.set_mode(3, 'output') 
-MCP.set_mode(4, 'output') 
-MCP.output(0,1)
-MCP.output(1,1)
-MCP.output(2,1)
-MCP.output(3,1)
-MCP.output(4,1)
+if EnableI2C:
+    MCP = MCP230XX('MCP23017', i2cAddress, '16bit')
+    MCP.set_mode(0, 'output')
+    MCP.set_mode(1, 'output')
+    MCP.set_mode(2, 'output')
+    MCP.set_mode(3, 'output')
+    MCP.set_mode(4, 'output')
+    MCP.output(0,1)
+    MCP.output(1,1)
+    MCP.output(2,1)
+    MCP.output(3,1)
+    MCP.output(4,1)
 
-
-
-bus = smbus.SMBus(1)
-address = 0x70
+    bus = smbus.SMBus(1)
+    shotdetectorAddress = 0x70
 
 Logfile = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
 Logfile = Logfile +".txt"
 
-def write(value):
-        bus.write_byte_data(address, 0, value)
-        return -1
-
 
 def range():
-        range1 = bus.read_byte_data(address, 2)
-        range2 = bus.read_byte_data(address, 3)
-        range3 = (range1 << 8) + range2
-        return range3
+    range1 = bus.read_byte_data(shotdetectorAddress, 2)
+    range2 = bus.read_byte_data(shotdetectorAddress, 3)
+    range3 = (range1 << 8) + range2
+    return range3
 
 def checkshotglas():
-    write(0x51)
-    time.sleep(0.7)
-    rng = range()
-    if rng < 23:
-        return True
-    else:
-        return False
-
-
-
-class Send():
-    """base class for a sender"""
-
-    def __init__(self, name, sQueue):
-        self.name = name
-        self.sQueue = sQueue
-
-        self.thread = threading.Thread(target=self.run, name=name)
-        self.thread.start()
-
-    def run(self):
-        """ no runner so far """
-        pass
-
-
-class Receive():
-    """base class for a receiver"""
-
-    def __init__(self, name, rQueue):
-        self.name = name
-        self.rQueue = rQueue
-
-        self.thread = threading.Thread(target=self.run, name=name)
-        self.thread.start()
-
-    def run(self):
-        """ no runner so far """
-        while True:
-            try:
-                s = self.rQueue.get(block=True, timeout=0.1)
-            except queue.Empty:
-                continue
-            self.processMessage(s)
-
-    def processMessage(self, s):
-        pass
-
-
-class TestSend(Send):
-    def __init__(self, name, sQueue):
-        Send.__init__(self, name, sQueue)
-
-    def run(self):
-        while True:
-            """simulate some event"""
-            time.sleep(1)
-            logger.info("{name:s}: push event 'sendEvent'".format(name=self.name))
-            self.sQueue.put('event')
-
-
-class MotorReceive(Receive):
-    def __init__(self, name, rQueue):
-        Receive.__init__(self, name, rQueue)
-
-    def processMessage(self, s):
-        if 'on' == s:
-            logger.info("{name:s}: Motor on".format(name=self.name))
-        elif 'off' == s:
-            logger.info("{name:s}: Motor off".format(name=self.name))
+    if onRaspberry:
+        bus.write_byte_data(shotdetectorAddress, 0, 0x51)
+        time.sleep(0.7)
+        rng = range()
+        if rng < 23:
+            return True
         else:
-            logger.error("{name:s}: Unknown message '{msg:s}'".format(name=self.name, msg=s))
+            return False
+    else:
+        return True
+
 
 
 class Shotmachine_controller():
@@ -162,25 +100,26 @@ class Shotmachine_controller():
         self.To_interface = _To_interface_queue
         self.From_interface = _From_interface_queue
         self.To_db_sync = _To_dbsync_queue
-        # controller has state
         self.state = 'Boot'
         self.quitprogram = False
 
         self.thread = threading.Thread(target=self.run, name=_name)
         self.thread.start()
-        #return self
 
     def run(self):
 
         while not self.quitprogram:
-            #shotglass = checkshotglas()
-            #print(shotglass)
-            fotoknop = GPIO.input(fotopin)
+            if onRaspberry:
+                fotoknop = GPIO.input(fotopin)
+            else:
+                fotoknop = not GPIO.input(fotopin)
             if not fotoknop:
-                write_pot(0x48)
+                if onRaspberry:
+                    SPIwrite(0x48)
                 self.To_interface.put('Take_picture')
                 time.sleep(4)
-                write_pot(0x49)
+                if onRaspberry:
+                    SPIwrite(0x49)
                 time.sleep(1)
                 f = open(Logfile, "a")
                 datetimestring = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
@@ -192,7 +131,7 @@ class Shotmachine_controller():
                 if shotglass:
                     self.To_interface.put('Start_roll')
                     i = random.randint(0, 4)
-                    i = 4
+                    #i = 4
                     print("pump " + str(i))
                     time.sleep(6)
                     MCP.output(i,0)
@@ -215,31 +154,8 @@ class Shotmachine_controller():
                         f.write("shot 4 at " + datetimestring + "\n")
                     MCP.output(i,1)
                     time.sleep(2)
-                    
-                    
                     f.close()
-                    #MCP.output(i,0)
-                    #time.sleep(1)
-                    #MCP.output(i,1)
-                    #
-            #write_pot(0x48)
-            #time.sleep(0.5)
-            #write_pot(0x49)
-            #time.sleep(0.5)
-            
-            #print('First command')
-            #self.To_interface.put('Roll_screen')
-            #time.sleep(5)
-            #self.To_interface.put('Start_roll')
-            #time.sleep(15)
-            #self.To_interface.put('Take_picture')
-            #time.sleep(10)time.sleep(10)   
-            #self.To_interface.put('Start_roll')
-            #time.sleep(10)
-            #self.To_interface.put('Show_picture')
-            #time.sleep(5)
-            #self.To_interface.put('Roll_screen')
-            #time.sleep(5)
+
             try:
                 s = self.From_interface.get(block=True, timeout=0.1)
                 print(s)
@@ -247,6 +163,8 @@ class Shotmachine_controller():
                     logger.info("interface quit")
                     self.quitprogram = True
                     self.To_db_sync.put("Quit")
+                    GPIO.cleanup()
+
 
             except queue.Empty:
                 continue
