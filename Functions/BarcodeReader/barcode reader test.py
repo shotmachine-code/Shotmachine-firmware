@@ -3,7 +3,7 @@
 #SUBSYSTEM=="usb", ATTR{idVendor}=="ac90", ATTR{idProduct}=="3003", MODE="666"
 
 import usb.core
-import pymysql
+#import pymysql
 import time
 
 
@@ -17,8 +17,8 @@ sql_check_username = "Select name FROM users WHERE (barcode = {} AND party_id = 
 
 
 try:
-    db = pymysql.connect("localhost", "root", "Aardslappel987", "shotmachine")
-    cursor = db.cursor()
+    #db = pymysql.connect("localhost", "root", "Aardslappel987", "shotmachine")
+    #cursor = db.cursor()
     while run:
 
         device = usb.core.find(idVendor=VENDOR_BARCODE_READER, idProduct=PRODUCT_BARCODE_READER)
@@ -56,20 +56,20 @@ try:
                         read_number = int(read_string)
                     except:
                         read_number = 0
-                    try:
-                        cursor.execute(sql_check_username.format(read_number,party_id))
-                        result = cursor.fetchone()
-                        if result == None:
-                            print("User not found, scanned barcode: " + str(read_number))
-                        else:
-                            Username = result[0]
-                            print("Barcode scanner from user: " + Username + " With barcode: " + str(read_number))
-                    except:
-                        print("Unexpected error:", sys.exc_info()[0])
-                        db.rollback()
-                        print("Error in sql")
+                    #try:
+                        #cursor.execute(sql_check_username.format(read_number,party_id))
+                        #result = cursor.fetchone()
+                        #if result == None:
+                        #    print("User not found, scanned barcode: " + str(read_number))
+                        #else:
+                        #    Username = result[0]
+                        #    print("Barcode scanner from user: " + Username + " With barcode: " + str(read_number))
+                    #except:
+                        #print("Unexpected error:", sys.exc_info()[0])
+                        #db.rollback()
+                        #print("Error in sql")
 
-                    #print("Barcode scanned: " + str(read_number))
+                    print("Barcode scanned: " + str(read_number))
 
                 except usb.core.USBError as e:
                     data = None

@@ -15,12 +15,8 @@ def upload(credentials, file):
         'X-Goog-Upload-Protocol': "raw",
     }
     r = requests.post(url, data=f, headers=headers)
-<<<<<<< HEAD
     upload_token = str(r.content, 'utf-8')
     return upload_token
-=======
-    return str(r.content, 'utf-8')
->>>>>>> 0d79a4f1f04b2bbd1ed372c846ac8098d389f214
 
 def createItem(credentials, upload_token, albumId, picture_name):
     url = 'https://photoslibrary.googleapis.com/v1/mediaItems:batchCreate'
@@ -92,7 +88,7 @@ def create_album(credentials, album_name):
     return albumId, albumUrl
 
 def Save_Credentials(Creds):
-    credentials_file = './GooglePhotos/credentials.json'
+    credentials_file = './Functions/GooglePhotos_final/credentials.json'
     credentials_data = []
     credentials_data.append(Creds.client_id)
     credentials_data.append(Creds.client_secret)
@@ -106,7 +102,7 @@ def Save_Credentials(Creds):
 
 def Get_Credentials():
     try:
-        credentials_file = './GooglePhotos/credentials.json'
+        credentials_file = './Functions/GooglePhotos_final/credentials.json'
         with open(credentials_file, 'r') as f:
             data = json.load(f)
         client_id = data[0]

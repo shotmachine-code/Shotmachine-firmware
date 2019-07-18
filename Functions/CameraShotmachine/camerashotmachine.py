@@ -21,7 +21,7 @@ if (currentOS == 'Linux' and currentArch[0] != '64bit'):
 class CameraShotmachine:
     def __init__(self, _windowPosSize=(200,0,900, 1200), waittime=3, _storagepath = ''):
         if _storagepath == '':
-            self.storagepath = '/TakenImages/NotUploaded'
+            self.storagepath = 'TakenImages/NotUploaded'
         else:
             self.storagepath = _storagepath
         self.logger = logging.getLogger(__name__)
@@ -44,7 +44,8 @@ class CameraShotmachine:
             self.camera.exposure_mode = 'nightpreview'
             # camera.resolution = (1640,1232)
             self.camera.image_denoise = True
-            self.camera.rotation = 90
+            self.camera.rotation = 270
+            self.camera.hflip = True
         else:
             # Create a black frame
             #picture = pygame.image.load('Functions/CameraShotmachine/testimage.png')
