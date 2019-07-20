@@ -51,9 +51,10 @@ class DatabaseSync:
             if self.recievebuffer == '':
                 try:
                     self.recievebuffer = self.fromMainQueue.get(block=True, timeout=0.1)
-                    print(self.recievebuffer)
+                    #print(self.recievebuffer)
                     if self.recievebuffer == "Quit":
                         self.run = False
+                        self.logger.info("DB sync quit")
                 except queue.Empty:
                     continue
             time.sleep(0.1)

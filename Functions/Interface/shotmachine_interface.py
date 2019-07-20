@@ -56,6 +56,7 @@ class Shotmachine_Interface():
                 self.From_interface.put(self.sendbuffer)
                 if self.sendbuffer == "Quit":
                     self.stopwatcher = True
+                    self.logger.info("interface quit")
                 self.sendbuffer = ''
             time.sleep(0.1)
 
@@ -117,6 +118,9 @@ class Shotmachine_Interface():
         
         quitmessage_surf = self.myfont.render('press q to quit', False, (0, 0, 0))
         self.screen.blit(quitmessage_surf,(300,100))
+
+        backmessage_surf = self.myfont.render('press b to go back to normal screen', False, (0, 0, 0))
+        self.screen.blit(backmessage_surf, (300, 130))
         
         pygame.display.update()
         
@@ -172,12 +176,12 @@ class Shotmachine_Interface():
         #self.screen = pygame.display.set_mode((0,0),pygame.FULLSCREEN)
 
 
-        print(self.screensize)
+        self.logger.info("Set screensize to: " + str(self.screensize[0]) + "x" + str(self.screensize[1]))
         pygame.display.set_caption(Appname)
         clock = pygame.time.Clock()
         background_file = os.listdir(Background_image_dir)
         background_path = os.path.join(Background_image_dir, background_file[0])
-        print(background_path)
+        #print(background_path)
         self.background_image = pygame.image.load(background_path).convert()
 
         # Init camera
@@ -214,12 +218,15 @@ class Shotmachine_Interface():
                     self.sendbuffer = 'Quit'
                     self.done = True
                 if event.type == pygame.KEYDOWN:
-                    if event.key == 282:  # F1
+                    if event.key == 32:  # Space
                         self.load_config_screen()
                         current_screen = 'config'
                     if event.key == 113 and current_screen == 'config':  # q
                         self.sendbuffer = 'Quit'
                         self.done = True
+                    if event.key == 98 and current_screen == 'config':  # b
+                        self.load_main_screen()
+                        current_screen = 'main'
 
             # Update the rollers if needed
             if current_screen == 'main':
