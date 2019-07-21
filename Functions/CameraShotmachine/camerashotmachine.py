@@ -52,7 +52,7 @@ class CameraShotmachine:
             img = Image.open('Functions/CameraShotmachine/testimage.png')
             img.load()
             picture = np.asarray(img, dtype="int32")
-            self.save_image_name = "No picture taken"
+            self.save_image_name = "Test mode, no picture taken"
             #picture = pygame.transform.scale(picture, (1440, 1080))
             #self.boundbox = picture.get_rect()
             self.image = picture
@@ -86,7 +86,7 @@ class CameraShotmachine:
 
         if self.onRaspberry:
             self.camera.close()
-        self.logger.info('Class terminated')
+        self.logger.info('Camera module stopped')
         
 
     def start(self):
