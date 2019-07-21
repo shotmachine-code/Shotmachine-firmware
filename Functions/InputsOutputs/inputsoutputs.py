@@ -76,23 +76,23 @@ class InputsOutputs:
         # init MCP IO extender
         if self.HandleShotmachine["Settings"]["OnRaspberry"]:
             i2cAddress = 0x20
-            MCP = MCP230XX('MCP23017', i2cAddress, '16bit')
-            MCP.set_mode(0, 'output')
-            MCP.set_mode(1, 'output')
-            MCP.set_mode(2, 'output')
-            MCP.set_mode(3, 'output')
-            MCP.set_mode(4, 'output')
-            MCP.output(0, 1)
-            MCP.output(1, 1)
-            MCP.output(2, 1)
-            MCP.output(3, 1)
-            MCP.output(4, 1)
+            self.MCP = MCP230XX('MCP23017', i2cAddress, '16bit')
+            self.MCP.set_mode(0, 'output')
+            self.MCP.set_mode(1, 'output')
+            self.MCP.set_mode(2, 'output')
+            self.MCP.set_mode(3, 'output')
+            self.MCP.set_mode(4, 'output')
+            self.MCP.output(0, 1)
+            self.MCP.output(1, 1)
+            self.MCP.output(2, 1)
+            self.MCP.output(3, 1)
+            self.MCP.output(4, 1)
 
 
         # init I2C bus
         if self.HandleShotmachine["Settings"]["OnRaspberry"]:
-            bus = smbus.SMBus(1)
-            shotdetectorAddress = 0x70
+            self.bus = smbus.SMBus(1)
+            self.shotdetectorAddress = 0x70
 
         # start threads
         self.run = True
@@ -133,7 +133,7 @@ class InputsOutputs:
             if self.makeshot:
 
                 if self.HandleShotmachine["Settings"]["OnRaspberry"]:
-                    MCP.output(self.shotnumber, 0)
+                    self.MCP.output(self.shotnumber, 0)
 
                 if self.shotnumber == 0:
                     time.sleep(8)  # 8
@@ -147,7 +147,7 @@ class InputsOutputs:
                     time.sleep(4)  # 4
 
                 if self.HandleShotmachine["Settings"]["OnRaspberry"]:
-                    MCP.output(i, 1)
+                    self.MCP.output(self.shotnumber, 1)
 
                 self.makeshot = False
                 self.ToMainQueue.put("Done with shot")
@@ -170,7 +170,7 @@ class InputsOutputs:
 
     def checkfotoknop(self):
         if self.HandleShotmachine["Settings"]["OnRaspberry"]:
-            self.FotoKnopState = not self.GPIO.input(fotopin)
+            self.FotoKnopState = not self.GPIO.input(self.FotoSwitch)
         else:
             self.FotoKnopState = self.GPIO.input(self.FotoSwitch)
         if not self.FotoKnopSend and self.FotoKnopState:
@@ -182,12 +182,13 @@ class InputsOutputs:
 
     def checkshotglas(self):
         if self.HandleShotmachine["Settings"]["OnRaspberry"]:
-            bus.write_byte_data(shotdetectorAddress, 0, 0x51)
+            self.bus.write_byte_data(self.shotdetectorAddress, 0, 0x51)
             time.sleep(0.7)
-            msb = bus.read_byte_data(shotdetectorAddress, 2)
-            lsb = bus.read_byte_data(shotdetectorAddress, 3)
-            range = (msb << 8) + lsb
-            if rng < 23:
+            msb = self.bus.read_byte_data(self.shotdetectorAddress, 2)
+            lsb = self.bus.read_byte_data(self.shotdetectorAddress, 3)
+            measuredRange = (msb << 8) + lsb
+            print(measuredRange)
+            if measuredRange < 23:
                 self.CheckShotglass = True
             else:
                 self.CheckShotglass = False
