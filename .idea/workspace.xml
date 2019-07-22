@@ -4,6 +4,8 @@
     <list default="true" id="8db30134-0517-4686-8483-641a8981659d" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Functions/GPIOEmulator/ShotmachineIOEmulator.py" afterPath="$PROJECT_DIR$/Functions/GPIOEmulator/ShotmachineIOEmulator.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Functions/InputsOutputs/inputsoutputs.py" afterPath="$PROJECT_DIR$/Functions/InputsOutputs/inputsoutputs.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/__main__.py" afterPath="$PROJECT_DIR$/__main__.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -33,29 +35,10 @@
       <file leaf-file-name="__main__.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/__main__.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="480">
-              <caret line="41" column="23" lean-forward="false" selection-start-line="30" selection-start-column="4" selection-end-line="41" selection-end-column="23" />
+            <state relative-caret-position="2460">
+              <caret line="164" column="56" lean-forward="true" selection-start-line="164" selection-start-column="56" selection-end-line="164" selection-end-column="56" />
               <folding>
                 <element signature="e#0#16#0" expanded="true" />
-                <marker date="1563650499752" expanded="true" signature="1832:2204" ph="..." />
-                <marker date="1563650499752" expanded="true" signature="2220:2390" ph="..." />
-                <marker date="1563650499752" expanded="true" signature="2413:2694" ph="..." />
-                <marker date="1563650499752" expanded="true" signature="2467:2662" ph="..." />
-                <marker date="1563650499752" expanded="true" signature="2729:5327" ph="..." />
-                <marker date="1563650499752" expanded="true" signature="3318:5273" ph="..." />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ShotmachineIOEmulator.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/Functions/GPIOEmulator/ShotmachineIOEmulator.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="138">
-              <caret line="270" column="0" lean-forward="true" selection-start-line="270" selection-start-column="0" selection-end-line="270" selection-end-column="0" />
-              <folding>
-                <marker date="1563715845697" expanded="true" signature="444:10240" ph="..." />
-                <marker date="1563715845697" expanded="true" signature="624:10183" ph="..." />
               </folding>
             </state>
           </provider>
@@ -64,14 +47,35 @@
       <file leaf-file-name="inputsoutputs.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Functions/InputsOutputs/inputsoutputs.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="615">
-              <caret line="44" column="61" lean-forward="false" selection-start-line="44" selection-start-column="61" selection-end-line="44" selection-end-column="61" />
+            <state relative-caret-position="30">
+              <caret line="83" column="66" lean-forward="true" selection-start-line="83" selection-start-column="66" selection-end-line="83" selection-end-column="66" />
               <folding>
                 <element signature="e#0#16#0" expanded="true" />
-                <marker date="1563651169661" expanded="true" signature="80:586" ph="..." />
-                <marker date="1563651169661" expanded="true" signature="99:232" ph="..." />
-                <marker date="1563651169661" expanded="true" signature="253:561" ph="..." />
-                <marker date="1563651169661" expanded="true" signature="3356:3849" ph="..." />
+                <marker date="1563830207611" expanded="true" signature="80:586" ph="..." />
+                <marker date="1563830207611" expanded="true" signature="99:232" ph="..." />
+                <marker date="1563830207611" expanded="true" signature="253:561" ph="..." />
+                <marker date="1563830207611" expanded="true" signature="2185:2220" ph="..." />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ShotmachineIOEmulator.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/Functions/GPIOEmulator/ShotmachineIOEmulator.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1920">
+              <caret line="128" column="0" lean-forward="true" selection-start-line="128" selection-start-column="0" selection-end-line="128" selection-end-column="0" />
+              <folding>
+                <element signature="e#0#21#0" expanded="true" />
+                <marker date="1563830462793" expanded="true" signature="677:708" ph="..." />
+                <marker date="1563830462793" expanded="true" signature="5385:5386" ph="..." />
+                <marker date="1563830462793" expanded="true" signature="5548:5745" ph="..." />
+                <marker date="1563830462793" expanded="true" signature="5720:5745" ph="..." />
+                <marker date="1563830462793" expanded="true" signature="5771:5845" ph="..." />
+                <marker date="1563830462793" expanded="true" signature="5881:5955" ph="..." />
+                <marker date="1563830462793" expanded="true" signature="10408:12914" ph="..." />
+                <marker date="1563830462793" expanded="true" signature="10853:10965" ph="..." />
+                <marker date="1563830462793" expanded="true" signature="11686:11883" ph="..." />
               </folding>
             </state>
           </provider>
@@ -98,6 +102,7 @@
       <find>self.logger</find>
       <find>OnRaspberry</find>
       <find>23</find>
+      <find>__</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -114,8 +119,8 @@
         <option value="$PROJECT_DIR$/Functions/Interface/shotmachine_interface.py" />
         <option value="$PROJECT_DIR$/Functions/DatabaseSync/databasesync.py" />
         <option value="$PROJECT_DIR$/Functions/CameraShotmachine/camerashotmachine.py" />
-        <option value="$PROJECT_DIR$/__main__.py" />
         <option value="$PROJECT_DIR$/Functions/GPIOEmulator/EmulatorGUI.py" />
+        <option value="$PROJECT_DIR$/__main__.py" />
         <option value="$PROJECT_DIR$/Functions/InputsOutputs/inputsoutputs.py" />
         <option value="$PROJECT_DIR$/Functions/GPIOEmulator/ShotmachineIOEmulator.py" />
       </list>
@@ -142,6 +147,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -168,82 +174,9 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Shotmachine-firmware" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Shotmachine-firmware" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Functions" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="InputsOutputs" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Shotmachine-firmware" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Shotmachine-firmware" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Functions" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="GPIOEmulator" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Shotmachine-firmware" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Shotmachine-firmware" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Functions" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="DatabaseSync" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Shotmachine-firmware" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Shotmachine-firmware" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Functions" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="CameraShotmachine" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
         </subPane>
       </pane>
       <pane id="Scratches" />
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -464,7 +397,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="633" y="52" width="1267" height="1028" extended-state="5" />
+    <frame x="633" y="52" width="1267" height="1028" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2692926" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -501,7 +434,7 @@
           </properties>
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="39" />
+      <option name="time" value="48" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -519,26 +452,28 @@
     <entry file="file://$PROJECT_DIR$/__main__.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="480">
-          <caret line="41" column="23" lean-forward="true" selection-start-line="30" selection-start-column="4" selection-end-line="41" selection-end-column="23" />
+          <caret line="41" column="23" lean-forward="false" selection-start-line="30" selection-start-column="4" selection-end-line="41" selection-end-column="23" />
           <folding>
             <element signature="e#0#16#0" expanded="true" />
-            <marker date="1563650499752" expanded="true" signature="1832:2204" ph="..." />
-            <marker date="1563650499752" expanded="true" signature="2220:2390" ph="..." />
-            <marker date="1563650499752" expanded="true" signature="2413:2694" ph="..." />
-            <marker date="1563650499752" expanded="true" signature="2467:2662" ph="..." />
-            <marker date="1563650499752" expanded="true" signature="2729:5327" ph="..." />
-            <marker date="1563650499752" expanded="true" signature="3318:5273" ph="..." />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Functions/GPIOEmulator/ShotmachineIOEmulator.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        <state relative-caret-position="3975">
+          <caret line="270" column="0" lean-forward="true" selection-start-line="270" selection-start-column="0" selection-end-line="270" selection-end-column="0" />
           <folding>
-            <marker date="1563715845697" expanded="true" signature="444:10240" ph="..." />
-            <marker date="1563715845697" expanded="true" signature="624:10183" ph="..." />
+            <element signature="e#0#21#0" expanded="true" />
+            <marker date="1563830462793" expanded="true" signature="677:708" ph="..." />
+            <marker date="1563830462793" expanded="true" signature="5385:5386" ph="..." />
+            <marker date="1563830462793" expanded="true" signature="5548:5745" ph="..." />
+            <marker date="1563830462793" expanded="true" signature="5720:5745" ph="..." />
+            <marker date="1563830462793" expanded="true" signature="5771:5845" ph="..." />
+            <marker date="1563830462793" expanded="true" signature="5881:5955" ph="..." />
+            <marker date="1563830462793" expanded="true" signature="10408:12914" ph="..." />
+            <marker date="1563830462793" expanded="true" signature="10853:10965" ph="..." />
+            <marker date="1563830462793" expanded="true" signature="11686:11883" ph="..." />
           </folding>
         </state>
       </provider>
@@ -549,10 +484,63 @@
           <caret line="44" column="61" lean-forward="false" selection-start-line="44" selection-start-column="61" selection-end-line="44" selection-end-column="61" />
           <folding>
             <element signature="e#0#16#0" expanded="true" />
-            <marker date="1563651169661" expanded="true" signature="80:586" ph="..." />
-            <marker date="1563651169661" expanded="true" signature="99:232" ph="..." />
-            <marker date="1563651169661" expanded="true" signature="253:561" ph="..." />
-            <marker date="1563651169661" expanded="true" signature="3356:3849" ph="..." />
+            <marker date="1563830207611" expanded="true" signature="80:586" ph="..." />
+            <marker date="1563830207611" expanded="true" signature="99:232" ph="..." />
+            <marker date="1563830207611" expanded="true" signature="253:561" ph="..." />
+            <marker date="1563830207611" expanded="true" signature="2185:2220" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Functions/Interface/roller.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/__main__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="480">
+          <caret line="41" column="23" lean-forward="true" selection-start-line="30" selection-start-column="4" selection-end-line="41" selection-end-column="23" />
+          <folding>
+            <element signature="e#0#16#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Functions/GPIOEmulator/ShotmachineIOEmulator.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#21#0" expanded="true" />
+            <marker date="1563830462793" expanded="true" signature="677:708" ph="..." />
+            <marker date="1563830462793" expanded="true" signature="5385:5386" ph="..." />
+            <marker date="1563830462793" expanded="true" signature="5548:5745" ph="..." />
+            <marker date="1563830462793" expanded="true" signature="5720:5745" ph="..." />
+            <marker date="1563830462793" expanded="true" signature="5771:5845" ph="..." />
+            <marker date="1563830462793" expanded="true" signature="5881:5955" ph="..." />
+            <marker date="1563830462793" expanded="true" signature="10408:12914" ph="..." />
+            <marker date="1563830462793" expanded="true" signature="10853:10965" ph="..." />
+            <marker date="1563830462793" expanded="true" signature="11686:11883" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Functions/InputsOutputs/inputsoutputs.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="615">
+          <caret line="44" column="61" lean-forward="false" selection-start-line="44" selection-start-column="61" selection-end-line="44" selection-end-column="61" />
+          <folding>
+            <element signature="e#0#16#0" expanded="true" />
+            <marker date="1563830207611" expanded="true" signature="80:586" ph="..." />
+            <marker date="1563830207611" expanded="true" signature="99:232" ph="..." />
+            <marker date="1563830207611" expanded="true" signature="253:561" ph="..." />
+            <marker date="1563830207611" expanded="true" signature="2185:2220" ph="..." />
           </folding>
         </state>
       </provider>
@@ -573,12 +561,6 @@
           <caret line="172" column="0" lean-forward="true" selection-start-line="172" selection-start-column="0" selection-end-line="172" selection-end-column="0" />
           <folding>
             <element signature="e#0#16#0" expanded="true" />
-            <marker date="1563650499752" expanded="true" signature="1832:2204" ph="..." />
-            <marker date="1563650499752" expanded="true" signature="2220:2390" ph="..." />
-            <marker date="1563650499752" expanded="true" signature="2413:2694" ph="..." />
-            <marker date="1563650499752" expanded="true" signature="2467:2662" ph="..." />
-            <marker date="1563650499752" expanded="true" signature="2729:5327" ph="..." />
-            <marker date="1563650499752" expanded="true" signature="3318:5273" ph="..." />
           </folding>
         </state>
       </provider>
@@ -589,10 +571,10 @@
           <caret line="129" column="0" lean-forward="false" selection-start-line="129" selection-start-column="0" selection-end-line="129" selection-end-column="0" />
           <folding>
             <element signature="e#0#16#0" expanded="true" />
-            <marker date="1563651169661" expanded="true" signature="80:586" ph="..." />
-            <marker date="1563651169661" expanded="true" signature="99:232" ph="..." />
-            <marker date="1563651169661" expanded="true" signature="253:561" ph="..." />
-            <marker date="1563651169661" expanded="true" signature="3356:3849" ph="..." />
+            <marker date="1563830207611" expanded="true" signature="80:586" ph="..." />
+            <marker date="1563830207611" expanded="true" signature="99:232" ph="..." />
+            <marker date="1563830207611" expanded="true" signature="253:561" ph="..." />
+            <marker date="1563830207611" expanded="true" signature="2185:2220" ph="..." />
           </folding>
         </state>
       </provider>
@@ -620,12 +602,6 @@
           <caret line="215" column="0" lean-forward="false" selection-start-line="215" selection-start-column="0" selection-end-line="215" selection-end-column="0" />
           <folding>
             <element signature="e#0#16#0" expanded="true" />
-            <marker date="1563650499752" expanded="true" signature="1832:2204" ph="..." />
-            <marker date="1563650499752" expanded="true" signature="2220:2390" ph="..." />
-            <marker date="1563650499752" expanded="true" signature="2413:2694" ph="..." />
-            <marker date="1563650499752" expanded="true" signature="2467:2662" ph="..." />
-            <marker date="1563650499752" expanded="true" signature="2729:5327" ph="..." />
-            <marker date="1563650499752" expanded="true" signature="3318:5273" ph="..." />
           </folding>
         </state>
       </provider>
@@ -643,10 +619,10 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#16#0" expanded="true" />
-            <marker date="1563651169661" expanded="true" signature="80:586" ph="..." />
-            <marker date="1563651169661" expanded="true" signature="99:232" ph="..." />
-            <marker date="1563651169661" expanded="true" signature="253:561" ph="..." />
-            <marker date="1563651169661" expanded="true" signature="3356:3849" ph="..." />
+            <marker date="1563830207611" expanded="true" signature="80:586" ph="..." />
+            <marker date="1563830207611" expanded="true" signature="99:232" ph="..." />
+            <marker date="1563830207611" expanded="true" signature="253:561" ph="..." />
+            <marker date="1563830207611" expanded="true" signature="2185:2220" ph="..." />
           </folding>
         </state>
       </provider>
@@ -682,12 +658,6 @@
           <caret line="12" column="0" lean-forward="false" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
           <folding>
             <element signature="e#0#16#0" expanded="true" />
-            <marker date="1563650499752" expanded="true" signature="1832:2204" ph="..." />
-            <marker date="1563650499752" expanded="true" signature="2220:2390" ph="..." />
-            <marker date="1563650499752" expanded="true" signature="2413:2694" ph="..." />
-            <marker date="1563650499752" expanded="true" signature="2467:2662" ph="..." />
-            <marker date="1563650499752" expanded="true" signature="2729:5327" ph="..." />
-            <marker date="1563650499752" expanded="true" signature="3318:5273" ph="..." />
           </folding>
         </state>
       </provider>
@@ -717,13 +687,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///usr/lib/python3/dist-packages/apport_python_hook.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="176">
-          <caret line="46" column="0" lean-forward="false" selection-start-line="46" selection-start-column="0" selection-end-line="46" selection-end-column="0" />
         </state>
       </provider>
     </entry>
@@ -779,43 +742,61 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Functions/InputsOutputs/inputsoutputs.py">
+    <entry file="file://$PROJECT_DIR$/Functions/GPIOEmulator/TypeChecker.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="615">
-          <caret line="44" column="61" lean-forward="false" selection-start-line="44" selection-start-column="61" selection-end-line="44" selection-end-column="61" />
-          <folding>
-            <element signature="e#0#16#0" expanded="true" />
-            <marker date="1563651169661" expanded="true" signature="80:586" ph="..." />
-            <marker date="1563651169661" expanded="true" signature="99:232" ph="..." />
-            <marker date="1563651169661" expanded="true" signature="253:561" ph="..." />
-            <marker date="1563651169661" expanded="true" signature="3356:3849" ph="..." />
-          </folding>
+        <state relative-caret-position="300">
+          <caret line="21" column="0" lean-forward="false" selection-start-line="21" selection-start-column="0" selection-end-line="21" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/lib/python3/dist-packages/apport_python_hook.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="176">
+          <caret line="46" column="0" lean-forward="false" selection-start-line="46" selection-start-column="0" selection-end-line="46" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/__main__.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="480">
-          <caret line="41" column="23" lean-forward="false" selection-start-line="30" selection-start-column="4" selection-end-line="41" selection-end-column="23" />
+        <state relative-caret-position="2460">
+          <caret line="164" column="56" lean-forward="true" selection-start-line="164" selection-start-column="56" selection-end-line="164" selection-end-column="56" />
           <folding>
             <element signature="e#0#16#0" expanded="true" />
-            <marker date="1563650499752" expanded="true" signature="1832:2204" ph="..." />
-            <marker date="1563650499752" expanded="true" signature="2220:2390" ph="..." />
-            <marker date="1563650499752" expanded="true" signature="2413:2694" ph="..." />
-            <marker date="1563650499752" expanded="true" signature="2467:2662" ph="..." />
-            <marker date="1563650499752" expanded="true" signature="2729:5327" ph="..." />
-            <marker date="1563650499752" expanded="true" signature="3318:5273" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Functions/InputsOutputs/inputsoutputs.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="30">
+          <caret line="83" column="66" lean-forward="true" selection-start-line="83" selection-start-column="66" selection-end-line="83" selection-end-column="66" />
+          <folding>
+            <element signature="e#0#16#0" expanded="true" />
+            <marker date="1563830207611" expanded="true" signature="80:586" ph="..." />
+            <marker date="1563830207611" expanded="true" signature="99:232" ph="..." />
+            <marker date="1563830207611" expanded="true" signature="253:561" ph="..." />
+            <marker date="1563830207611" expanded="true" signature="2185:2220" ph="..." />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Functions/GPIOEmulator/ShotmachineIOEmulator.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="138">
-          <caret line="270" column="0" lean-forward="true" selection-start-line="270" selection-start-column="0" selection-end-line="270" selection-end-column="0" />
+        <state relative-caret-position="1920">
+          <caret line="128" column="0" lean-forward="true" selection-start-line="128" selection-start-column="0" selection-end-line="128" selection-end-column="0" />
           <folding>
-            <marker date="1563715845697" expanded="true" signature="444:10240" ph="..." />
-            <marker date="1563715845697" expanded="true" signature="624:10183" ph="..." />
+            <element signature="e#0#21#0" expanded="true" />
+            <marker date="1563830462793" expanded="true" signature="677:708" ph="..." />
+            <marker date="1563830462793" expanded="true" signature="5385:5386" ph="..." />
+            <marker date="1563830462793" expanded="true" signature="5548:5745" ph="..." />
+            <marker date="1563830462793" expanded="true" signature="5720:5745" ph="..." />
+            <marker date="1563830462793" expanded="true" signature="5771:5845" ph="..." />
+            <marker date="1563830462793" expanded="true" signature="5881:5955" ph="..." />
+            <marker date="1563830462793" expanded="true" signature="10408:12914" ph="..." />
+            <marker date="1563830462793" expanded="true" signature="10853:10965" ph="..." />
+            <marker date="1563830462793" expanded="true" signature="11686:11883" ph="..." />
           </folding>
         </state>
       </provider>

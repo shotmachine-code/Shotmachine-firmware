@@ -43,6 +43,7 @@ class InputsOutputs:
             import smbus
         else:
             from Functions.GPIOEmulator.ShotmachineIOEmulator import GPIO
+            from Functions.GPIOEmulator.ShotmachineIOEmulator import MCP230XX
 
 
         # prepare variables
@@ -74,19 +75,18 @@ class InputsOutputs:
         self.GPIO.output(self.EnableI2COutput, 0)
 
         # init MCP IO extender
-        if self.HandleShotmachine["Settings"]["OnRaspberry"]:
-            i2cAddress = 0x20
-            self.MCP = MCP230XX('MCP23017', i2cAddress, '16bit')
-            self.MCP.set_mode(0, 'output')
-            self.MCP.set_mode(1, 'output')
-            self.MCP.set_mode(2, 'output')
-            self.MCP.set_mode(3, 'output')
-            self.MCP.set_mode(4, 'output')
-            self.MCP.output(0, 1)
-            self.MCP.output(1, 1)
-            self.MCP.output(2, 1)
-            self.MCP.output(3, 1)
-            self.MCP.output(4, 1)
+        i2cAddress = 0x20
+        self.MCP = MCP230XX('MCP23017', i2cAddress, '16bit')
+        self.MCP.set_mode(0, 'output')
+        self.MCP.set_mode(1, 'output')
+        self.MCP.set_mode(2, 'output') #self.MCP.set_mode(2, 'output')
+        self.MCP.set_mode(3, 'output')
+        self.MCP.set_mode(4, 'output') #self.MCP.config(4, OUTPUT)
+        self.MCP.output(0, 1)
+        self.MCP.output(1, 1)
+        self.MCP.output(2, 1)
+        self.MCP.output(3, 1)
+        self.MCP.output(4, 1)
 
 
         # init I2C bus
@@ -132,8 +132,8 @@ class InputsOutputs:
             # make shot if requested
             if self.makeshot:
 
-                if self.HandleShotmachine["Settings"]["OnRaspberry"]:
-                    self.MCP.output(self.shotnumber, 0)
+                #if self.HandleShotmachine["Settings"]["OnRaspberry"]:
+                self.MCP.output(self.shotnumber, 0)
 
                 if self.shotnumber == 0:
                     time.sleep(8)  # 8
@@ -146,8 +146,8 @@ class InputsOutputs:
                 elif self.shotnumber == 4:
                     time.sleep(4)  # 4
 
-                if self.HandleShotmachine["Settings"]["OnRaspberry"]:
-                    self.MCP.output(self.shotnumber, 1)
+                #if self.HandleShotmachine["Settings"]["OnRaspberry"]:
+                self.MCP.output(self.shotnumber, 1)
 
                 self.makeshot = False
                 self.ToMainQueue.put("Done with shot")

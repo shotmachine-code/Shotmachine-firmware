@@ -55,7 +55,7 @@ if HandleShotmachine["Settings"]["OnRaspberry"]:
 
 
 ### SPI ####
-if HandleShotmachine["Settings"]["EnableSPI"]:
+if HandleShotmachine["Settings"]["EnableSPI"] and HandleShotmachine["Settings"]["OnRaspberry"]:
     spi = spidev.SpiDev()
     spi.open(0, 0)
     spi.max_speed_hz = 7629
@@ -160,7 +160,7 @@ class Shotmachine_controller():
                 if self.Shotglass:
                     self.ToInterfQueue.put('Start_roll')
                     i = random.randint(0, 4)
-                    #i = 4
+                    #i = 0
                     time.sleep(6)
                     self.ToIOQueue.put("Shot " + str(i))
                     time.sleep(2)
