@@ -267,6 +267,7 @@ class App(threading.Thread):
         #GPIO19
         pin35btn = Button(text="GPIO19\nOUT=0", command="19", padx ="1px", pady="1px", bd="0px", fg="blue", relief="sunken", activeforeground="blue")
         pin35btn.grid(row=1, column=17, padx=(10, 10))
+y
 
         dictionaryPinsTkinter["19"] = pin35btn
         

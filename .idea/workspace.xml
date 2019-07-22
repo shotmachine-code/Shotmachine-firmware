@@ -2,15 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8db30134-0517-4686-8483-641a8981659d" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Functions/GPIOEmulator/ShotmachineIOEmulator.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Functions/InputsOutputs/__init__.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Functions/InputsOutputs/inputsoutputs.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Functions/CameraShotmachine/camerashotmachine.py" afterPath="$PROJECT_DIR$/Functions/CameraShotmachine/camerashotmachine.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Functions/DatabaseSync/databasesync.py" afterPath="$PROJECT_DIR$/Functions/DatabaseSync/databasesync.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Functions/GooglePhotos/google_photos_functions.py" afterPath="$PROJECT_DIR$/Functions/GooglePhotos/google_photos_functions.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Functions/Interface/shotmachine_interface.py" afterPath="$PROJECT_DIR$/Functions/Interface/shotmachine_interface.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/__main__.py" afterPath="$PROJECT_DIR$/__main__.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Functions/GPIOEmulator/ShotmachineIOEmulator.py" afterPath="$PROJECT_DIR$/Functions/GPIOEmulator/ShotmachineIOEmulator.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -40,20 +33,16 @@
       <file leaf-file-name="__main__.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/__main__.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="251">
-              <caret line="41" column="23" lean-forward="true" selection-start-line="30" selection-start-column="4" selection-end-line="41" selection-end-column="23" />
+            <state relative-caret-position="480">
+              <caret line="41" column="23" lean-forward="false" selection-start-line="30" selection-start-column="4" selection-end-line="41" selection-end-column="23" />
               <folding>
                 <element signature="e#0#16#0" expanded="true" />
-                <marker date="1563650499752" expanded="true" signature="1094:1213" ph="..." />
                 <marker date="1563650499752" expanded="true" signature="1832:2204" ph="..." />
                 <marker date="1563650499752" expanded="true" signature="2220:2390" ph="..." />
                 <marker date="1563650499752" expanded="true" signature="2413:2694" ph="..." />
                 <marker date="1563650499752" expanded="true" signature="2467:2662" ph="..." />
                 <marker date="1563650499752" expanded="true" signature="2729:5327" ph="..." />
                 <marker date="1563650499752" expanded="true" signature="3318:5273" ph="..." />
-                <marker date="1563650499752" expanded="true" signature="3984:4515" ph="..." />
-                <marker date="1563650499752" expanded="true" signature="4532:5249" ph="..." />
-                <marker date="1563650499752" expanded="true" signature="5031:5249" ph="..." />
               </folding>
             </state>
           </provider>
@@ -62,9 +51,12 @@
       <file leaf-file-name="ShotmachineIOEmulator.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Functions/GPIOEmulator/ShotmachineIOEmulator.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="348">
-              <caret line="284" column="0" lean-forward="true" selection-start-line="284" selection-start-column="0" selection-end-line="284" selection-end-column="0" />
-              <folding />
+            <state relative-caret-position="138">
+              <caret line="270" column="0" lean-forward="true" selection-start-line="270" selection-start-column="0" selection-end-line="270" selection-end-column="0" />
+              <folding>
+                <marker date="1563715845697" expanded="true" signature="444:10240" ph="..." />
+                <marker date="1563715845697" expanded="true" signature="624:10183" ph="..." />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -72,7 +64,7 @@
       <file leaf-file-name="inputsoutputs.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Functions/InputsOutputs/inputsoutputs.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="139">
+            <state relative-caret-position="615">
               <caret line="44" column="61" lean-forward="false" selection-start-line="44" selection-start-column="61" selection-end-line="44" selection-end-column="61" />
               <folding>
                 <element signature="e#0#16#0" expanded="true" />
@@ -80,8 +72,6 @@
                 <marker date="1563651169661" expanded="true" signature="99:232" ph="..." />
                 <marker date="1563651169661" expanded="true" signature="253:561" ph="..." />
                 <marker date="1563651169661" expanded="true" signature="3356:3849" ph="..." />
-                <marker date="1563651169661" expanded="true" signature="4016:4911" ph="..." />
-                <marker date="1563651169661" expanded="true" signature="4041:4911" ph="..." />
               </folding>
             </state>
           </provider>
@@ -134,7 +124,7 @@
   <component name="ProjectFrameBounds">
     <option name="x" value="633" />
     <option name="y" value="52" />
-    <option name="width" value="1277" />
+    <option name="width" value="1267" />
     <option name="height" value="1028" />
   </component>
   <component name="ProjectView">
@@ -152,7 +142,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -253,6 +242,7 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scratches" />
       <pane id="Scope" />
     </panes>
   </component>
@@ -474,10 +464,10 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="633" y="52" width="1277" height="1028" extended-state="4" />
+    <frame x="633" y="52" width="1267" height="1028" extended-state="5" />
     <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.26953748" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2692926" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -528,20 +518,67 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/__main__.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2445">
-          <caret line="172" column="0" lean-forward="true" selection-start-line="172" selection-start-column="0" selection-end-line="172" selection-end-column="0" />
+        <state relative-caret-position="480">
+          <caret line="41" column="23" lean-forward="true" selection-start-line="30" selection-start-column="4" selection-end-line="41" selection-end-column="23" />
           <folding>
             <element signature="e#0#16#0" expanded="true" />
-            <marker date="1563650499752" expanded="true" signature="1094:1213" ph="..." />
             <marker date="1563650499752" expanded="true" signature="1832:2204" ph="..." />
             <marker date="1563650499752" expanded="true" signature="2220:2390" ph="..." />
             <marker date="1563650499752" expanded="true" signature="2413:2694" ph="..." />
             <marker date="1563650499752" expanded="true" signature="2467:2662" ph="..." />
             <marker date="1563650499752" expanded="true" signature="2729:5327" ph="..." />
             <marker date="1563650499752" expanded="true" signature="3318:5273" ph="..." />
-            <marker date="1563650499752" expanded="true" signature="3984:4515" ph="..." />
-            <marker date="1563650499752" expanded="true" signature="4532:5249" ph="..." />
-            <marker date="1563650499752" expanded="true" signature="5031:5249" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Functions/GPIOEmulator/ShotmachineIOEmulator.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <marker date="1563715845697" expanded="true" signature="444:10240" ph="..." />
+            <marker date="1563715845697" expanded="true" signature="624:10183" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Functions/InputsOutputs/inputsoutputs.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="615">
+          <caret line="44" column="61" lean-forward="false" selection-start-line="44" selection-start-column="61" selection-end-line="44" selection-end-column="61" />
+          <folding>
+            <element signature="e#0#16#0" expanded="true" />
+            <marker date="1563651169661" expanded="true" signature="80:586" ph="..." />
+            <marker date="1563651169661" expanded="true" signature="99:232" ph="..." />
+            <marker date="1563651169661" expanded="true" signature="253:561" ph="..." />
+            <marker date="1563651169661" expanded="true" signature="3356:3849" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Functions/Interface/roller.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/__main__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2445">
+          <caret line="172" column="0" lean-forward="true" selection-start-line="172" selection-start-column="0" selection-end-line="172" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#16#0" expanded="true" />
+            <marker date="1563650499752" expanded="true" signature="1832:2204" ph="..." />
+            <marker date="1563650499752" expanded="true" signature="2220:2390" ph="..." />
+            <marker date="1563650499752" expanded="true" signature="2413:2694" ph="..." />
+            <marker date="1563650499752" expanded="true" signature="2467:2662" ph="..." />
+            <marker date="1563650499752" expanded="true" signature="2729:5327" ph="..." />
+            <marker date="1563650499752" expanded="true" signature="3318:5273" ph="..." />
           </folding>
         </state>
       </provider>
@@ -556,8 +593,6 @@
             <marker date="1563651169661" expanded="true" signature="99:232" ph="..." />
             <marker date="1563651169661" expanded="true" signature="253:561" ph="..." />
             <marker date="1563651169661" expanded="true" signature="3356:3849" ph="..." />
-            <marker date="1563651169661" expanded="true" signature="4016:4911" ph="..." />
-            <marker date="1563651169661" expanded="true" signature="4041:4911" ph="..." />
           </folding>
         </state>
       </provider>
@@ -566,7 +601,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -586,16 +620,12 @@
           <caret line="215" column="0" lean-forward="false" selection-start-line="215" selection-start-column="0" selection-end-line="215" selection-end-column="0" />
           <folding>
             <element signature="e#0#16#0" expanded="true" />
-            <marker date="1563650499752" expanded="true" signature="1094:1213" ph="..." />
             <marker date="1563650499752" expanded="true" signature="1832:2204" ph="..." />
             <marker date="1563650499752" expanded="true" signature="2220:2390" ph="..." />
             <marker date="1563650499752" expanded="true" signature="2413:2694" ph="..." />
             <marker date="1563650499752" expanded="true" signature="2467:2662" ph="..." />
             <marker date="1563650499752" expanded="true" signature="2729:5327" ph="..." />
             <marker date="1563650499752" expanded="true" signature="3318:5273" ph="..." />
-            <marker date="1563650499752" expanded="true" signature="3984:4515" ph="..." />
-            <marker date="1563650499752" expanded="true" signature="4532:5249" ph="..." />
-            <marker date="1563650499752" expanded="true" signature="5031:5249" ph="..." />
           </folding>
         </state>
       </provider>
@@ -617,8 +647,6 @@
             <marker date="1563651169661" expanded="true" signature="99:232" ph="..." />
             <marker date="1563651169661" expanded="true" signature="253:561" ph="..." />
             <marker date="1563651169661" expanded="true" signature="3356:3849" ph="..." />
-            <marker date="1563651169661" expanded="true" signature="4016:4911" ph="..." />
-            <marker date="1563651169661" expanded="true" signature="4041:4911" ph="..." />
           </folding>
         </state>
       </provider>
@@ -634,7 +662,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="13215">
           <caret line="881" column="0" lean-forward="false" selection-start-line="881" selection-start-column="0" selection-end-line="881" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -655,16 +682,12 @@
           <caret line="12" column="0" lean-forward="false" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
           <folding>
             <element signature="e#0#16#0" expanded="true" />
-            <marker date="1563650499752" expanded="true" signature="1094:1213" ph="..." />
             <marker date="1563650499752" expanded="true" signature="1832:2204" ph="..." />
             <marker date="1563650499752" expanded="true" signature="2220:2390" ph="..." />
             <marker date="1563650499752" expanded="true" signature="2413:2694" ph="..." />
             <marker date="1563650499752" expanded="true" signature="2467:2662" ph="..." />
             <marker date="1563650499752" expanded="true" signature="2729:5327" ph="..." />
             <marker date="1563650499752" expanded="true" signature="3318:5273" ph="..." />
-            <marker date="1563650499752" expanded="true" signature="3984:4515" ph="..." />
-            <marker date="1563650499752" expanded="true" signature="4532:5249" ph="..." />
-            <marker date="1563650499752" expanded="true" signature="5031:5249" ph="..." />
           </folding>
         </state>
       </provider>
@@ -746,7 +769,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="289">
           <caret line="867" column="25" lean-forward="true" selection-start-line="867" selection-start-column="25" selection-end-line="867" selection-end-column="25" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -754,13 +776,12 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="450">
           <caret line="38" column="8" lean-forward="false" selection-start-line="38" selection-start-column="8" selection-end-line="38" selection-end-column="8" />
-          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Functions/InputsOutputs/inputsoutputs.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="139">
+        <state relative-caret-position="615">
           <caret line="44" column="61" lean-forward="false" selection-start-line="44" selection-start-column="61" selection-end-line="44" selection-end-column="61" />
           <folding>
             <element signature="e#0#16#0" expanded="true" />
@@ -768,37 +789,34 @@
             <marker date="1563651169661" expanded="true" signature="99:232" ph="..." />
             <marker date="1563651169661" expanded="true" signature="253:561" ph="..." />
             <marker date="1563651169661" expanded="true" signature="3356:3849" ph="..." />
-            <marker date="1563651169661" expanded="true" signature="4016:4911" ph="..." />
-            <marker date="1563651169661" expanded="true" signature="4041:4911" ph="..." />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/__main__.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="251">
-          <caret line="41" column="23" lean-forward="true" selection-start-line="30" selection-start-column="4" selection-end-line="41" selection-end-column="23" />
+        <state relative-caret-position="480">
+          <caret line="41" column="23" lean-forward="false" selection-start-line="30" selection-start-column="4" selection-end-line="41" selection-end-column="23" />
           <folding>
             <element signature="e#0#16#0" expanded="true" />
-            <marker date="1563650499752" expanded="true" signature="1094:1213" ph="..." />
             <marker date="1563650499752" expanded="true" signature="1832:2204" ph="..." />
             <marker date="1563650499752" expanded="true" signature="2220:2390" ph="..." />
             <marker date="1563650499752" expanded="true" signature="2413:2694" ph="..." />
             <marker date="1563650499752" expanded="true" signature="2467:2662" ph="..." />
             <marker date="1563650499752" expanded="true" signature="2729:5327" ph="..." />
             <marker date="1563650499752" expanded="true" signature="3318:5273" ph="..." />
-            <marker date="1563650499752" expanded="true" signature="3984:4515" ph="..." />
-            <marker date="1563650499752" expanded="true" signature="4532:5249" ph="..." />
-            <marker date="1563650499752" expanded="true" signature="5031:5249" ph="..." />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Functions/GPIOEmulator/ShotmachineIOEmulator.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="348">
-          <caret line="284" column="0" lean-forward="true" selection-start-line="284" selection-start-column="0" selection-end-line="284" selection-end-column="0" />
-          <folding />
+        <state relative-caret-position="138">
+          <caret line="270" column="0" lean-forward="true" selection-start-line="270" selection-start-column="0" selection-end-line="270" selection-end-column="0" />
+          <folding>
+            <marker date="1563715845697" expanded="true" signature="444:10240" ph="..." />
+            <marker date="1563715845697" expanded="true" signature="624:10183" ph="..." />
+          </folding>
         </state>
       </provider>
     </entry>
