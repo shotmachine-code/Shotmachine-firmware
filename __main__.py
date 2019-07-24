@@ -5,6 +5,7 @@ import logging
 from Functions.Interface import shotmachine_interface
 #from Functions.DatabaseSync import databasesync
 from Functions.InputsOutputs import inputsoutputs
+
 import platform
 import random
 import datetime
@@ -45,25 +46,29 @@ HandleShotmachine = {
 }
 
 
-if HandleShotmachine["Settings"]["OnRaspberry"]:
+#if HandleShotmachine["Settings"]["OnRaspberry"]:
     #from Functions.MCP230XX.MCP230XX import MCP230XX
     #import RPi.GPIO as GPIO
-    import spidev
+    #import spidev
     #import smbus
 #else:
 #    from Functions.GPIOEmulator.EmulatorGUI import GPIO
 
 
 ### SPI ####
-if HandleShotmachine["Settings"]["EnableSPI"] and HandleShotmachine["Settings"]["OnRaspberry"]:
-    spi = spidev.SpiDev()
-    spi.open(0, 0)
-    spi.max_speed_hz = 7629
+#if HandleShotmachine["Settings"]["EnableSPI"] and HandleShotmachine["Settings"]["OnRaspberry"]:
+#    spi = spidev.SpiDev()
+#    spi.open(0, 0)
+#    spi.max_speed_hz = 7629
 
-def SPIwrite(input):
-    msb = input >> 8
-    lsb = input & 0xFF
-    spi.xfer([msb, lsb])
+#def SPIwrite(input):
+#    msb = input >> 8
+#    lsb = input & 0xFF
+#    spi.xfer([msb, lsb])
+
+#spi = SpiDev()
+#spi.open(0, 0)
+#spi.max_speed_hz = 7629
 
 ### GPIO ###
 
@@ -142,12 +147,14 @@ class Shotmachine_controller():
         while not self.quitprogram:
             if self.fotoknop:
                 self.fotoknop = False
-                if HandleShotmachine["Settings"]["OnRaspberry"]:
-                    SPIwrite(0x48)
+                #if HandleShotmachine["Settings"]["OnRaspberry"]:
+                self.ToIOQueue.put("Flashlight 1")
+                #SPIwrite(0x48)
                 self.ToInterfQueue.put('Take_picture')
                 time.sleep(4)
-                if HandleShotmachine["Settings"]["OnRaspberry"]:
-                    SPIwrite(0x49)
+                #if HandleShotmachine["Settings"]["OnRaspberry"]:
+                self.ToIOQueue.put("Flashlight 0")
+                #SPIwrite(0x49)
                 time.sleep(1)
                 f = open(Logfile, "a")
                 datetimestring = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')

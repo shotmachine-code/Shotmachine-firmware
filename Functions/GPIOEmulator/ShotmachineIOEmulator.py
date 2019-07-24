@@ -8,7 +8,7 @@ import time
 dictionaryPins = {}
 dictionaryPinsTkinter = {}
 
-GPIONames=["27","21","16","23","24","4","17","13","21","12","25","MCP0","MCP1","MCP2","MCP3","MCP4"]
+GPIONames=["27","21","16","23","24","4","17","13","21","12","25","MCP0","MCP1","MCP2","MCP3","MCP4", "SPISendBuffer"]
     
 class App(threading.Thread):
         
@@ -87,39 +87,43 @@ class App(threading.Thread):
 
 
         # Pump 0 (MCP230xx 0)
-        mcp230xxbtn = Button(text="Pomp 0", command="4", padx="1px", pady="1px", bd="0px", fg="blue",
+        mcp230xx0btn = Button(text="Pomp 0", command="4", padx="1px", pady="1px", bd="0px", fg="blue",
                           relief="sunken",
                           activeforeground="blue")
-        mcp230xxbtn.grid(row=0, column=2, padx=(10, 10))
-        dictionaryPinsTkinter["MCP0"] = mcp230xxbtn
+        mcp230xx0btn.grid(row=0, column=2, padx=(10, 10))
+        dictionaryPinsTkinter["MCP0"] = mcp230xx0btn
 
         # Pump 1 (MCP230xx 1)
-        mcp230xxbtn = Button(text="Pomp 1", command="4", padx="1px", pady="1px", bd="0px", fg="blue",
+        mcp230xx1btn = Button(text="Pomp 1", command="4", padx="1px", pady="1px", bd="0px", fg="blue",
                              relief="sunken",
                              activeforeground="blue")
-        mcp230xxbtn.grid(row=1, column=2, padx=(10, 10))
-        dictionaryPinsTkinter["MCP1"] = mcp230xxbtn
+        mcp230xx1btn.grid(row=1, column=2, padx=(10, 10))
+        dictionaryPinsTkinter["MCP1"] = mcp230xx1btn
 
         # Pump 2 (MCP230xx 2)
-        mcp230xxbtn = Button(text="Pomp 2", command="4", padx="1px", pady="1px", bd="0px", fg="blue",
+        mcp230xx2btn = Button(text="Pomp 2", command="4", padx="1px", pady="1px", bd="0px", fg="blue",
                              relief="sunken",
                              activeforeground="blue")
-        mcp230xxbtn.grid(row=2, column=2, padx=(10, 10))
-        dictionaryPinsTkinter["MCP2"] = mcp230xxbtn
+        mcp230xx2btn.grid(row=2, column=2, padx=(10, 10))
+        dictionaryPinsTkinter["MCP2"] = mcp230xx2btn
 
         # Pump 3 (MCP230xx 3)
-        mcp230xxbtn = Button(text="Pomp 3", command="4", padx="1px", pady="1px", bd="0px", fg="blue",
+        mcp230xx3btn = Button(text="Pomp 3", command="4", padx="1px", pady="1px", bd="0px", fg="blue",
                              relief="sunken",
                              activeforeground="blue")
-        mcp230xxbtn.grid(row=3, column=2, padx=(10, 10))
-        dictionaryPinsTkinter["MCP3"] = mcp230xxbtn
+        mcp230xx3btn.grid(row=3, column=2, padx=(10, 10))
+        dictionaryPinsTkinter["MCP3"] = mcp230xx3btn
 
         # Pump 4 (MCP230xx 4)
-        mcp230xxbtn = Button(text="Pomp 4", command="4", padx="1px", pady="1px", bd="0px", fg="blue",
+        mcp230xx4btn = Button(text="Pomp 4", command="4", padx="1px", pady="1px", bd="0px", fg="blue",
                              relief="sunken",
                              activeforeground="blue")
-        mcp230xxbtn.grid(row=4, column=2, padx=(10, 10))
-        dictionaryPinsTkinter["MCP4"] = mcp230xxbtn
+        mcp230xx4btn.grid(row=4, column=2, padx=(10, 10))
+        dictionaryPinsTkinter["MCP4"] = mcp230xx4btn
+
+        SPIsendedString = Label(self.root, text="Empty")
+        SPIsendedString.grid(row = 4, column=3, padx =(10,20))
+        dictionaryPinsTkinter["SPISendBuffer"] = SPIsendedString
 
         # wrap up GUI
         self.root.geometry('%dx%d+%d+%d' % (300, 300, 0, 0))
@@ -402,3 +406,18 @@ class MCP230XX:
     def cleanup():
         app.callback()
         pass
+
+
+class SpiDev():
+
+    def __init__(self):
+        self.max_speed_hz = 0
+
+
+    def open(self, bus, device):
+        pass
+
+
+    def xfer(self, data):
+        stringIndicator = dictionaryPinsTkinter["SPISendBuffer"]
+        stringIndicator["text"] = data.decode()

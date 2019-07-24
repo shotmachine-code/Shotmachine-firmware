@@ -44,6 +44,7 @@ class InputsOutputs:
         else:
             from Functions.GPIOEmulator.ShotmachineIOEmulator import GPIO
             from Functions.GPIOEmulator.ShotmachineIOEmulator import MCP230XX
+            from Functions.GPIOEmulator.ShotmachineIOEmulator import SpiDev
 
 
         # prepare variables
@@ -58,6 +59,9 @@ class InputsOutputs:
 
         self.FotoKnopState = False
         self.FotoKnopSend = False
+
+        self.flashlightState = 0
+        self.setflashlight = False
 
 
         # init GPIO
@@ -94,6 +98,11 @@ class InputsOutputs:
             self.bus = smbus.SMBus(1)
             self.shotdetectorAddress = 0x70
 
+        # init SPI
+        self.spi = SpiDev()
+        self.spi.open(0, 0)
+        self.spi.max_speed_hz = 7629
+
         # start threads
         self.run = True
         self.recievebuffer = ''
@@ -121,6 +130,9 @@ class InputsOutputs:
                     elif "Shot" in self.recievebuffer:
                         self.shotnumber = int(self.recievebuffer[-1:])
                         self.makeshot = True
+                    elif "Flashlight" in self.recievebuffer:
+                        self.flashlightState = int(self.recievebuffer[-1:])
+                        self.setflashlight = True
                     self.recievebuffer = ''
                 except queue.Empty:
                     pass
@@ -151,6 +163,10 @@ class InputsOutputs:
 
                 self.makeshot = False
                 self.ToMainQueue.put("Done with shot")
+
+            if self.setflashlight:
+                self.setflashlightfunc(self.flashlightState)
+                self.setflashlight = False
 
 
             self.checkshothandle()
@@ -200,3 +216,17 @@ class InputsOutputs:
             self.ToMainQueue.put("ShotglassState " + str(int(self.CheckShotglass)))
             self.shotglass = self.CheckShotglass
             print("Shotglass state: " + str(self.shotglass))
+
+
+    def setflashlightfunc(self, state):
+        #if state:
+        #    msb = 0x48 >> 8
+        #    lsb = 0x48 & 0xFF
+        #    self.spi.xfer([msb, lsb])
+        #else:
+        #    msb = 0x49 >> 8
+        #    lsb = 0x49 & 0xFF
+        #    self.spi.xfer([msb, lsb])
+        string_to_send = str(state)
+        string_to_bytes = str.encode(string_to_send)
+        self.spi.xfer(string_to_bytes)
