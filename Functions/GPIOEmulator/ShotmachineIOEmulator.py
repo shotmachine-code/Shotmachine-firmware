@@ -121,9 +121,21 @@ class App(threading.Thread):
         mcp230xx4btn.grid(row=4, column=2, padx=(10, 10))
         dictionaryPinsTkinter["MCP4"] = mcp230xx4btn
 
-        SPIsendedString = Label(self.root, text="Empty")
-        SPIsendedString.grid(row = 4, column=3, padx =(10,20))
-        dictionaryPinsTkinter["SPISendBuffer"] = SPIsendedString
+        # flits licht foto
+        flashlightbtn = Button(text="Flits\nlicht", command="4", padx="1px", pady="1px", bd="0px", fg="blue",
+                              relief="sunken",
+                              activeforeground="blue")
+        flashlightbtn.grid(row=0, column=3, padx=(10, 10))
+        dictionaryPinsTkinter["SPISendBuffer"] = flashlightbtn
+        objTemp = PIN("OUT")
+        objTemp.Out = "1"
+        #objPin.Out = "1"
+        dictionaryPins["SPISendBuffer"] = objTemp
+        drawGPIOOut("SPISendBuffer")
+
+        #SPIsendedString = Label(self.root, text="Empty")
+        #SPIsendedString.grid(row = 4, column=3, padx =(10,20))
+        #dictionaryPinsTkinter["SPISendBuffer"] = SPIsendedString
 
         # wrap up GUI
         self.root.geometry('%dx%d+%d+%d' % (300, 300, 0, 0))
@@ -419,5 +431,12 @@ class SpiDev():
 
 
     def xfer(self, data):
-        stringIndicator = dictionaryPinsTkinter["SPISendBuffer"]
-        stringIndicator["text"] = data.decode()
+        objPin = dictionaryPins["SPISendBuffer"]
+        if data.decode() == '1':
+            objPin.Out = "0"
+        else:
+            objPin.Out = "1"
+
+        drawGPIOOut("SPISendBuffer")
+
+
