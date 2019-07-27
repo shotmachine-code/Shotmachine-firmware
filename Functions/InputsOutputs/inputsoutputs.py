@@ -40,11 +40,12 @@ class InputsOutputs:
             from Functions.MCP230XX.MCP230XX import MCP230XX
             import RPi.GPIO as GPIO
             import spidev
-            import smbus
+            import smbus.SMBus
         else:
             from Functions.GPIOEmulator.ShotmachineIOEmulator import GPIO
             from Functions.GPIOEmulator.ShotmachineIOEmulator import MCP230XX
             from Functions.GPIOEmulator.ShotmachineIOEmulator import SpiDev
+            from Functions.GPIOEmulator.ShotmachineIOEmulator import SMBus
 
 
         # prepare variables
@@ -94,8 +95,8 @@ class InputsOutputs:
 
 
         # init I2C bus
-        if self.HandleShotmachine["Settings"]["OnRaspberry"]:
-            self.bus = smbus.SMBus(1)
+        if True: #self.HandleShotmachine["Settings"]["OnRaspberry"]:
+            self.bus = SMBus(1)
             self.shotdetectorAddress = 0x70
 
         # init SPI
@@ -197,7 +198,7 @@ class InputsOutputs:
             self.FotoKnopSend = False
 
     def checkshotglas(self):
-        if self.HandleShotmachine["Settings"]["OnRaspberry"]:
+        if True: #self.HandleShotmachine["Settings"]["OnRaspberry"]:
             self.bus.write_byte_data(self.shotdetectorAddress, 0, 0x51)
             time.sleep(0.7)
             msb = self.bus.read_byte_data(self.shotdetectorAddress, 2)

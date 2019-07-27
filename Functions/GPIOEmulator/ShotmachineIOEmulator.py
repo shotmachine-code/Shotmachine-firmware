@@ -8,7 +8,7 @@ import time
 dictionaryPins = {}
 dictionaryPinsTkinter = {}
 
-GPIONames=["27","21","16","23","24","4","17","13","21","12","25","MCP0","MCP1","MCP2","MCP3","MCP4", "SPISendBuffer"]
+GPIONames=["27","21","16","23","24","4","17","13","21","12","25","MCP0","MCP1","MCP2","MCP3","MCP4", "SPISendBuffer", "shotdetector"]
     
 class App(threading.Thread):
         
@@ -133,6 +133,43 @@ class App(threading.Thread):
         dictionaryPins["SPISendBuffer"] = objTemp
         drawGPIOOut("SPISendBuffer")
 
+
+        # shotglas detector
+        shotdetector = Button(text="Shot\nglas", command="4", padx="1px", pady="1px", bd="0px", fg="blue",
+                               relief="sunken",
+                               activeforeground="blue")
+        shotdetector.grid(row=1, column=3, padx=(10, 10))
+
+        objTemp = PIN("IN")
+        dictionaryPins["shotdetector"] = objTemp
+
+        dictionaryPinsTkinter["shotdetector"] = shotdetector
+
+        #objBtn = dictionaryPinsTkinter[gpioID]
+        #drawBindUpdateButtonIn(str(channel), objTemp.In)
+        #dictionaryPins[str(channel)] = objTemp
+
+        #dictionaryPinsTkinter
+
+        shotdetector.configure(background='gainsboro')
+        shotdetector.configure(activebackground='gainsboro')
+        shotdetector.configure(relief='raised')
+        shotdetector.configure(bd="1px")
+        shotdetector.bind("<Button-1>", toggleshotglasButton)
+        shotdetector.In = "1"
+
+        dictionaryPins["shotdetector"] = shotdetector
+        #dictionaryPinsTkinter["shotdetector"] = shotdetector
+
+
+        # objPin.Out = "1"
+        #dictionaryPins["SPISendBuffer"] = objTemp
+
+
+        #shotdetectorSlider = Scale(self.root, from_=22, to=23, sliderlength = 10, showvalue = 0, length = 30, orient=VERTICAL)
+        #shotdetectorSlider.grid(row=1, column=3, padx=(10, 10))
+        #dictionaryPinsTkinter["Shotdetector"] = shotdetectorSlider
+
         #SPIsendedString = Label(self.root, text="Empty")
         #SPIsendedString.grid(row = 4, column=3, padx =(10,20))
         #dictionaryPinsTkinter["SPISendBuffer"] = SPIsendedString
@@ -145,6 +182,17 @@ class App(threading.Thread):
 
 app = App()
 
+
+def toggleshotglasButton(self):
+    #objBtn = dictionaryPinsTkinter["shotdetector"]
+    objPin = dictionaryPins["shotdetector"]
+    if (objPin.In == "1"):
+        objPin.In = "0"
+        objPin.configure(bg="red", activebackground="Red")
+    elif (objPin.In == "0"):
+        objPin.configure(bg="green", activebackground="green")
+        objPin.In = "1"
+    dictionaryPins["shotdetector"] = objPin
 
 def toggleButton(gpioID):
     objBtn = dictionaryPinsTkinter[str(gpioID)]
@@ -439,4 +487,29 @@ class SpiDev():
 
         drawGPIOOut("SPISendBuffer")
 
+
+class SMBus():
+
+    def __init__(self, bus):
+        slider = dictionaryPinsTkinter["shotdetector"]
+        #slider.set(20)
+        self.value = self.value = (22).to_bytes(2, byteorder="big")
+
+
+    def write_byte_data(self, adress, bus, data):
+        if (data == 0x51):
+            slidervalue = dictionaryPins["shotdetector"].In
+            #slidervalue = slider.get()
+            #if (objPin.In == "1"):
+            if slidervalue == "1":
+                self.value = (22).to_bytes(2, byteorder="big")
+            if slidervalue == "0":
+                self.value = (23).to_bytes(2, byteorder="big")
+
+
+    def read_byte_data(self, adress, int):
+        if int == 2:
+            return  self.value[0]
+        if int == 3:
+            return  self.value[1]
 
