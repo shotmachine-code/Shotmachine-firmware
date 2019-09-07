@@ -28,6 +28,7 @@ HandleShotmachine = {
         "EnableSPI": True,
         "EnableI2C": False,
         "EnableDBSync": False,
+        "EnableBarcodeScanner": False
     },
     "Hardware": {
         "OnOffSwitch": 27,
@@ -44,83 +45,6 @@ HandleShotmachine = {
     },
     "Logger": logger
 }
-
-
-#if HandleShotmachine["Settings"]["OnRaspberry"]:
-    #from Functions.MCP230XX.MCP230XX import MCP230XX
-    #import RPi.GPIO as GPIO
-    #import spidev
-    #import smbus
-#else:
-#    from Functions.GPIOEmulator.EmulatorGUI import GPIO
-
-
-### SPI ####
-#if HandleShotmachine["Settings"]["EnableSPI"] and HandleShotmachine["Settings"]["OnRaspberry"]:
-#    spi = spidev.SpiDev()
-#    spi.open(0, 0)
-#    spi.max_speed_hz = 7629
-
-#def SPIwrite(input):
-#    msb = input >> 8
-#    lsb = input & 0xFF
-#    spi.xfer([msb, lsb])
-
-#spi = SpiDev()
-#spi.open(0, 0)
-#spi.max_speed_hz = 7629
-
-### GPIO ###
-
-#GPIO.setmode(GPIO.BCM)
-#GPIO.setwarnings(False)
-#hendelpin = 23
-#fotopin = 24
-#enablei2cpin = 4
-
-#GPIO.setup(enablei2cpin, GPIO.OUT)
-#GPIO.output(enablei2cpin, 0)
-#GPIO.setup(hendelpin , GPIO.IN)
-#GPIO.setup(fotopin , GPIO.IN)
-
-### I2C ###
-
-
-#if HandleShotmachine["Settings"]["EnableI2C"]:
-#    i2cAddress = 0x20
-#    MCP = MCP230XX('MCP23017', i2cAddress, '16bit')
-#    MCP.set_mode(0, 'output')
-#    MCP.set_mode(1, 'output')
-#    MCP.set_mode(2, 'output')
-#    MCP.set_mode(3, 'output')
-#    MCP.set_mode(4, 'output')
-#    MCP.output(0,1)
-#    MCP.output(1,1)
-#    MCP.output(2,1)
-#    MCP.output(3,1)
-#    MCP.output(4,1)
-
-#    bus = smbus.SMBus(1)
-#    shotdetectorAddress = 0x70
-
-
-#def range():
-#    range1 = bus.read_byte_data(shotdetectorAddress, 2)
-#    range2 = bus.read_byte_data(shotdetectorAddress, 3)
-#    range3 = (range1 << 8) + range2
-#    return range3
-
-#def checkshotglas():
-#    if HandleShotmachine["Settings"]["OnRaspberry"]:
-#        bus.write_byte_data(shotdetectorAddress, 0, 0x51)
-#        time.sleep(0.7)
-#        rng = range()
-#        if rng < 23:
-#            return True
-#        else:
-#            return False
-#    else:
-#        return True
 
 
 
@@ -147,24 +71,23 @@ class Shotmachine_controller():
         while not self.quitprogram:
             if self.fotoknop:
                 self.fotoknop = False
-                #if HandleShotmachine["Settings"]["OnRaspberry"]:
+                self.ToIOQueue.put("Busy")
                 self.ToIOQueue.put("Flashlight 1")
-                #SPIwrite(0x48)
                 self.ToInterfQueue.put('Take_picture')
                 time.sleep(4)
-                #if HandleShotmachine["Settings"]["OnRaspberry"]:
                 self.ToIOQueue.put("Flashlight 0")
-                #SPIwrite(0x49)
                 time.sleep(1)
                 f = open(Logfile, "a")
                 datetimestring = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
                 f.write("foto at " + datetimestring + " \n")
                 f.close()
+                self.ToIOQueue.put("Ready")
 
 
             if self.Shothendel:
                 self.Shothendel = False
                 if self.Shotglass:
+                    self.ToIOQueue.put("Busy")
                     self.ToInterfQueue.put('Start_roll')
                     i = random.randint(0, 4)
                     #i = 0
@@ -176,6 +99,7 @@ class Shotmachine_controller():
                     datetimestring = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
                     f.write("shot " + str(i)  + " at " + datetimestring + "\n")
                     f.close()
+                    self.ToIOQueue.put("Ready")
 
             try:
                 s = self.ToMainQueue.get(block=True, timeout=0.1)
@@ -187,14 +111,10 @@ class Shotmachine_controller():
                     logger.info("main quit")
                 elif "ShotglassState" in s:
                     self.Shotglass = bool(int(s[-1:]))
-                    print("Shotglasstate in main: "+ str(self.Shotglass))
                 elif s == "Shothendel":
                     self.Shothendel = True
-                    print("Shot hendel in main")
                 elif s == "Fotoknop":
                     self.fotoknop = True
-                    print("Foto knop in main")
-
                 s = ""
 
             except queue.Empty:
@@ -216,20 +136,21 @@ ToIOQueue = queue.Queue()
 
 
 shotmachine_interface.Shotmachine_Interface("Interface_main",
-                                                    ToInterfQueue,
-                                                    ToMainQueue)
+                                            ToInterfQueue,
+                                            ToMainQueue)
 
 #if HandleShotmachine["Settings"]["EnableDBSync"]:
 #    db_syncer = databasesync.DatabaseSync(ToDBSyncQueue)
 
-main_controller = Shotmachine_controller('Main_controller', 
-                                                    ToInterfQueue,
-                                                    ToMainQueue,
-                                                    ToDBSyncQueue,
-                                                    ToIOQueue)
+main_controller = Shotmachine_controller('Main_controller',
+                                         ToInterfQueue,
+                                         ToMainQueue,
+                                         ToDBSyncQueue,
+                                         ToIOQueue)
 
-inputsoutputs.InputsOutputs(HandleShotmachine, ToMainQueue, ToIOQueue)
-
+inputsoutputs.InputsOutputs(HandleShotmachine,
+                            ToMainQueue,
+                            ToIOQueue)
 
 
 controller_alive = True

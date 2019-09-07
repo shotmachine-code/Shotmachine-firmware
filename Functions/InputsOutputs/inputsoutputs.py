@@ -9,6 +9,7 @@ import time
 #        "EnableSPI": False,
 #        "EnableI2C": False,
 #        "EnableDBSync": False,
+#        "EnableBarcodeScanner": False
 #    },
 #    "Hardware": {
 #        "OnOffSwitch": 27,
@@ -29,6 +30,9 @@ import time
 
 class InputsOutputs:
     def __init__(self, _HandleShotmachine, _ToMainQueue, _ToIOQueue):
+
+        self.logger = logging.getLogger(__name__)
+        self.logger.info('Starting IO program')
 
         # store given variables
         self.HandleShotmachine = _HandleShotmachine
@@ -64,6 +68,8 @@ class InputsOutputs:
         self.flashlightState = 0
         self.setflashlight = False
 
+        self.busy = False
+
 
         # init GPIO
         GPIO.setmode(GPIO.BCM)
@@ -84,9 +90,9 @@ class InputsOutputs:
         self.MCP = MCP230XX('MCP23017', i2cAddress, '16bit')
         self.MCP.set_mode(0, 'output')
         self.MCP.set_mode(1, 'output')
-        self.MCP.set_mode(2, 'output') #self.MCP.set_mode(2, 'output')
+        self.MCP.set_mode(2, 'output')
         self.MCP.set_mode(3, 'output')
-        self.MCP.set_mode(4, 'output') #self.MCP.config(4, OUTPUT)
+        self.MCP.set_mode(4, 'output')
         self.MCP.output(0, 1)
         self.MCP.output(1, 1)
         self.MCP.output(2, 1)
@@ -95,7 +101,7 @@ class InputsOutputs:
 
 
         # init I2C bus
-        if True: #self.HandleShotmachine["Settings"]["OnRaspberry"]:
+        if True:
             self.bus = SMBus(1)
             self.shotdetectorAddress = 0x70
 
@@ -107,11 +113,12 @@ class InputsOutputs:
         # start threads
         self.run = True
         self.recievebuffer = ''
-        self.logger = logging.getLogger("InputOutput")
 
         self.mainThread = threading.Thread(target=self.main_IO_interface, name='IO_main')
         self.mainThread.start()
         self.queueThread = threading.Thread(target=self.queue_watcher, name='IO_watcher')
+        self.queueThread.start()
+        self.queueThread = threading.Thread(target=self.checkshotglas, name='Shotglass_watcher')
         self.queueThread.start()
 
         # wrap up init
@@ -123,7 +130,6 @@ class InputsOutputs:
             if self.recievebuffer == '':
                 try:
                     self.recievebuffer = self.ToIOQueue.get(block=True, timeout=0.1)
-                    #print(self.recievebuffer)
                     if self.recievebuffer == "Quit":
                         self.run = False
                         self.GPIO.cleanup()
@@ -134,6 +140,12 @@ class InputsOutputs:
                     elif "Flashlight" in self.recievebuffer:
                         self.flashlightState = int(self.recievebuffer[-1:])
                         self.setflashlight = True
+                    elif "Busy" in self.recievebuffer:
+                        self.busy = True
+                        self.logger.info('Machine busy, ignore inputs')
+                    elif "Ready" in self.recievebuffer:
+                        self.busy = False
+                        self.logger.info('Machine ready, checking inputs')
                     self.recievebuffer = ''
                 except queue.Empty:
                     pass
@@ -144,8 +156,7 @@ class InputsOutputs:
         while self.run:
             # make shot if requested
             if self.makeshot:
-
-                #if self.HandleShotmachine["Settings"]["OnRaspberry"]:
+                self.logger.info('Making shot' + str(self.shotnumber))
                 self.MCP.output(self.shotnumber, 0)
 
                 if self.shotnumber == 0:
@@ -159,29 +170,28 @@ class InputsOutputs:
                 elif self.shotnumber == 4:
                     time.sleep(4)  # 4
 
-                #if self.HandleShotmachine["Settings"]["OnRaspberry"]:
                 self.MCP.output(self.shotnumber, 1)
 
                 self.makeshot = False
                 self.ToMainQueue.put("Done with shot")
 
             if self.setflashlight:
+
                 self.setflashlightfunc(self.flashlightState)
                 self.setflashlight = False
 
-
-            self.checkshothandle()
-            self.checkshotglas()
-            self.checkfotoknop()
+            if not self.busy:
+                self.checkshothandle()
+                self.checkfotoknop()
 
 
     def checkshothandle(self):
         self.ShotHendelState = self.GPIO.input(self.HendelSwitch)
 
         if not self.ShotHendelSend and self.ShotHendelState:
+            self.logger.info('shothendel pulled')
             self.ToMainQueue.put("Shothendel")
             self.ShotHendelSend = True
-            print("Shot hendel send")
         if not self.ShotHendelState:
             self.ShotHendelSend = False
 
@@ -191,43 +201,32 @@ class InputsOutputs:
         else:
             self.FotoKnopState = self.GPIO.input(self.FotoSwitch)
         if not self.FotoKnopSend and self.FotoKnopState:
+            self.logger.info('fotoknop pressed')
             self.ToMainQueue.put("Fotoknop")
             self.FotoKnopSend = True
-            print("Foto knop send")
         if not self.FotoKnopState:
             self.FotoKnopSend = False
 
     def checkshotglas(self):
-        if True: #self.HandleShotmachine["Settings"]["OnRaspberry"]:
+        while self.run:
             self.bus.write_byte_data(self.shotdetectorAddress, 0, 0x51)
             time.sleep(0.7)
             msb = self.bus.read_byte_data(self.shotdetectorAddress, 2)
             lsb = self.bus.read_byte_data(self.shotdetectorAddress, 3)
             measuredRange = (msb << 8) + lsb
-            print(measuredRange)
             if measuredRange < 23:
                 self.CheckShotglass = True
             else:
                 self.CheckShotglass = False
-        else:
-            #time.sleep(10)
-            self.CheckShotglass = True #not self.CheckShotglass
-
-        if self.shotglass != self.CheckShotglass:
-            self.ToMainQueue.put("ShotglassState " + str(int(self.CheckShotglass)))
-            self.shotglass = self.CheckShotglass
-            print("Shotglass state: " + str(self.shotglass))
+            if self.shotglass != self.CheckShotglass:
+                self.logger.info('shotglas status changed to: ' + str(int(self.CheckShotglass)))
+                self.ToMainQueue.put("ShotglassState " + str(int(self.CheckShotglass)))
+                self.shotglass = self.CheckShotglass
 
 
     def setflashlightfunc(self, state):
-        #if state:
-        #    msb = 0x48 >> 8
-        #    lsb = 0x48 & 0xFF
-        #    self.spi.xfer([msb, lsb])
-        #else:
-        #    msb = 0x49 >> 8
-        #    lsb = 0x49 & 0xFF
-        #    self.spi.xfer([msb, lsb])
+
+        self.logger.info('changing flashlight state to: ' + str(state))
         string_to_send = str(state)
         string_to_bytes = str.encode(string_to_send)
         self.spi.xfer(string_to_bytes)

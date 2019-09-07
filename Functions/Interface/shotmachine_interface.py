@@ -11,6 +11,7 @@ import os
 import threading
 import queue
 import time
+import subprocess
 #import cv2
 #import sys
 import logging
@@ -115,6 +116,8 @@ class Shotmachine_Interface():
                 cputemp = "error"
         cputemp_surface = self.myfont.render(cputemp, False, (0, 0, 0))
         self.screen.blit(cputemp_surface,(100,100))
+
+        subprocess.Popen("wicd-client")
         
         quitmessage_surf = self.myfont.render('press q to quit', False, (0, 0, 0))
         self.screen.blit(quitmessage_surf,(300,100))
