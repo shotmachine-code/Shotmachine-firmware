@@ -61,7 +61,29 @@ class Shotmachine_Interface():
                 self.sendbuffer = ''
             time.sleep(0.1)
 
+    def button(self, msg, x, y, w, h, ic, ac, action=None):
+        mouse = pygame.mouse.get_pos()
+        click = pygame.mouse.get_pressed()
+        #print(click)
+        if x + w > mouse[0] > x and y + h > mouse[1] > y:
+            box = pygame.draw.rect(self.background_image, ac, (x, y, w, h))
+            buttoncolor = ac
 
+            if click[0] == 1 and action != None:
+                action()
+                time.sleep(2)
+        else:
+            box = pygame.draw.rect(self.background_image, [255, 0, 0], (x, y, w, h))
+            buttoncolor = ic
+
+        smallText = pygame.font.SysFont("comicsansms", 30)
+        textSurf = smallText.render(msg, False, self.BLACK, buttoncolor)
+        textRect = textSurf.get_rect()
+        #textSurf, textRect = text_objects(msg, smallText)
+        textRect.center = ((x + (w / 2)), (y + (h / 2)))
+        self.screen.blit(textSurf, textRect)
+        #pygame.display.update()
+        return box
 
     def load_main_screen(self):
         self.screen.fill(self.BLACK)
@@ -117,7 +139,7 @@ class Shotmachine_Interface():
         cputemp_surface = self.myfont.render(cputemp, False, (0, 0, 0))
         self.screen.blit(cputemp_surface,(100,100))
 
-        subprocess.Popen("wicd-client")
+
         
         quitmessage_surf = self.myfont.render('press q to quit', False, (0, 0, 0))
         self.screen.blit(quitmessage_surf,(300,100))
@@ -126,7 +148,9 @@ class Shotmachine_Interface():
         self.screen.blit(backmessage_surf, (300, 130))
         
         pygame.display.update()
-        
+
+    def start_WIFI_config(self):
+        subprocess.Popen("wicd-client")
 
     def run_rollers(self):
         self.roller1.start_roller(self.rollerspeed)
@@ -147,8 +171,8 @@ class Shotmachine_Interface():
         self.BLACK = (0, 0, 0)
         self.GRAY = (100,100,100)
         WHITE = (255, 255, 255)
-        GREEN = (0, 255, 0)
-        RED = (255, 0, 0)
+        self.GREEN = (0, 255, 0)
+        self.RED = (255, 0, 0)
 
         # Define some general variables
         screensize = [1920, 1080]
@@ -236,6 +260,9 @@ class Shotmachine_Interface():
                 updatelist.append(self.roller1.update_roller())
                 updatelist.append(self.roller2.update_roller())
                 updatelist.append(self.roller3.update_roller())
+
+            if current_screen == 'config':
+                updatelist.append(self.button("Wifi settings", 150, 250, 150, 50, self.RED, self.GREEN, self.start_WIFI_config))
                 
             if current_screen == 'livecamera':
                 self.screen.fill([0,0,0])
