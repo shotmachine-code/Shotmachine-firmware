@@ -3,6 +3,7 @@ import queue
 import logging
 import time
 
+
 #HandleShotmachine = {
 #    "Settings": {
 #        "OnRaspberry": onRaspberry,
@@ -45,11 +46,20 @@ class InputsOutputs:
             import RPi.GPIO as GPIO
             import spidev
             import smbus.SMBus
+            import usb.core as usb_core
+            import usb.util as usb_util
+            self.OnRaspberry = True
         else:
             from Functions.GPIOEmulator.ShotmachineIOEmulator import GPIO
             from Functions.GPIOEmulator.ShotmachineIOEmulator import MCP230XX
             from Functions.GPIOEmulator.ShotmachineIOEmulator import SpiDev
             from Functions.GPIOEmulator.ShotmachineIOEmulator import SMBus
+            from Functions.GPIOEmulator.ShotmachineIOEmulator import usb_core_emu
+            from Functions.GPIOEmulator.ShotmachineIOEmulator import usb_util
+            usb_core = usb_core_emu()
+            #usb_util = usb_util_emu()
+            self.OnRaspberry = False
+            from collections import namedtuple
 
 
         # prepare variables
@@ -70,6 +80,14 @@ class InputsOutputs:
 
         self.busy = False
 
+        #Barcode scanner settings
+        self.barcode_vencor_id = 0xac90
+        self.barcode_product_id = 0x3003
+        #interface = 0
+
+        #Temp variable/setting
+        party_id = 2
+
 
         # init GPIO
         GPIO.setmode(GPIO.BCM)
@@ -78,6 +96,7 @@ class InputsOutputs:
         self.HendelSwitch = self.HandleShotmachine["Hardware"]["HendelSwitch"]
         self.FotoSwitch = self.HandleShotmachine["Hardware"]["FotoSwitch"]
         self.EnableI2COutput = self.HandleShotmachine["Hardware"]["EnableI2COutput"]
+        self.EnableBarcodeScanner = self.HandleShotmachine["Settings"]["EnableBarcodeScanner"]
 
         self.GPIO.setup(self.EnableI2COutput, GPIO.OUT)
         self.GPIO.setup(self.HendelSwitch, GPIO.IN)
@@ -98,6 +117,11 @@ class InputsOutputs:
         self.MCP.output(2, 1)
         self.MCP.output(3, 1)
         self.MCP.output(4, 1)
+
+        if self.EnableBarcodeScanner and not self.OnRaspberry:
+            self.device = usb_core.find(idVendor=self.barcode_vencor_id, idProduct=self.barcode_product_id)
+            self.usbEndpointEmu = namedtuple("usbEndpointEmu", "bEndpointAddress wMaxPacketSize")
+            #usb_util()
 
 
         # init I2C bus
@@ -120,6 +144,10 @@ class InputsOutputs:
         self.queueThread.start()
         self.queueThread = threading.Thread(target=self.checkshotglas, name='Shotglass_watcher')
         self.queueThread.start()
+
+        if self.EnableBarcodeScanner:
+            self.queueThread = threading.Thread(target=self.barcodeReaderThreat, name='Barcode_reader')
+            self.queueThread.start()
 
         # wrap up init
         self.logger.info('Input Output program started')
@@ -184,6 +212,73 @@ class InputsOutputs:
                 self.checkshothandle()
                 self.checkfotoknop()
 
+    def barcodeReaderThreat(self):
+        try:
+            while self.run:
+                if self.OnRaspberry:
+                    #device = usb_core.find(idVendor=self.barcode_vencor_id, idProduct=self.barcode_product_id)
+                    if self.device is None:
+                        print("Is the barcode reader connected and turned on?")
+                        connected = False
+                    else:
+                        connected = True
+                        time.sleep(5)
+                    while connected:
+                        configuration = self.device.get_active_configuration()
+                        # print(configuration[(1,0)][1])
+
+                        # claim the device and it's two interfaces
+                        if self.device.is_kernel_driver_active(0):
+                            print("Device interface 0 is busy, claiming device")
+                            self.device.detach_kernel_driver(0)
+
+                        # is dit nodig? lijkt er op dat we alleen 0 gebruiken
+                        if self.device.is_kernel_driver_active(1):
+                            print("Device interface 1 is busy, claiming device")
+                            self.device.detach_kernel_driver(1)
+
+                        endpoint = device[0][(1, 0)][0]
+                        self.device.set_configuration()
+
+                        print("Barcode reader ready, start scanning")
+                else:
+                    connected = True
+                    endpoint = self.usbEndpointEmu(bEndpointAddress = None, wMaxPacketSize=None)
+                    #endpoint.bEndpointAddress = None
+                    #endpoint.wMaxPacketSize = None
+
+                while self.run:
+                    try:
+                        data = self.device.read(endpoint.bEndpointAddress, endpoint.wMaxPacketSize)
+                        # collected += 1
+                        read_string = ''.join(chr(e) for e in data)
+                        # read_string = "1111"
+                        try:
+                            read_number = int(read_string)
+                        except:
+                            read_number = 0
+
+                        print("Barcode scanned: " + str(read_number))
+
+                    except usb_core.USBError as e:
+                        data = None
+                        if e.errno == 110:
+                            continue
+                        if e.errno == 19:
+                            print("disconnected")
+                            print("Closed barcode scanner reader")
+                            connected = False
+                            break
+        finally:
+            # release the device
+            self.usb_util.release_interface(device, 0)
+            # is dit nodig? lijkt er op dat we alleen 0 gebruiken
+            self.usb_util.release_interface(device, 1)
+            # reattach the device to the OS kernel
+            self.device.attach_kernel_driver(0)
+            # is dit nodig? lijkt er op dat we alleen 0 gebruiken
+            self.device.attach_kernel_driver(1)
+            print("Closed barcode scanner reader")
 
     def checkshothandle(self):
         self.ShotHendelState = self.GPIO.input(self.HendelSwitch)
