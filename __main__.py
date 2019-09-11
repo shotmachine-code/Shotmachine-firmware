@@ -28,7 +28,7 @@ HandleShotmachine = {
         "EnableSPI": True,
         "EnableI2C": False,
         "EnableDBSync": False,
-        "EnableBarcodeScanner": False
+        "EnableBarcodeScanner": True
     },
     "Hardware": {
         "OnOffSwitch": 27,

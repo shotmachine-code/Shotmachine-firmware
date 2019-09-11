@@ -4,6 +4,7 @@ from Functions.GPIOEmulator.PIN import PIN
 from Functions.GPIOEmulator.TypeChecker import typeassert
 import threading
 import time
+from array import array
 
 dictionaryPins = {}
 dictionaryPinsTkinter = {}
@@ -513,3 +514,41 @@ class SMBus():
         if int == 3:
             return  self.value[1]
 
+
+class usb_core_emu():
+
+    def __init__(self):
+        self.active = [True, True]
+        #self.active.append(True)
+
+    def find(self, idVendor=None, idProduct=None):
+        #self.active[0] = True
+        #self.active[1] = True
+        #self.dict = {0: {[(1, 0)]: {[0]}}}
+        #self.selflist = [0]
+        #self.selflist[0] = self
+        return self
+
+    def get_active_configuration(self):
+        pass
+
+    def is_kernel_driver_active(self, channel):
+        return self.active[channel]
+
+    def detach_kernel_driver(self, channel):
+        self.active[channel] = False
+
+    def read(self, bEndpointAddress = None, wMaxPacketSize = None):
+        print("Read")
+        x = array('b')
+        returndata = x.frombytes('1111'.encode())
+        return returndata
+
+
+class usb_util():
+
+    #def __init__(self):
+    #    pass
+
+    def release_interface(handler, channel):
+        pass
