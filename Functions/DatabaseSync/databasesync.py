@@ -10,9 +10,10 @@ import queue
 ################
 
 class DatabaseSync:
-    def __init__(self, _queue):
+    def __init__(self, _tosyncqueue, _tomainqueue):
 
-        self.fromMainQueue = _queue
+        self.fromMainQueue = _tosyncqueue
+        self.toMainQueue = _tomainqueue
 
         self.machine_id= 1
         self.party_id = 2
@@ -87,9 +88,13 @@ class DatabaseSync:
                     #print(curr_time)
                     answer = os.popen(self.LastSyncToOnline).read()
                     print(answer)
+                    if not self.run:
+                        break
                     print("Perform update sync from online DB to local DB")
                     answer = os.popen(self.LastSyncFromOnline.format(self.party_id)).read()
                     print(answer)
+                    if not self.run:
+                        break
                     print("Sync last synctime to online DB")
                     answer = os.popen(self.LastSyncTimeToOnline.format(self.machine_id)).read()
                     print(answer)

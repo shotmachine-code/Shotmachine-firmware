@@ -3,7 +3,7 @@ import queue
 import time
 import logging
 from Functions.Interface import shotmachine_interface
-#from Functions.DatabaseSync import databasesync
+from Functions.DatabaseSync import databasesync
 from Functions.InputsOutputs import inputsoutputs
 
 import platform
@@ -17,7 +17,7 @@ if (currentOS == 'Linux' and currentArch[0] != '64bit'):
     onRaspberry = True
 else:
     onRaspberry = False
-onRaspberry = False
+#onRaspberry = False
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 logger.info("Start")
@@ -25,9 +25,9 @@ logger.info("Start")
 HandleShotmachine = {
     "Settings": {
         "OnRaspberry": onRaspberry,
-        "EnableSPI": True,
+        "EnableSPI": False,
         "EnableI2C": False,
-        "EnableDBSync": False,
+        "EnableDBSync":True,
         "EnableBarcodeScanner": True
     },
     "Hardware": {
@@ -129,7 +129,6 @@ Logfile = Logfile +".txt"
 
 ToInterfQueue = queue.Queue()
 ToMainQueue = queue.Queue()
-#From_barcode_que = queue.Queue()
 ToPhotoUploaderQueue = queue.Queue()
 ToDBSyncQueue = queue.Queue()
 ToIOQueue = queue.Queue()
@@ -139,8 +138,8 @@ shotmachine_interface.Shotmachine_Interface("Interface_main",
                                             ToInterfQueue,
                                             ToMainQueue)
 
-#if HandleShotmachine["Settings"]["EnableDBSync"]:
-#    db_syncer = databasesync.DatabaseSync(ToDBSyncQueue)
+if HandleShotmachine["Settings"]["EnableDBSync"]:
+    db_syncer = databasesync.DatabaseSync(ToDBSyncQueue, ToMainQueue)
 
 main_controller = Shotmachine_controller('Main_controller',
                                          ToInterfQueue,

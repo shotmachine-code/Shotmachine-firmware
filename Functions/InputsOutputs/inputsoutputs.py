@@ -2,6 +2,7 @@ import threading
 import queue
 import logging
 import time
+from collections import namedtuple
 
 
 #HandleShotmachine = {
@@ -45,9 +46,9 @@ class InputsOutputs:
             from Functions.MCP230XX.MCP230XX import MCP230XX
             import RPi.GPIO as GPIO
             import spidev
-            import smbus.SMBus
-            import usb.core as usb_core
-            import usb.util as usb_util
+            from smbus import SMBus
+            from usb import core as usb_core
+            from usb import util as usb_util
             self.OnRaspberry = True
         else:
             from Functions.GPIOEmulator.ShotmachineIOEmulator import GPIO
@@ -59,7 +60,7 @@ class InputsOutputs:
             usb_core = usb_core_emu()
             #usb_util = usb_util_emu()
             self.OnRaspberry = False
-            from collections import namedtuple
+            
 
 
         # prepare variables
@@ -95,8 +96,9 @@ class InputsOutputs:
         self.GPIO.setwarnings(False)
         self.HendelSwitch = self.HandleShotmachine["Hardware"]["HendelSwitch"]
         self.FotoSwitch = self.HandleShotmachine["Hardware"]["FotoSwitch"]
-        self.EnableI2COutput = self.HandleShotmachine["Hardware"]["EnableI2COutput"]
+        self.EnableI2COutput = self.HandleShotmachine["Settings"]["EnableI2C"]
         self.EnableBarcodeScanner = self.HandleShotmachine["Settings"]["EnableBarcodeScanner"]
+        self.EnableSPI = self.HandleShotmachine["Settings"]["EnableSPI"]
 
         self.GPIO.setup(self.EnableI2COutput, GPIO.OUT)
         self.GPIO.setup(self.HendelSwitch, GPIO.IN)
@@ -105,34 +107,36 @@ class InputsOutputs:
         self.GPIO.output(self.EnableI2COutput, 0)
 
         # init MCP IO extender
-        i2cAddress = 0x20
-        self.MCP = MCP230XX('MCP23017', i2cAddress, '16bit')
-        self.MCP.set_mode(0, 'output')
-        self.MCP.set_mode(1, 'output')
-        self.MCP.set_mode(2, 'output')
-        self.MCP.set_mode(3, 'output')
-        self.MCP.set_mode(4, 'output')
-        self.MCP.output(0, 1)
-        self.MCP.output(1, 1)
-        self.MCP.output(2, 1)
-        self.MCP.output(3, 1)
-        self.MCP.output(4, 1)
+        if self.EnableI2COutput:
+            i2cAddress = 0x20
+            self.MCP = MCP230XX('MCP23017', i2cAddress, '16bit')
+            self.MCP.set_mode(0, 'output')
+            self.MCP.set_mode(1, 'output')
+            self.MCP.set_mode(2, 'output')
+            self.MCP.set_mode(3, 'output')
+            self.MCP.set_mode(4, 'output')
+            self.MCP.output(0, 1)
+            self.MCP.output(1, 1)
+            self.MCP.output(2, 1)
+            self.MCP.output(3, 1)
+            self.MCP.output(4, 1)
 
-        if self.EnableBarcodeScanner and not self.OnRaspberry:
+        if self.EnableBarcodeScanner:
             self.device = usb_core.find(idVendor=self.barcode_vencor_id, idProduct=self.barcode_product_id)
             self.usbEndpointEmu = namedtuple("usbEndpointEmu", "bEndpointAddress wMaxPacketSize")
-            #usb_util()
+            #self.usb_util = usb_util()
 
 
         # init I2C bus
-        if True:
+        if self.EnableI2COutput:
             self.bus = SMBus(1)
             self.shotdetectorAddress = 0x70
 
         # init SPI
-        self.spi = SpiDev()
-        self.spi.open(0, 0)
-        self.spi.max_speed_hz = 7629
+        if self.EnableSPI:
+            self.spi = SpiDev()
+            self.spi.open(0, 0)
+            self.spi.max_speed_hz = 7629
 
         # start threads
         self.run = True
@@ -185,20 +189,21 @@ class InputsOutputs:
             # make shot if requested
             if self.makeshot:
                 self.logger.info('Making shot' + str(self.shotnumber))
-                self.MCP.output(self.shotnumber, 0)
+                if self.EnableI2COutput:
+                    self.MCP.output(self.shotnumber, 0)
 
-                if self.shotnumber == 0:
-                    time.sleep(8)  # 8
-                elif self.shotnumber == 1:
-                    time.sleep(4)  # 4
-                elif self.shotnumber == 2:
-                    time.sleep(5)  # 5
-                elif self.shotnumber == 3:
-                    time.sleep(5)  # 5
-                elif self.shotnumber == 4:
-                    time.sleep(4)  # 4
+                    if self.shotnumber == 0:
+                        time.sleep(8)  # 8
+                    elif self.shotnumber == 1:
+                        time.sleep(4)  # 4
+                    elif self.shotnumber == 2:
+                        time.sleep(5)  # 5
+                    elif self.shotnumber == 3:
+                        time.sleep(5)  # 5
+                    elif self.shotnumber == 4:
+                        time.sleep(4)  # 4
 
-                self.MCP.output(self.shotnumber, 1)
+                    self.MCP.output(self.shotnumber, 1)
 
                 self.makeshot = False
                 self.ToMainQueue.put("Done with shot")
@@ -216,10 +221,12 @@ class InputsOutputs:
         try:
             while self.run:
                 if self.OnRaspberry:
-                    #device = usb_core.find(idVendor=self.barcode_vencor_id, idProduct=self.barcode_product_id)
+                    #self.device = usb_core.find(idVendor=self.barcode_vencor_id, idProduct=self.barcode_product_id)
                     if self.device is None:
                         print("Is the barcode reader connected and turned on?")
                         connected = False
+                        break
+                        
                     else:
                         connected = True
                         time.sleep(5)
@@ -237,7 +244,7 @@ class InputsOutputs:
                             print("Device interface 1 is busy, claiming device")
                             self.device.detach_kernel_driver(1)
 
-                        endpoint = device[0][(1, 0)][0]
+                        endpoint = self.device[0][(1, 0)][0]
                         self.device.set_configuration()
 
                         print("Barcode reader ready, start scanning")
@@ -247,7 +254,7 @@ class InputsOutputs:
                     #endpoint.bEndpointAddress = None
                     #endpoint.wMaxPacketSize = None
 
-                while self.run:
+                while self.run and connected:
                     try:
                         data = self.device.read(endpoint.bEndpointAddress, endpoint.wMaxPacketSize)
                         # collected += 1
@@ -270,15 +277,16 @@ class InputsOutputs:
                             connected = False
                             break
         finally:
-            # release the device
-            self.usb_util.release_interface(device, 0)
-            # is dit nodig? lijkt er op dat we alleen 0 gebruiken
-            self.usb_util.release_interface(device, 1)
-            # reattach the device to the OS kernel
-            self.device.attach_kernel_driver(0)
-            # is dit nodig? lijkt er op dat we alleen 0 gebruiken
-            self.device.attach_kernel_driver(1)
-            print("Closed barcode scanner reader")
+            if connected:
+                # release the device (mss self.usb_util?)
+                usb_util.release_interface(device, 0)
+                # is dit nodig? lijkt er op dat we alleen 0 gebruiken
+                usb_util.release_interface(device, 1)
+                # reattach the device to the OS kernel
+                self.device.attach_kernel_driver(0)
+                # is dit nodig? lijkt er op dat we alleen 0 gebruiken
+                self.device.attach_kernel_driver(1)
+                print("Closed barcode scanner reader")
 
     def checkshothandle(self):
         self.ShotHendelState = self.GPIO.input(self.HendelSwitch)
@@ -304,19 +312,20 @@ class InputsOutputs:
 
     def checkshotglas(self):
         while self.run:
-            self.bus.write_byte_data(self.shotdetectorAddress, 0, 0x51)
-            time.sleep(0.7)
-            msb = self.bus.read_byte_data(self.shotdetectorAddress, 2)
-            lsb = self.bus.read_byte_data(self.shotdetectorAddress, 3)
-            measuredRange = (msb << 8) + lsb
-            if measuredRange < 23:
-                self.CheckShotglass = True
-            else:
-                self.CheckShotglass = False
-            if self.shotglass != self.CheckShotglass:
-                self.logger.info('shotglas status changed to: ' + str(int(self.CheckShotglass)))
-                self.ToMainQueue.put("ShotglassState " + str(int(self.CheckShotglass)))
-                self.shotglass = self.CheckShotglass
+            if self.EnableI2COutput:
+                self.bus.write_byte_data(self.shotdetectorAddress, 0, 0x51)
+                time.sleep(0.7)
+                msb = self.bus.read_byte_data(self.shotdetectorAddress, 2)
+                lsb = self.bus.read_byte_data(self.shotdetectorAddress, 3)
+                measuredRange = (msb << 8) + lsb
+                if measuredRange < 23:
+                    self.CheckShotglass = True
+                else:
+                    self.CheckShotglass = False
+                if self.shotglass != self.CheckShotglass:
+                    self.logger.info('shotglas status changed to: ' + str(int(self.CheckShotglass)))
+                    self.ToMainQueue.put("ShotglassState " + str(int(self.CheckShotglass)))
+                    self.shotglass = self.CheckShotglass
 
 
     def setflashlightfunc(self, state):
@@ -324,4 +333,5 @@ class InputsOutputs:
         self.logger.info('changing flashlight state to: ' + str(state))
         string_to_send = str(state)
         string_to_bytes = str.encode(string_to_send)
-        self.spi.xfer(string_to_bytes)
+        if self.EnableSPI:
+            self.spi.xfer(string_to_bytes)
