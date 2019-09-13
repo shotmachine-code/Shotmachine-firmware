@@ -17,7 +17,7 @@ if (currentOS == 'Linux' and currentArch[0] != '64bit'):
     onRaspberry = True
 else:
     onRaspberry = False
-onRaspberry = False
+
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 logger.info("Start")
@@ -28,7 +28,7 @@ HandleShotmachine = {
         "EnableSPI": True,
         "EnableI2C": False,
         "EnableDBSync": False,
-        "EnableBarcodeScanner": True
+        "EnableBarcodeScanner": False
     },
     "Hardware": {
         "OnOffSwitch": 27,

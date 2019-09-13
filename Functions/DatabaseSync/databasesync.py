@@ -73,6 +73,7 @@ class DatabaseSync:
                 self.logger.info("Perform full sync from online DB to local DB")
                 answer = os.popen(self.FullSyncFromOnline).read()
                 print(answer)
+
                 while self.run:
                     try:
                         self.cursor.execute(self.sql)

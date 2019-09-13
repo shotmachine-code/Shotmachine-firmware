@@ -45,7 +45,7 @@ class InputsOutputs:
             from Functions.MCP230XX.MCP230XX import MCP230XX
             import RPi.GPIO as GPIO
             import spidev
-            import smbus.SMBus
+            from smbus import SMBus
             import usb.core as usb_core
             import usb.util as usb_util
             self.OnRaspberry = True
