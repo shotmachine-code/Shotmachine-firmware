@@ -27,7 +27,7 @@ class DatabaseSync:
         self.LastSyncTimeToOnline = 'pt-table-sync --execute --verbose --set-vars wait_timeout=60 --where "id = {}" ' + \
                                '-t machines ' + \
                                'h=127.0.0.1, -u root, -pAardslappel987, h=134.209.174.145, -u root, -pAardslappel987'
-        self.LastSyncFromOnline = 'pt-table-sync --execute --verbose --set-vars wait_timeout=60 --where "party_id = {}" ' + \a
+        self.LastSyncFromOnline = 'pt-table-sync --execute --verbose --set-vars wait_timeout=60 --where "party_id = {}" ' + \
                              '-t users ' + \
                              'h=134.209.174.145, -u root, -pAardslappel987, h=127.0.0.1, -u root, -pAardslappel987'
         #self.LastSyncToOnline = 'pt-table-sync --execute --verbose --set-vars wait_timeout=60 --where "created_at > CURDATE() - INTERVAL 1 DAY" ' + \

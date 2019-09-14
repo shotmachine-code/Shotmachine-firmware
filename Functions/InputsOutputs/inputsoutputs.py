@@ -96,15 +96,16 @@ class InputsOutputs:
         self.GPIO.setwarnings(False)
         self.HendelSwitch = self.HandleShotmachine["Hardware"]["HendelSwitch"]
         self.FotoSwitch = self.HandleShotmachine["Hardware"]["FotoSwitch"]
+        self.EnableI2COutputPin = self.HandleShotmachine["Hardware"]["EnableI2COutput"]
         self.EnableI2COutput = self.HandleShotmachine["Settings"]["EnableI2C"]
         self.EnableBarcodeScanner = self.HandleShotmachine["Settings"]["EnableBarcodeScanner"]
         self.EnableSPI = self.HandleShotmachine["Settings"]["EnableSPI"]
 
-        self.GPIO.setup(self.EnableI2COutput, GPIO.OUT)
+        self.GPIO.setup(self.EnableI2COutputPin, GPIO.OUT)
         self.GPIO.setup(self.HendelSwitch, GPIO.IN)
         self.GPIO.setup(self.FotoSwitch, GPIO.IN)
 
-        self.GPIO.output(self.EnableI2COutput, 0)
+        self.GPIO.output(self.EnableI2COutputPin, 0)
 
         # init MCP IO extender
         if self.EnableI2COutput:
@@ -263,9 +264,18 @@ class InputsOutputs:
                         try:
                             read_number = int(read_string)
                         except:
-                            read_number = 0
+                            read_number = None
 
-                        print("Barcode scanned: " + str(read_number))
+                        if read_number != None:
+                            #print("Barcode scanned: " + str(read_number))
+                            self.ToMainQueue.put("Barcode:" + str(read_number))
+
+
+                    except Exception as e:
+                        if str(e) == 'Timeout':
+                            continue
+                        else:
+                            raise
 
                     except usb_core.USBError as e:
                         data = None
@@ -276,8 +286,9 @@ class InputsOutputs:
                             print("Closed barcode scanner reader")
                             connected = False
                             break
+
         finally:
-            if connected:
+            if connected and self.OnRaspberry:
                 # release the device (mss self.usb_util?)
                 usb_util.release_interface(device, 0)
                 # is dit nodig? lijkt er op dat we alleen 0 gebruiken
@@ -286,7 +297,7 @@ class InputsOutputs:
                 self.device.attach_kernel_driver(0)
                 # is dit nodig? lijkt er op dat we alleen 0 gebruiken
                 self.device.attach_kernel_driver(1)
-                print("Closed barcode scanner reader")
+            print("Closed barcode scanner reader")
 
     def checkshothandle(self):
         self.ShotHendelState = self.GPIO.input(self.HendelSwitch)

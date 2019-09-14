@@ -10,6 +10,8 @@ dictionaryPins = {}
 dictionaryPinsTkinter = {}
 
 GPIONames=["27","21","16","23","24","4","17","13","21","12","25","MCP0","MCP1","MCP2","MCP3","MCP4", "SPISendBuffer", "shotdetector"]
+
+BarcodeBuffer = ""
     
 class App(threading.Thread):
         
@@ -20,6 +22,10 @@ class App(threading.Thread):
 
     def callback(self):
         self.root.quit()
+
+    def NewBarcodeRead(self):
+        global BarcodeBuffer
+        BarcodeBuffer = self.barcodeReadString.get()
 
 
     def run(self):
@@ -130,62 +136,42 @@ class App(threading.Thread):
         dictionaryPinsTkinter["SPISendBuffer"] = flashlightbtn
         objTemp = PIN("OUT")
         objTemp.Out = "1"
-        #objPin.Out = "1"
         dictionaryPins["SPISendBuffer"] = objTemp
         drawGPIOOut("SPISendBuffer")
-
 
         # shotglas detector
         shotdetector = Button(text="Shot\nglas", command="4", padx="1px", pady="1px", bd="0px", fg="blue",
                                relief="sunken",
                                activeforeground="blue")
         shotdetector.grid(row=1, column=3, padx=(10, 10))
-
         objTemp = PIN("IN")
         dictionaryPins["shotdetector"] = objTemp
-
         dictionaryPinsTkinter["shotdetector"] = shotdetector
-
-        #objBtn = dictionaryPinsTkinter[gpioID]
-        #drawBindUpdateButtonIn(str(channel), objTemp.In)
-        #dictionaryPins[str(channel)] = objTemp
-
-        #dictionaryPinsTkinter
-
         shotdetector.configure(background='gainsboro')
         shotdetector.configure(activebackground='gainsboro')
         shotdetector.configure(relief='raised')
         shotdetector.configure(bd="1px")
         shotdetector.bind("<Button-1>", toggleshotglasButton)
         shotdetector.In = "1"
-
         dictionaryPins["shotdetector"] = shotdetector
-        #dictionaryPinsTkinter["shotdetector"] = shotdetector
 
-
-        # objPin.Out = "1"
-        #dictionaryPins["SPISendBuffer"] = objTemp
-
-
-        #shotdetectorSlider = Scale(self.root, from_=22, to=23, sliderlength = 10, showvalue = 0, length = 30, orient=VERTICAL)
-        #shotdetectorSlider.grid(row=1, column=3, padx=(10, 10))
-        #dictionaryPinsTkinter["Shotdetector"] = shotdetectorSlider
-
-        #SPIsendedString = Label(self.root, text="Empty")
-        #SPIsendedString.grid(row = 4, column=3, padx =(10,20))
-        #dictionaryPinsTkinter["SPISendBuffer"] = SPIsendedString
+        #barcode emulator
+        self.barcodeReadString = Entry(self.root, width=10)
+        self.barcodeReadString.grid(row=6, column=0, padx=(10, 10))
+        barcodeReadUpdate = Button(text="scan", padx="1px", pady="1px", bd="1px", relief="raised", command=self.NewBarcodeRead)
+        barcodeReadUpdate.grid(row=6, column=1, padx=(10, 10))
 
         # wrap up GUI
         self.root.geometry('%dx%d+%d+%d' % (300, 300, 0, 0))
-       
         self.root.mainloop()
 
 
 app = App()
 
 
+
+
 def toggleshotglasButton(self):
-    #objBtn = dictionaryPinsTkinter["shotdetector"]
     objPin = dictionaryPins["shotdetector"]
     if (objPin.In == "1"):
         objPin.In = "0"
@@ -493,15 +479,12 @@ class SMBus():
 
     def __init__(self, bus):
         slider = dictionaryPinsTkinter["shotdetector"]
-        #slider.set(20)
         self.value = self.value = (22).to_bytes(2, byteorder="big")
 
 
     def write_byte_data(self, adress, bus, data):
         if (data == 0x51):
             slidervalue = dictionaryPins["shotdetector"].In
-            #slidervalue = slider.get()
-            #if (objPin.In == "1"):
             if slidervalue == "1":
                 self.value = (22).to_bytes(2, byteorder="big")
             if slidervalue == "0":
@@ -519,14 +502,8 @@ class usb_core_emu():
 
     def __init__(self):
         self.active = [True, True]
-        #self.active.append(True)
 
     def find(self, idVendor=None, idProduct=None):
-        #self.active[0] = True
-        #self.active[1] = True
-        #self.dict = {0: {[(1, 0)]: {[0]}}}
-        #self.selflist = [0]
-        #self.selflist[0] = self
         return self
 
     def get_active_configuration(self):
@@ -539,16 +516,25 @@ class usb_core_emu():
         self.active[channel] = False
 
     def read(self, bEndpointAddress = None, wMaxPacketSize = None):
-        print("Read")
-        x = array('b')
-        returndata = x.frombytes('1111'.encode())
-        return returndata
+        global BarcodeBuffer
+        TimeoutValue = 100
+        timoutCounter = 0
+        while BarcodeBuffer == "":
+            time.sleep(0.01)
+            timoutCounter += 1
+            if timoutCounter >= TimeoutValue:
+                break
+
+        if BarcodeBuffer != "":
+            x = array('b')
+            returndata = x.frombytes(BarcodeBuffer.encode())
+            BarcodeBuffer = ""
+            return x
+        else:
+            raise Exception('Timeout')
 
 
 class usb_util():
-
-    #def __init__(self):
-    #    pass
 
     def release_interface(handler, channel):
         pass

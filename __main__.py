@@ -28,7 +28,7 @@ HandleShotmachine = {
         "OnRaspberry": onRaspberry,
         "EnableSPI": False,
         "EnableI2C": False,
-        "EnableDBSync":True,
+        "EnableDBSync":False,
         "EnableBarcodeScanner": True
     },
     "Hardware": {
@@ -116,6 +116,9 @@ class Shotmachine_controller():
                     self.Shothendel = True
                 elif s == "Fotoknop":
                     self.fotoknop = True
+                elif "Barcode:" in s:
+                    barcode = s.split(':')[1]
+                    print("barcode scanned in main: " + barcode)
                 s = ""
 
             except queue.Empty:
