@@ -27,13 +27,13 @@ class DatabaseSync:
         self.LastSyncTimeToOnline = 'pt-table-sync --execute --verbose --set-vars wait_timeout=60 --where "id = {}" ' + \
                                '-t machines ' + \
                                'h=127.0.0.1, -u root, -pAardslappel987, h=134.209.174.145, -u root, -pAardslappel987'
-        self.LastSyncFromOnline = 'pt-table-sync --execute --verbose --set-vars wait_timeout=60 --where "party_id = {}" ' + \
+        self.LastSyncFromOnline = 'pt-table-sync --execute --verbose --set-vars wait_timeout=60 --where "party_id = {}" ' + \a
                              '-t users ' + \
                              'h=134.209.174.145, -u root, -pAardslappel987, h=127.0.0.1, -u root, -pAardslappel987'
-        self.LastSyncToOnline = 'pt-table-sync --execute --verbose --set-vars wait_timeout=60 --where "created_at > CURDATE() - INTERVAL 1 DAY" ' + \
-                           '-t takenshots,photos,machines,error_logs ' + \
-                           'h=127.0.0.1, -u root, -pAardslappel987, h=134.209.174.145, -u root, -pAardslappel987'
-        self.sql = "UPDATE machines SET last_sync = NOW() WHERE machine_name = 'Prototype 1'"
+        #self.LastSyncToOnline = 'pt-table-sync --execute --verbose --set-vars wait_timeout=60 --where "created_at > CURDATE() - INTERVAL 1 DAY" ' + \
+        #                   '-t takenshots,photos,machines,error_logs ' + \
+        #                   'h=127.0.0.1, -u root, -pAardslappel987, h=134.209.174.145, -u root, -pAardslappel987'
+        self.UpdateLastSyncTime = "UPDATE machines SET last_sync = NOW() WHERE machine_name = 'Prototype 1'"
 
         self.run = True
         self.recievebuffer = ''
@@ -76,26 +76,30 @@ class DatabaseSync:
                 print(answer)
 
                 while self.run:
+                    # update time of update in db
                     try:
-                        self.cursor.execute(self.sql)
+                        self.cursor.execute(self.UpdateLastSyncTime)
                         self.db.commit()
                     except:
                         self.logger.info("Unexpected error:", sys.exc_info()[0])
                         self.db.rollback()
                         self.logger.info("Error in sql")
-                    # update sync to online database since last sync
-                    curr_time = datetime.datetime.now().strftime("%Y-%m-%m %H:%M:%S")
+                    
+                    # sync from local to online
                     self.logger.info("Perform update sync from local DB to online DB")
-                    #print(curr_time)
                     answer = os.popen(self.LastSyncToOnline).read()
                     print(answer)
                     if not self.run:
                         break
+                        
+                    # sync from online to local
                     print("Perform update sync from online DB to local DB")
                     answer = os.popen(self.LastSyncFromOnline.format(self.party_id)).read()
                     print(answer)
                     if not self.run:
                         break
+                        
+                    # update synctime in online db
                     print("Sync last synctime to online DB")
                     answer = os.popen(self.LastSyncTimeToOnline.format(self.machine_id)).read()
                     print(answer)
