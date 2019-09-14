@@ -9,7 +9,20 @@ from Functions.InputsOutputs import inputsoutputs
 import platform
 import random
 import datetime
+import os
 
+
+import xml.etree.ElementTree as ET
+
+xml_file_path = os.path.join(os.getcwd(), 'mysql_settings.xml')
+tree = ET.parse(xml_file_path)
+root = tree.getroot()
+
+for mysqlXML in root.findall('mysql'):
+    if mysqlXML.get('name') == 'local':
+        localMysqlUser = mysqlXML.find('user').text
+        localMysqlPass = mysqlXML.find('password').text
+        localMysqlIP = mysqlXML.find('ip').text
 
 currentOS = platform.system()
 currentArch = platform.architecture()
@@ -28,7 +41,7 @@ HandleShotmachine = {
         "OnRaspberry": onRaspberry,
         "EnableSPI": False,
         "EnableI2C": False,
-        "EnableDBSync":False,
+        "EnableDBSync":True,
         "EnableBarcodeScanner": True
     },
     "Hardware": {

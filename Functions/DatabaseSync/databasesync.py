@@ -6,45 +6,68 @@ import sys
 from threading import Thread
 import logging
 import queue
+import xml.etree.ElementTree as ET
 
 ################
 
 class DatabaseSync:
     def __init__(self, _tosyncqueue, _tomainqueue):
 
-        self.fromMainQueue = _tosyncqueue
-        self.toMainQueue = _tomainqueue
+        try:
 
-        self.machine_id= 1
-        self.party_id = 2
+            xml_file_path = os.path.join(os.getcwd(), 'mysql_settings.xml')
+            tree = ET.parse(xml_file_path)
+            root = tree.getroot()
 
-        self.FullSyncFromOnline =    'pt-table-sync --execute --verbose ' + \
-                                '-t error_logs,error_types,machines,parties,party_has_shots,photos,shots,takenshots,users ' + \
-                                'h=134.209.174.145, -u root, -pAardslappel987, h=127.0.0.1, -u root, -pAardslappel987'
-        self.LastSyncToOnline = 'pt-table-sync --execute --verbose --set-vars wait_timeout=60 --where "created_at > CURDATE() - INTERVAL 1 DAY" ' + \
-                           '-t takenshots,photos,machines,error_logs ' + \
-                           'h=127.0.0.1, -u root, -pAardslappel987, h=134.209.174.145, -u root, -pAardslappel987'
-        self.LastSyncTimeToOnline = 'pt-table-sync --execute --verbose --set-vars wait_timeout=60 --where "id = {}" ' + \
-                               '-t machines ' + \
-                               'h=127.0.0.1, -u root, -pAardslappel987, h=134.209.174.145, -u root, -pAardslappel987'
-        self.LastSyncFromOnline = 'pt-table-sync --execute --verbose --set-vars wait_timeout=60 --where "party_id = {}" ' + \
-                             '-t users ' + \
-                             'h=134.209.174.145, -u root, -pAardslappel987, h=127.0.0.1, -u root, -pAardslappel987'
-        #self.LastSyncToOnline = 'pt-table-sync --execute --verbose --set-vars wait_timeout=60 --where "created_at > CURDATE() - INTERVAL 1 DAY" ' + \
-        #                   '-t takenshots,photos,machines,error_logs ' + \
-        #                   'h=127.0.0.1, -u root, -pAardslappel987, h=134.209.174.145, -u root, -pAardslappel987'
-        self.UpdateLastSyncTime = "UPDATE machines SET last_sync = NOW() WHERE machine_name = 'Prototype 1'"
+            for mysqlXML in root.findall('mysql'):
+                if mysqlXML.get('name') == 'local':
+                    self.localMysqlUser = mysqlXML.find('user').text
+                    self.localMysqlPass = mysqlXML.find('password').text
+                    self.localMysqlIP = mysqlXML.find('ip').text
+                if mysqlXML.get('name') == 'online':
+                    self.onlineMysqlUser = mysqlXML.find('user').text
+                    self.onlineMysqlPass = mysqlXML.find('password').text
+                    self.onlineMysqlIP = mysqlXML.find('ip').text
 
-        self.run = True
-        self.recievebuffer = ''
-        self.logger = logging.getLogger("Database_sync")
+            self.fromMainQueue = _tosyncqueue
+            self.toMainQueue = _tomainqueue
 
-        self.mainThread = Thread(target=self.main_db_syncer, name='dbsync_main')
-        self.mainThread.start()
-        self.queueThread = Thread(target=self.queue_watcher, name='dbSync_watcher')
-        self.queueThread.start()
+            self.machine_id= 1
+            self.party_id = 2
 
-        self.logger.info('Database syncer started')
+            self.FullSyncFromOnline =    'pt-table-sync --execute --verbose ' + \
+                                    '-t error_logs,error_types,machines,parties,party_has_shots,photos,shots,takenshots,users ' + \
+                                    'h=' + self.onlineMysqlIP + ', -u ' + self.onlineMysqlUser +', -p' + self.onlineMysqlPass + \
+                                    ', h=' + self.localMysqlIP + ', -u ' + self.localMysqlUser + ', -p' + self.localMysqlPass
+            self.LastSyncToOnline = 'pt-table-sync --execute --verbose --set-vars wait_timeout=60 --where "created_at > CURDATE() - INTERVAL 1 DAY" ' + \
+                               '-t takenshots,photos,machines,error_logs ' + \
+                               'h=' + self.localMysqlIP + ', -u ' + self.localMysqlUser + ', -p' + self.localMysqlPass + \
+                               ', h=' + self.onlineMysqlIP + ', -u ' + self.onlineMysqlUser +', -p' + self.onlineMysqlPass
+            self.LastSyncTimeToOnline = 'pt-table-sync --execute --verbose --set-vars wait_timeout=60 --where "id = {}" ' + \
+                                   '-t machines ' + \
+                                   'h=' + self.localMysqlIP + ', -u ' + self.localMysqlUser + ', -p' + self.localMysqlPass + \
+                                   ', h=' + self.onlineMysqlIP + ', -u ' + self.onlineMysqlUser +', -p' + self.onlineMysqlPass
+            self.LastSyncFromOnline = 'pt-table-sync --execute --verbose --set-vars wait_timeout=60 --where "party_id = {}" ' + \
+                                 '-t users ' + \
+                                 'h=' + self.onlineMysqlIP + ', -u ' + self.onlineMysqlUser +', -p' + self.onlineMysqlPass + \
+                                 ', h=' + self.localMysqlIP + ', -u ' + self.localMysqlUser + ', -p' + self.localMysqlPass
+            self.UpdateLastSyncTime = "UPDATE machines SET last_sync = NOW() WHERE machine_name = 'Prototype 1'"
+
+            self.run = True
+            self.recievebuffer = ''
+            self.logger = logging.getLogger("Database_sync")
+
+            self.mainThread = Thread(target=self.main_db_syncer, name='dbsync_main')
+            self.mainThread.start()
+            self.queueThread = Thread(target=self.queue_watcher, name='dbSync_watcher')
+            self.queueThread.start()
+
+            self.logger.info('Database syncer started')
+
+        except:
+            self.logger = logging.getLogger("Database_sync")
+            self.logger.info('Error in starting database sync')
+            raise
 
     def queue_watcher(self):
         self.run = True
@@ -52,7 +75,6 @@ class DatabaseSync:
             if self.recievebuffer == '':
                 try:
                     self.recievebuffer = self.fromMainQueue.get(block=True, timeout=0.1)
-                    #print(self.recievebuffer)
                     if self.recievebuffer == "Quit":
                         self.run = False
                         self.logger.info("DB sync quit")
@@ -64,7 +86,7 @@ class DatabaseSync:
 
         while self.run:
             try:
-                self.db = pymysql.connect("localhost", "root", "Aardslappel987", "shotmachine")
+                self.db = pymysql.connect(self.localMysqlIP, self.localMysqlUser, self.localMysqlPass, "shotmachine")
                 self.cursor = self.db.cursor()
                 self.cursor.execute("SELECT VERSION()")
                 dbVersion = self.cursor.fetchone()
@@ -93,18 +115,18 @@ class DatabaseSync:
                         break
                         
                     # sync from online to local
-                    print("Perform update sync from online DB to local DB")
+                    self.logger.info("Perform update sync from online DB to local DB")
                     answer = os.popen(self.LastSyncFromOnline.format(self.party_id)).read()
                     print(answer)
                     if not self.run:
                         break
                         
                     # update synctime in online db
-                    print("Sync last synctime to online DB")
+                    self.logger.info("Sync last synctime to online DB")
                     answer = os.popen(self.LastSyncTimeToOnline.format(self.machine_id)).read()
                     print(answer)
                     time.sleep(1)
 
             finally:
                 self.db.close()
-                print("Closed program")
+                self.logger.info("Closed db sync program")
