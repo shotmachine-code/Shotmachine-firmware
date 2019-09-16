@@ -45,7 +45,7 @@ class InputsOutputs:
         if self.HandleShotmachine["Settings"]["OnRaspberry"]:
             from Functions.MCP230XX.MCP230XX import MCP230XX
             import RPi.GPIO as GPIO
-            import spidev
+            from spidev import SpiDev
             from smbus import SMBus
             from usb import core as usb_core
             from usb import util as usb_util
@@ -137,7 +137,7 @@ class InputsOutputs:
         if self.EnableSPI:
             self.spi = SpiDev()
             self.spi.open(0, 0)
-            self.spi.max_speed_hz = 7629
+            self.spi.max_speed_hz = 3900000
 
         # start threads
         self.run = True

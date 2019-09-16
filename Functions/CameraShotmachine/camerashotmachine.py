@@ -36,7 +36,7 @@ class CameraShotmachine:
             self.onRaspberry = True
         else:
             self.onRaspberry = False
-        self.onRaspberry = False
+        #self.onRaspberry = False
 
         if self.onRaspberry:
             # initialize the camera and stream

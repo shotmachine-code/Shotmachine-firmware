@@ -13,11 +13,12 @@ class WebcamVideoStream:
 		# initialize the video camera stream and read the first frame
 		# from the stream
 		self.stream = cv2.VideoCapture(src)
-		self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 3840)
-		self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 2160)
+		self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 800)
+		self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 600)
+		self.stream.set(cv2.CAP_PROP_BUFFERSIZE, 3)
 		self.stream.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
 		(self.grabbed, self.frame) = self.stream.read()
-		self.small_frame = cv2.resize(self.frame, None, (0,0), fx = 0.33, fy = 0.33)
+		#self.small_frame = cv2.resize(self.frame, None, (0,0), fx = 0.33, fy = 0.33)
 		
  
 		# initialize the variable used to indicate if the thread should
@@ -41,13 +42,23 @@ class WebcamVideoStream:
 			if self.stopped:
 				return
  
+			#while(True):
+			#	prev_time=time.time()
+			#	frame_ref = self.stream.grab()
+			#	duration = time.time()-prev_time
+			#	print(duration)
+			#	if (duration)>0.030:#something around 33 FPS
+			#		break
+			#(success_grab,self.frame) = self.stream.retrieve(frame_ref)
+			
 			# otherwise, read the next frame from the stream
 			(success_grab, self.frame) = self.stream.read()
+			print("New frame")
 			
-			self.small_frame = cv2.resize(self.frame, None, (0,0), fx = 0.3, fy = 0.3)
-			self.small_frame_flip = cv2.flip(self.small_frame, 0)
+			#self.small_frame = cv2.resize(self.frame, None, (0,0), fx = 0.3, fy = 0.3)
+			#self.small_frame_flip = cv2.flip(self.small_frame, 0)
 			self.grabbed_small = success_grab
-			self.grabbed_full = self.grabbed_small
+			self.grabbed_full = success_grab
 			
 
 
@@ -56,16 +67,16 @@ class WebcamVideoStream:
 		# return the frame most recently read
 		while not self.grabbed_small:
 			time.sleep(0.001)
-			
-		return self.small_frame_flip
-		self.small_ready = False
+		self.grabbed_small = False
+		return self.frame
+		
 		
 	def read_full(self):
 		# return the frame most recently read
 		while not self.grabbed_full:
 			time.sleep(0.001)
-		self.full_frame_flip = cv2.flip(self.frame, 0)
-		return self.full_frame_flip
+		#self.full_frame_flip = cv2.flip(self.frame, 0)
+		return self.frame
 		self.grabbed_full = False
 
  
