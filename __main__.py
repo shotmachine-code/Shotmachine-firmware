@@ -5,6 +5,7 @@ import logging
 from Functions.Interface import shotmachine_interface
 from Functions.DatabaseSync import databasesync
 from Functions.InputsOutputs import inputsoutputs
+from Functions.Database import database_connection
 
 import platform
 import random
@@ -43,8 +44,8 @@ HandleShotmachine = {
     "Settings": {
         "OnRaspberry": onRaspberry,
         "EnableSPI": False,
-        "EnableI2C": False,
-        "EnableDBSync":True,
+        "EnableI2C": True,
+        "EnableDBSync":False,
         "EnableBarcodeScanner": True
     },
     "Hardware": {
@@ -79,6 +80,8 @@ class Shotmachine_controller():
         self.Shothendel = False
 
         self.fotoknop = False
+
+        self.db_conn = database_connection.database_connection()
 
         self.thread = threading.Thread(target=self.run, name=_name)
         self.thread.start()
@@ -128,13 +131,17 @@ class Shotmachine_controller():
                     logger.info("main quit")
                 elif "ShotglassState" in s:
                     self.Shotglass = bool(int(s[-1:]))
+                    self.ToInterfQueue.put("Shotglass:" + str(int(self.Shotglass)))
                 elif s == "Shothendel":
                     self.Shothendel = True
                 elif s == "Fotoknop":
                     self.fotoknop = True
                 elif "Barcode:" in s:
                     barcode = s.split(':')[1]
-                    print("barcode scanned in main: " + barcode)
+                    username = self.db_conn.getUserName(barcode)
+                    print("barcode scanned in main: " + str(barcode) + " User: " + username)
+                    self.ToInterfQueue.put('New_User:'+username)
+
                 s = ""
 
             except queue.Empty:
