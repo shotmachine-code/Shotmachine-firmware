@@ -24,6 +24,9 @@ for mysqlXML in root.findall('mysql'):
         localMysqlPass = mysqlXML.find('password').text
         localMysqlIP = mysqlXML.find('ip').text
 
+party_id = 2
+
+
 currentOS = platform.system()
 currentArch = platform.architecture()
 if (currentOS == 'Linux' and currentArch[0] != '64bit'):
@@ -139,6 +142,9 @@ class Shotmachine_controller():
                 
     def check_alive(self):
         return not self.quitprogram
+
+
+
 
 
 Logfile = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
