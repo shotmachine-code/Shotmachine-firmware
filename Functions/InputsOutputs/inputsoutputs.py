@@ -244,7 +244,7 @@ class InputsOutputs:
                     else:
                         connected = True
                         time.sleep(5)
-                    while connected:
+                    if connected:
                         configuration = self.device.get_active_configuration()
                         # print(configuration[(1,0)][1])
 
@@ -266,9 +266,11 @@ class InputsOutputs:
                     connected = True
                     endpoint = self.usbEndpointEmu(bEndpointAddress = None, wMaxPacketSize=None)
 
+
                 while self.run and connected and self.OnRaspberry:
                     try:
                         data = self.device.read(endpoint.bEndpointAddress, endpoint.wMaxPacketSize)
+
                         read_string = ''.join(chr(e) for e in data)
                         try:
                             read_number = int(read_string)
@@ -281,6 +283,7 @@ class InputsOutputs:
 
                     except usb_core.USBError as e:
                         data = None
+                        print(e.errno)
                         if e.errno == 110:
                             continue
                         if e.errno == 19:
@@ -288,7 +291,7 @@ class InputsOutputs:
                             print("Closed barcode scanner reader")
                             connected = False
                             break
-
+                            
                 while self.run and connected and not self.OnRaspberry:
                     try:
                         data = self.device.read(endpoint.bEndpointAddress, endpoint.wMaxPacketSize)

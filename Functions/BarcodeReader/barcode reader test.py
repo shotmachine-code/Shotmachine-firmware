@@ -47,6 +47,7 @@ try:
 
             print("Barcode reader ready, start scanning")
             while run:
+                print('1')
                 try:
                     data = device.read(endpoint.bEndpointAddress,endpoint.wMaxPacketSize)
                     #collected += 1
@@ -73,7 +74,7 @@ try:
 
                 except usb.core.USBError as e:
                     data = None
-                    #print(e)
+                    print(e)
                     if e.errno == 110:
                         continue
                     if e.errno == 19:
