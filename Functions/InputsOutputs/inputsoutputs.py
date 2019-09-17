@@ -254,9 +254,9 @@ class InputsOutputs:
                             self.device.detach_kernel_driver(0)
 
                         # is dit nodig? lijkt er op dat we alleen 0 gebruiken
-                        if self.device.is_kernel_driver_active(1):
-                            print("Device interface 1 is busy, claiming device")
-                            self.device.detach_kernel_driver(1)
+                        #if self.device.is_kernel_driver_active(1):
+                        #    print("Device interface 1 is busy, claiming device")
+                        #    self.device.detach_kernel_driver(1)
 
                         endpoint = self.device[0][(1, 0)][0]
                         self.device.set_configuration()
@@ -316,11 +316,11 @@ class InputsOutputs:
                 # release the device (mss self.usb_util?)
                 usb_util.release_interface(self.device, 0)
                 # is dit nodig? lijkt er op dat we alleen 0 gebruiken
-                usb_util.release_interface(self.device, 1)
+                #usb_util.release_interface(self.device, 1)
                 # reattach the device to the OS kernel
                 self.device.attach_kernel_driver(0)
                 # is dit nodig? lijkt er op dat we alleen 0 gebruiken
-                self.device.attach_kernel_driver(1)
+                #self.device.attach_kernel_driver(1)
             print("Closed barcode scanner reader")
 
     def checkshothandle(self):
