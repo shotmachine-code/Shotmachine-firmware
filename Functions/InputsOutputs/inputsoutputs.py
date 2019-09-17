@@ -231,7 +231,7 @@ class InputsOutputs:
                     else:
                         connected = True
                         time.sleep(5)
-                    while connected:
+                    if connected:
                         configuration = self.device.get_active_configuration()
                         # print(configuration[(1,0)][1])
 
@@ -256,9 +256,12 @@ class InputsOutputs:
                     #endpoint.wMaxPacketSize = None
 
                 while self.run and connected:
+                    #print('1')
                     try:
+                        #print('2')
                         data = self.device.read(endpoint.bEndpointAddress, endpoint.wMaxPacketSize)
                         # collected += 1
+                        #print('3')
                         read_string = ''.join(chr(e) for e in data)
                         # read_string = "1111"
                         try:
@@ -271,14 +274,9 @@ class InputsOutputs:
                             self.ToMainQueue.put("Barcode:" + str(read_number))
 
 
-                    except Exception as e:
-                        if str(e) == 'Timeout':
-                            continue
-                        else:
-                            raise
-
                     except usb_core.USBError as e:
                         data = None
+                        print(e.errno)
                         if e.errno == 110:
                             continue
                         if e.errno == 19:
@@ -286,6 +284,11 @@ class InputsOutputs:
                             print("Closed barcode scanner reader")
                             connected = False
                             break
+                            
+                    except Exception as e:
+                        
+                        if str(e) == 'Timeout':
+                            continue
 
         finally:
             if connected and self.OnRaspberry:

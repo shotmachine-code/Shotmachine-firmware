@@ -43,8 +43,8 @@ logger.info("Start")
 HandleShotmachine = {
     "Settings": {
         "OnRaspberry": onRaspberry,
-        "EnableSPI": False,
-        "EnableI2C": True,
+        "EnableSPI": True,
+        "EnableI2C": False,
         "EnableDBSync":False,
         "EnableBarcodeScanner": True
     },
