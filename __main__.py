@@ -44,7 +44,7 @@ HandleShotmachine = {
     "Settings": {
         "OnRaspberry": onRaspberry,
         "EnableSPI": True,
-        "EnableI2C": False,
+        "EnableI2C": True,
         "EnableDBSync":False,
         "EnableBarcodeScanner": True
     },
@@ -81,6 +81,8 @@ class Shotmachine_controller():
 
         self.fotoknop = False
 
+        self.EnableBarcodeScanner = HandleShotmachine["Settings"]["EnableBarcodeScanner"]
+
         self.db_conn = database_connection.database_connection()
 
         self.thread = threading.Thread(target=self.run, name=_name)
@@ -114,6 +116,7 @@ class Shotmachine_controller():
                     time.sleep(6)
                     self.ToIOQueue.put("Shot " + str(i))
                     time.sleep(2)
+                    self.db_conn.ShotToDatabase(barcode, str(i))
 
                     f = open(Logfile, "a")
                     datetimestring = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
@@ -141,7 +144,11 @@ class Shotmachine_controller():
                     username = self.db_conn.getUserName(barcode)
                     print("barcode scanned in main: " + str(barcode) + " User: " + username)
                     self.ToInterfQueue.put('New_User:'+username)
-
+                elif 'NoUser' in s:
+                    username = ""
+                    barcode = ""
+                else:
+                    print("Unknown command to main: " + s)
                 s = ""
 
             except queue.Empty:
@@ -166,7 +173,8 @@ ToIOQueue = queue.Queue()
 
 shotmachine_interface.Shotmachine_Interface("Interface_main",
                                             ToInterfQueue,
-                                            ToMainQueue)
+                                            ToMainQueue,
+                                            HandleShotmachine)
 
 if HandleShotmachine["Settings"]["EnableDBSync"]:
     db_syncer = databasesync.DatabaseSync(ToDBSyncQueue, ToMainQueue)
