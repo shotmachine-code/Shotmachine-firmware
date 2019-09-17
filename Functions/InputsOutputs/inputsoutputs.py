@@ -47,8 +47,8 @@ class InputsOutputs:
             import RPi.GPIO as GPIO
             from spidev import SpiDev
             from smbus import SMBus
-            from usb import core as usb_core
-            from usb import util as usb_util
+            #from usb import core as usb_core
+            #from usb import util as usb_util
             self.OnRaspberry = True
         else:
             from Functions.GPIOEmulator.ShotmachineIOEmulator import GPIO
@@ -56,8 +56,8 @@ class InputsOutputs:
             from Functions.GPIOEmulator.ShotmachineIOEmulator import SpiDev
             from Functions.GPIOEmulator.ShotmachineIOEmulator import SMBus
             from Functions.GPIOEmulator.ShotmachineIOEmulator import usb_core_emu
-            from Functions.GPIOEmulator.ShotmachineIOEmulator import usb_util
-            usb_core = usb_core_emu()
+            #from Functions.GPIOEmulator.ShotmachineIOEmulator import usb_util
+
             #usb_util = usb_util_emu()
             self.OnRaspberry = False
             
@@ -122,10 +122,7 @@ class InputsOutputs:
             self.MCP.output(3, 1)
             self.MCP.output(4, 1)
 
-        if self.EnableBarcodeScanner:
-            self.device = usb_core.find(idVendor=self.barcode_vencor_id, idProduct=self.barcode_product_id)
-            self.usbEndpointEmu = namedtuple("usbEndpointEmu", "bEndpointAddress wMaxPacketSize")
-            #self.usb_util = usb_util()
+
 
 
         # init I2C bus
@@ -219,6 +216,20 @@ class InputsOutputs:
                 self.checkfotoknop()
 
     def barcodeReaderThreat(self):
+
+        if self.OnRaspberry:
+            from usb import core as usb_core
+            from usb import util as usb_util
+        else:
+            from Functions.GPIOEmulator.ShotmachineIOEmulator import usb_core_emu
+            usb_core = usb_core_emu()
+
+        if self.EnableBarcodeScanner:
+            self.device = usb_core.find(idVendor=self.barcode_vencor_id, idProduct=self.barcode_product_id)
+            self.usbEndpointEmu = namedtuple("usbEndpointEmu", "bEndpointAddress wMaxPacketSize")
+            # self.usb_util = usb_util()
+
+
         try:
             while self.run:
                 if self.OnRaspberry:
@@ -252,18 +263,13 @@ class InputsOutputs:
                 else:
                     connected = True
                     endpoint = self.usbEndpointEmu(bEndpointAddress = None, wMaxPacketSize=None)
-                    #endpoint.bEndpointAddress = None
-                    #endpoint.wMaxPacketSize = None
 
-                while self.run and connected:
-                    #print('1')
+
+                while self.run and connected and self.OnRaspberry:
                     try:
-                        #print('2')
                         data = self.device.read(endpoint.bEndpointAddress, endpoint.wMaxPacketSize)
-                        # collected += 1
-                        #print('3')
+
                         read_string = ''.join(chr(e) for e in data)
-                        # read_string = "1111"
                         try:
                             read_number = int(read_string)
                         except:
@@ -272,7 +278,6 @@ class InputsOutputs:
                         if read_number != None:
                             #print("Barcode scanned: " + str(read_number))
                             self.ToMainQueue.put("Barcode:" + str(read_number))
-
 
                     except usb_core.USBError as e:
                         data = None
@@ -285,10 +290,24 @@ class InputsOutputs:
                             connected = False
                             break
                             
+                while self.run and connected and not self.OnRaspberry:
+                    try:
+                        data = self.device.read(endpoint.bEndpointAddress, endpoint.wMaxPacketSize)
+                        read_string = ''.join(chr(e) for e in data)
+                        try:
+                            read_number = int(read_string)
+                        except:
+                            read_number = None
+
+                        if read_number != None:
+                            # print("Barcode scanned: " + str(read_number))
+                            self.ToMainQueue.put("Barcode:" + str(read_number))
+
                     except Exception as e:
-                        
                         if str(e) == 'Timeout':
                             continue
+                        else:
+                            raise
 
         finally:
             if connected and self.OnRaspberry:
