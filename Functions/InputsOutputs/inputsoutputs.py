@@ -318,7 +318,7 @@ class InputsOutputs:
                 # is dit nodig? lijkt er op dat we alleen 0 gebruiken
                 #usb_util.release_interface(self.device, 1)
                 # reattach the device to the OS kernel
-                self.device.attach_kernel_driver(0)
+                # self.device.attach_kernel_driver(0)
                 # is dit nodig? lijkt er op dat we alleen 0 gebruiken
                 #self.device.attach_kernel_driver(1)
             print("Closed barcode scanner reader")
