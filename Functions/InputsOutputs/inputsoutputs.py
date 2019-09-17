@@ -162,7 +162,7 @@ class InputsOutputs:
                     self.recievebuffer = self.ToIOQueue.get(block=True, timeout=0.1)
                     if self.recievebuffer == "Quit":
                         self.run = False
-                        self.GPIO.cleanup()
+
                         self.logger.info("IO quit")
                     elif "Shot" in self.recievebuffer:
                         self.shotnumber = int(self.recievebuffer[-1:])
@@ -214,6 +214,8 @@ class InputsOutputs:
             if not self.busy:
                 self.checkshothandle()
                 self.checkfotoknop()
+
+        self.GPIO.cleanup()
 
     def barcodeReaderThreat(self):
 
@@ -309,9 +311,9 @@ class InputsOutputs:
         finally:
             if connected and self.OnRaspberry:
                 # release the device (mss self.usb_util?)
-                usb_util.release_interface(device, 0)
+                usb_util.release_interface(self.device, 0)
                 # is dit nodig? lijkt er op dat we alleen 0 gebruiken
-                usb_util.release_interface(device, 1)
+                usb_util.release_interface(self.device, 1)
                 # reattach the device to the OS kernel
                 self.device.attach_kernel_driver(0)
                 # is dit nodig? lijkt er op dat we alleen 0 gebruiken
