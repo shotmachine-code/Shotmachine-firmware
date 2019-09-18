@@ -46,7 +46,7 @@ HandleShotmachine = {
         "EnableSPI": True,
         "EnableI2C": True,
         "EnableDBSync":False,
-        "EnableBarcodeScanner": True
+        "EnableBarcodeScanner": False
     },
     "Hardware": {
         "OnOffSwitch": 27,
@@ -93,24 +93,27 @@ class Shotmachine_controller():
         while not self.quitprogram:
             if self.fotoknop:
                 self.fotoknop = False
-                self.ToIOQueue.put("Busy")
-                self.ToIOQueue.put("Flashlight 1")
                 self.ToInterfQueue.put('Take_picture')
-                time.sleep(4)
-                self.ToIOQueue.put("Flashlight 0")
-                time.sleep(1)
-                f = open(Logfile, "a")
-                datetimestring = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
-                f.write("foto at " + datetimestring + " \n")
-                f.close()
-                self.ToIOQueue.put("Ready")
+                if ((username != "") or not self.EnableBarcodeScanner):
+                    self.ToIOQueue.put("Busy")
+                    self.ToIOQueue.put("Flashlight 1")
+                    #self.ToInterfQueue.put('Take_picture')
+                    time.sleep(4)
+                    self.ToIOQueue.put("Flashlight 0")
+                    time.sleep(1)
+                    f = open(Logfile, "a")
+                    datetimestring = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+                    f.write("foto at " + datetimestring + " \n")
+                    f.close()
+                    self.ToIOQueue.put("Ready")
 
 
             if self.Shothendel:
                 self.Shothendel = False
-                if self.Shotglass:
+                self.ToInterfQueue.put('Start_roll')
+                if self.Shotglass and ((username != "") or not self.EnableBarcodeScanner) :
                     self.ToIOQueue.put("Busy")
-                    self.ToInterfQueue.put('Start_roll')
+                    #self.ToInterfQueue.put('Start_roll')
                     i = random.randint(0, 4)
                     #i = 0
                     time.sleep(6)
@@ -123,8 +126,8 @@ class Shotmachine_controller():
                     f.write("shot " + str(i)  + " at " + datetimestring + "\n")
                     f.close()
                     self.ToIOQueue.put("Ready")
-                else:
-                    self.ToInterfQueue.put('Missing_Shotglass')
+                #else:
+                #    self.ToInterfQueue.put('Missing_Shotglass')
 
             try:
                 s = self.ToMainQueue.get(block=True, timeout=0.1)
