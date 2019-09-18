@@ -123,6 +123,8 @@ class Shotmachine_controller():
                     f.write("shot " + str(i)  + " at " + datetimestring + "\n")
                     f.close()
                     self.ToIOQueue.put("Ready")
+                else:
+                    self.ToInterfQueue.put('Missing_Shotglass')
 
             try:
                 s = self.ToMainQueue.get(block=True, timeout=0.1)

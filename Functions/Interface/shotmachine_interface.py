@@ -153,31 +153,55 @@ class Shotmachine_Interface():
         subprocess.Popen("wicd-client")
 
 
-    def redShotglass(self):
-        #screeninfo = pygame.display.Info()
-        shotImagesurf = pygame.image.load('Functions/Interface/Images/shot_red.png')
-        shotImagesurf = pygame.transform.scale(shotImagesurf, (150, 150))
-        shotImagesurf = shotImagesurf.convert_alpha()
-        shotImagesurfRect = shotImagesurf.get_rect()
-        shotImagesurfRect.center = (self.screeninfo.current_w - 200, self.screeninfo.current_h - 150)
-        self.screen.blit(shotImagesurf, shotImagesurfRect)
-        return shotImagesurfRect
+    #def redShotglass(self):
+    #    #screeninfo = pygame.display.Info()
+    #    shotImagesurf = pygame.image.load('Functions/Interface/Images/shot_red.png')
+    #    shotImagesurf = pygame.transform.scale(shotImagesurf, (150, 150))
+    #    shotImagesurf = shotImagesurf.convert_alpha()
+    #    shotImagesurfRect = shotImagesurf.get_rect()
+    #    shotImagesurfRect.center = (self.screeninfo.current_w - 200, self.screeninfo.current_h - 150)
+    #    self.screen.blit(shotImagesurf, shotImagesurfRect)
+    #    return shotImagesurfRect
 
 
-    def whiteShotglass(self):
-        #screeninfo = pygame.display.Info()
-        shotImagesurf = pygame.image.load('Functions/Interface/Images/shot.png')
+    def ShotglassSimbol(self):
+        updatelist = []
 
-        shotImagesurf = pygame.transform.scale(shotImagesurf, (150, 150))
-        shotImagesurf = shotImagesurf.convert_alpha()
-        shotImagesurfRect = shotImagesurf.get_rect()
-        shotImagesurfRect.center = (self.screeninfo.current_w - 200, self.screeninfo.current_h - 150)
-        self.screen.blit(shotImagesurf, shotImagesurfRect)
-        return shotImagesurfRect
+        textboxRect = pygame.Rect(self.screeninfo.current_w - 275, self.screeninfo.current_h - 250, 275, 250)
+        textboxSurf = pygame.draw.rect(self.screen, (0, 0, 0, 0), textboxRect)
+        updatelist.append(textboxRect)
+        if (self.EnableBarcodeScanner and ("Hallo" in self.currentTextMessage)) or not self.EnableBarcodeScanner:
+            if self.shotglassStatus:
+                shotImagesurf = pygame.image.load('Functions/Interface/Images/shot.png')
+            else:
+                shotImagesurf = pygame.image.load('Functions/Interface/Images/shot_red.png')
+
+            shotImagesurf = pygame.transform.scale(shotImagesurf, (150, 150))
+            shotImagesurf = shotImagesurf.convert_alpha()
+            shotImagesurfRect = shotImagesurf.get_rect()
+            shotImagesurfRect.center = (self.screeninfo.current_w - 200, self.screeninfo.current_h - 150)
+            self.screen.blit(shotImagesurf, shotImagesurfRect)
+            updatelist.append(shotImagesurfRect)
+        return updatelist
+
+    def CameraSimbol(self):
+        updatelist = []
+
+        textboxRect = pygame.Rect(0, self.screeninfo.current_h - 250, 275, 250)
+        textboxSurf = pygame.draw.rect(self.screen, (0, 0, 0, 0), textboxRect)
+        updatelist.append(textboxRect)
+        if (self.EnableBarcodeScanner and ("Hallo" in self.currentTextMessage)) or not self.EnableBarcodeScanner:
+            shotImagesurf = pygame.image.load('Functions/Interface/Images/camera.png')
+            shotImagesurf = pygame.transform.scale(shotImagesurf, (150, 150))
+            shotImagesurf = shotImagesurf.convert_alpha()
+            shotImagesurfRect = shotImagesurf.get_rect()
+            shotImagesurfRect.center = (200, self.screeninfo.current_h - 150)
+            self.screen.blit(shotImagesurf, shotImagesurfRect)
+            updatelist.append(shotImagesurfRect)
+        return updatelist
 
 
     def update_timeoutBarcode(self):
-        #screeninfo = pygame.display.Info()
         curr_time = time.time()
         progress = 1-((curr_time - self.timeout_start)/self.timeout_value)
         progressbarRect_back = pygame.Rect(0, self.screeninfo.current_h - 300, self.screeninfo.current_w, 50)
@@ -200,33 +224,31 @@ class Shotmachine_Interface():
 
     def newUserScanned(self):
         updatelist = []
-        #self.screeninfo = pygame.display.Info()
         #self.surface.set_colorkey((0, 0, 0))
 
-        textboxRect = pygame.Rect(0, self.screeninfo.current_h - 250, self.screeninfo.current_w, 250)
+        textboxRect = pygame.Rect(275, self.screeninfo.current_h - 250, self.screeninfo.current_w-550, 250)
         textboxSurf = pygame.draw.rect(self.screen, (0, 0, 0, 0), textboxRect)
         #textboxSurf.set_colorkey((0, 0, 0))
         updatelist.append(textboxRect)
-
+        self.currentTextMessage = 'Hallo ' + self.currentUser
         maintext = self.textfont.render('Hallo ' + self.currentUser, True, self.WHITE, self.BLACK)
         maintextRect = maintext.get_rect()
         maintextRect.center = (self.screeninfo.current_w // 2, self.screeninfo.current_h - 150)
         self.screen.blit(maintext, maintextRect)
         updatelist.append(maintextRect)
 
-        cameraImagesurf = pygame.image.load('Functions/Interface/Images/camera.png')
-        cameraImagesurf = pygame.transform.scale(cameraImagesurf, (150, 150))
-        cameraImagesurf = cameraImagesurf.convert_alpha()
-        cameraImagesurfRect = cameraImagesurf.get_rect()
-        cameraImagesurfRect.center = (200, self.screeninfo.current_h - 150)
-        self.screen.blit(cameraImagesurf, cameraImagesurfRect)
-        updatelist.append(cameraImagesurfRect)
+        #cameraImagesurf = pygame.image.load('Functions/Interface/Images/camera.png')
+        #cameraImagesurf = pygame.transform.scale(cameraImagesurf, (150, 150))
+        #cameraImagesurf = cameraImagesurf.convert_alpha()
+        #cameraImagesurfRect = cameraImagesurf.get_rect()
+        #cameraImagesurfRect.center = (200, self.screeninfo.current_h - 125)
+        #self.screen.blit(cameraImagesurf, cameraImagesurfRect)
+        #updatelist.append(cameraImagesurfRect)
 
-        if self.shotglassStatus:
-            updatelist.append(self.whiteShotglass())
-        else:
-            updatelist.append(self.redShotglass())
-        updatelist.append(self.reset_timeoutBarcode())
+        updatelist.extend(self.CameraSimbol())
+        updatelist.extend(self.ShotglassSimbol())
+
+        self.reset_timeoutBarcode()
         return updatelist
 
 
@@ -236,13 +258,14 @@ class Shotmachine_Interface():
 
     def NoUserText(self):
         updatelist = []
-        textboxRect = pygame.Rect(0, self.screeninfo.current_h - 250, self.screeninfo.current_w, 250)
+        textboxRect = pygame.Rect(275, self.screeninfo.current_h - 250, self.screeninfo.current_w-550, 250)
 
         textboxSurf = pygame.draw.rect(self.screen, (0, 0, 0, 0), textboxRect)
         #textboxSurf.set_colorkey((0, 0, 0))
         #cameraImagesurf = textboxSurf.convert_alpha(128)
         updatelist.append(textboxRect)
         if self.EnableBarcodeScanner:
+            self.currentTextMessage = 'Scan je bandje'
             self.text = self.textfont.render('Scan je bandje', True, self.WHITE, self.BLACK)
             self.textRect = self.text.get_rect()
             self.textRect.center = (self.screeninfo.current_w // 2, self.screeninfo.current_h - 150)
@@ -252,6 +275,28 @@ class Shotmachine_Interface():
 
         self.sendbuffer = 'NoUser'
 
+    def DisplayMissingShotglass(self):
+        self.currentTextMessage = "Zet eerst een shotglaasje neer"
+        updatelist = []
+
+        textboxRect = pygame.Rect(275, self.screeninfo.current_h - 250, self.screeninfo.current_w - 550, 250)
+        textboxSurf = pygame.draw.rect(self.screen, (0, 0, 0, 0), textboxRect)
+        updatelist.append(textboxRect)
+
+        self.text = self.textfont.render('Zet eerst een shotglaasje neer', True, self.WHITE, self.BLACK)
+        self.textRect = self.text.get_rect()
+        self.textRect.center = (self.screeninfo.current_w // 2, self.screeninfo.current_h - 150)
+        self.screen.blit(self.text, self.textRect)
+        updatelist.append(self.textRect)
+
+        timer_missingShotglass = Timer(15, self.ResetMissingShotglass)
+        timer_missingShotglass.start()
+
+        pygame.display.update(updatelist)
+
+    def ResetMissingShotglass(self):
+        if self.currentTextMessage == "Zet eerst een shotglaasje neer":
+            self.NoUserText()
 
     def run_rollers(self):
         self.roller1.start_roller(self.rollerspeed)
@@ -288,6 +333,7 @@ class Shotmachine_Interface():
         self.timeout_value = 20 #seconds
         self.timeout_start = time.time()
         self.currentUser = ""
+        self.currentTextMessage = ""
 
         # Define positions and size of rollers
         Roll_1_posx = 610
@@ -332,6 +378,10 @@ class Shotmachine_Interface():
         # set text on bottom of screen to init value
         self.NoUserText()
         self.stop_timeoutBarcode()
+        if not self.EnableBarcodeScanner:
+            updatelist.extend(self.CameraSimbol())
+            updatelist.extend(self.ShotglassSimbol())
+
 
         time.sleep(0.5)
         self.logger.info('Interface initialised')
@@ -361,7 +411,12 @@ class Shotmachine_Interface():
                         updatelist.extend(self.newUserScanned())
                 elif "Shotglass:" in self.recievebuffer:
                     self.shotglassStatus = bool(int(self.recievebuffer[-1:]))
-                    print('shotglass status: ' + str(self.shotglassStatus))
+                    #print('shotglass status: ' + str(self.shotglassStatus))
+                    updatelist.extend(self.ShotglassSimbol())
+                    if self.shotglassStatus:
+                        self.ResetMissingShotglass()
+                elif 'Missing_Shotglass' in self.recievebuffer:
+                    self.DisplayMissingShotglass()
 
                 self.recievebuffer = ''
 
@@ -406,8 +461,15 @@ class Shotmachine_Interface():
                 if showtime_elapsed > showtime:
                     self.load_main_screen()
                     current_screen = 'main'
-                    self.reset_timeoutBarcode()
-                    updatelist.extend(self.newUserScanned())
+
+                    if not self.EnableBarcodeScanner:
+                        self.NoUserText()
+                        self.stop_timeoutBarcode()
+                        updatelist.extend(self.CameraSimbol())
+                        updatelist.extend(self.ShotglassSimbol())
+                    else:
+                        self.reset_timeoutBarcode()
+                        updatelist.extend(self.newUserScanned())
                         
                 
             # Limit to 60 frames per second
