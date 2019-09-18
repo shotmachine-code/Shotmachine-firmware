@@ -11,6 +11,7 @@ import os
 import threading
 import queue
 import time
+import subprocess
 #import cv2
 #import sys
 import logging
@@ -24,10 +25,11 @@ from Functions.CameraShotmachine import camerashotmachine
 
 class Shotmachine_Interface():
 
-    def __init__(self, name, to_interface_queue, from_interface_queue):
+    def __init__(self, name, to_interface_queue, from_interface_queue, HandleShotmachine):
         self.name = name
         self.To_interface = to_interface_queue
         self.From_interface = from_interface_queue
+        self.HandleShotmachine = HandleShotmachine
         self.state = 'Boot'
         self.recievebuffer = ''
         self.sendbuffer = ''
@@ -36,11 +38,14 @@ class Shotmachine_Interface():
         pygame.font.init()
         self.myfont = pygame.font.SysFont('Comic Sans MS', 30)
 
+        self.EnableBarcodeScanner = self.HandleShotmachine["Settings"]["EnableBarcodeScanner"]
+
         self.thread = threading.Thread(target=self.queue_watcher,name='Interface_queue_watcher')
         self.thread.start()
 
         self.thread = threading.Thread(target=self.run, name=self.name)
         self.thread.start()
+
 
     def queue_watcher(self):
         
@@ -50,15 +55,35 @@ class Shotmachine_Interface():
                     self.recievebuffer = self.To_interface.get(block=True, timeout=0.1)
                     #print(self.recievebuffer)
                 except queue.Empty:
-                    continue
+                    pass
             if not self.sendbuffer == '':
                 self.logger.info("Sending from interface: " + self.sendbuffer)
                 self.From_interface.put(self.sendbuffer)
                 if self.sendbuffer == "Quit":
                     self.stopwatcher = True
+                    self.logger.info("interface quit")
                 self.sendbuffer = ''
             time.sleep(0.1)
 
+
+    def button(self, msg, x, y, w, h, ic, ac, action=None):
+        mouse = pygame.mouse.get_pos()
+        click = pygame.mouse.get_pressed()
+
+        if x + w > mouse[0] > x and y + h > mouse[1] > y:
+            buttoncolor = ac
+            if click[0] == 1 and action != None:
+                action()
+                time.sleep(2)
+        else:
+            buttoncolor = ic
+
+        smallText = pygame.font.SysFont("comicsansms", 30)
+        textSurf = smallText.render(msg, False, self.BLACK, buttoncolor)
+        textRect = textSurf.get_rect()
+        textRect.center = ((x + (w / 2)), (y + (h / 2)))
+        self.screen.blit(textSurf, textRect)
+        return textRect
 
 
     def load_main_screen(self):
@@ -73,10 +98,8 @@ class Shotmachine_Interface():
         boundingboxes.append(self.roller1.draw_roller())
         boundingboxes.append(self.roller2.draw_roller())
         boundingboxes.append(self.roller3.draw_roller())
-
         pygame.display.update(boundingboxes)
         self.logger.info('Main screen loaded')
-        
 
 
     def load_live_camera_screen(self):
@@ -86,6 +109,7 @@ class Shotmachine_Interface():
         self.progress = 0
         pygame.display.update()
         self.logger.info('Live camera screen')
+
 
     def load_picture_screen(self):
         self.screen.fill(self.BLACK)
@@ -102,6 +126,7 @@ class Shotmachine_Interface():
         self.sendbuffer = 'Taken Image:' + imagename
         self.logger.info('Taken picture screen')
 
+
     def load_config_screen(self):
         self.screen.fill(self.GRAY)
         CPUtemp_raw = psutil.sensors_temperatures()
@@ -114,12 +139,119 @@ class Shotmachine_Interface():
                 cputemp = "error"
         cputemp_surface = self.myfont.render(cputemp, False, (0, 0, 0))
         self.screen.blit(cputemp_surface,(100,100))
-        
+
         quitmessage_surf = self.myfont.render('press q to quit', False, (0, 0, 0))
         self.screen.blit(quitmessage_surf,(300,100))
+
+        backmessage_surf = self.myfont.render('press b to go back to normal screen', False, (0, 0, 0))
+        self.screen.blit(backmessage_surf, (300, 130))
         
         pygame.display.update()
-        
+
+
+    def start_WIFI_config(self):
+        subprocess.Popen("wicd-client")
+
+
+    def redShotglass(self):
+        #screeninfo = pygame.display.Info()
+        shotImagesurf = pygame.image.load('Functions/Interface/Images/shot_red.png')
+        shotImagesurf = pygame.transform.scale(shotImagesurf, (150, 150))
+        shotImagesurf = shotImagesurf.convert_alpha()
+        shotImagesurfRect = shotImagesurf.get_rect()
+        shotImagesurfRect.center = (self.screeninfo.current_w - 200, self.screeninfo.current_h - 150)
+        self.screen.blit(shotImagesurf, shotImagesurfRect)
+        return shotImagesurfRect
+
+
+    def whiteShotglass(self):
+        #screeninfo = pygame.display.Info()
+        shotImagesurf = pygame.image.load('Functions/Interface/Images/shot.png')
+
+        shotImagesurf = pygame.transform.scale(shotImagesurf, (150, 150))
+        shotImagesurf = shotImagesurf.convert_alpha()
+        shotImagesurfRect = shotImagesurf.get_rect()
+        shotImagesurfRect.center = (self.screeninfo.current_w - 200, self.screeninfo.current_h - 150)
+        self.screen.blit(shotImagesurf, shotImagesurfRect)
+        return shotImagesurfRect
+
+
+    def update_timeoutBarcode(self):
+        #screeninfo = pygame.display.Info()
+        curr_time = time.time()
+        progress = 1-((curr_time - self.timeout_start)/self.timeout_value)
+        progressbarRect_back = pygame.Rect(0, self.screeninfo.current_h - 300, self.screeninfo.current_w, 50)
+        progressbarSurf_back = pygame.draw.rect(self.screen, (0, 0, 0, 0), progressbarRect_back)
+        if progress >= 0:
+            progressbarRect = pygame.Rect(0, self.screeninfo.current_h - 300, round(self.screeninfo.current_w*progress), 50)
+            progressbarSurf = pygame.draw.rect(self.screen, self.WHITE, progressbarRect)
+        elif (progress < 0) and not (self.currentUser == ""):
+            self.UserTimeout()
+        return progressbarRect_back
+
+
+    def reset_timeoutBarcode(self):
+        self.timeout_start = time.time()
+
+
+    def stop_timeoutBarcode(self):
+        self.timeout_start = time.time() - self.timeout_value
+
+
+    def newUserScanned(self):
+        updatelist = []
+        #self.screeninfo = pygame.display.Info()
+        #self.surface.set_colorkey((0, 0, 0))
+
+        textboxRect = pygame.Rect(0, self.screeninfo.current_h - 250, self.screeninfo.current_w, 250)
+        textboxSurf = pygame.draw.rect(self.screen, (0, 0, 0, 0), textboxRect)
+        #textboxSurf.set_colorkey((0, 0, 0))
+        updatelist.append(textboxRect)
+
+        maintext = self.textfont.render('Hallo ' + self.currentUser, True, self.WHITE, self.BLACK)
+        maintextRect = maintext.get_rect()
+        maintextRect.center = (self.screeninfo.current_w // 2, self.screeninfo.current_h - 150)
+        self.screen.blit(maintext, maintextRect)
+        updatelist.append(maintextRect)
+
+        cameraImagesurf = pygame.image.load('Functions/Interface/Images/camera.png')
+        cameraImagesurf = pygame.transform.scale(cameraImagesurf, (150, 150))
+        cameraImagesurf = cameraImagesurf.convert_alpha()
+        cameraImagesurfRect = cameraImagesurf.get_rect()
+        cameraImagesurfRect.center = (200, self.screeninfo.current_h - 150)
+        self.screen.blit(cameraImagesurf, cameraImagesurfRect)
+        updatelist.append(cameraImagesurfRect)
+
+        if self.shotglassStatus:
+            updatelist.append(self.whiteShotglass())
+        else:
+            updatelist.append(self.redShotglass())
+        updatelist.append(self.reset_timeoutBarcode())
+        return updatelist
+
+
+    def UserTimeout(self):
+        self.currentUser = ""
+        self.NoUserText()
+
+    def NoUserText(self):
+        updatelist = []
+        textboxRect = pygame.Rect(0, self.screeninfo.current_h - 250, self.screeninfo.current_w, 250)
+
+        textboxSurf = pygame.draw.rect(self.screen, (0, 0, 0, 0), textboxRect)
+        #textboxSurf.set_colorkey((0, 0, 0))
+        #cameraImagesurf = textboxSurf.convert_alpha(128)
+        updatelist.append(textboxRect)
+        if self.EnableBarcodeScanner:
+            self.text = self.textfont.render('Scan je bandje', True, self.WHITE, self.BLACK)
+            self.textRect = self.text.get_rect()
+            self.textRect.center = (self.screeninfo.current_w // 2, self.screeninfo.current_h - 150)
+            self.screen.blit(self.text, self.textRect)
+            updatelist.append(self.textRect)
+        pygame.display.update(updatelist)
+
+        self.sendbuffer = 'NoUser'
+
 
     def run_rollers(self):
         self.roller1.start_roller(self.rollerspeed)
@@ -139,17 +271,23 @@ class Shotmachine_Interface():
         # Define some colors
         self.BLACK = (0, 0, 0)
         self.GRAY = (100,100,100)
-        WHITE = (255, 255, 255)
-        GREEN = (0, 255, 0)
-        RED = (255, 0, 0)
+        self.WHITE = (255, 255, 255)
+        self.GREEN = (0, 255, 0)
+        self.RED = (255, 0, 0)
 
         # Define some general variables
         screensize = [1920, 1080]
-
+        self.textfont = pygame.font.Font('freesansbold.ttf', 60)
         Roll_Images_dir = 'Functions/Interface/Images/Roll_images'
         Background_image_dir = 'Functions/Interface/Images/background_image'
         Appname = "Shotmachine Interface"
         self.rollerspeed = 50  # defines how fast the rollers move before stopped
+
+        self.shotglassStatus = False
+
+        self.timeout_value = 20 #seconds
+        self.timeout_start = time.time()
+        self.currentUser = ""
 
         # Define positions and size of rollers
         Roll_1_posx = 610
@@ -166,23 +304,21 @@ class Shotmachine_Interface():
         self.logger = logging.getLogger(__name__)
         # Initialize program
         pygame.init()
-        screeninfo = pygame.display.Info()
-        self.screensize = [screeninfo.current_w, screeninfo.current_h]
-        #self.screen = pygame.display.set_mode(self.screensize)
-        self.screen = pygame.display.set_mode((0,0),pygame.FULLSCREEN)
+        self.screeninfo = pygame.display.Info()
+        self.screensize = [self.screeninfo.current_w, self.screeninfo.current_h]
+        self.screen = pygame.display.set_mode(self.screensize)
+        #self.screen = pygame.display.set_mode((0,0),pygame.FULLSCREEN)
 
 
-        print(self.screensize)
+        self.logger.info("Set screensize to: " + str(self.screensize[0]) + "x" + str(self.screensize[1]))
         pygame.display.set_caption(Appname)
         clock = pygame.time.Clock()
         background_file = os.listdir(Background_image_dir)
         background_path = os.path.join(Background_image_dir, background_file[0])
-        print(background_path)
         self.background_image = pygame.image.load(background_path).convert()
 
         # Init camera
         self.camera = camerashotmachine.CameraShotmachine(_windowPosSize = (270,0,1440, 1080), waittime=3)
-        
         
         # Init rollers
         self.roller1 = Roller(Roll_1_posx, Roll_posy, Roll_height, Roll_width, Roll_Images_dir)
@@ -193,6 +329,10 @@ class Shotmachine_Interface():
         self.load_main_screen()
         current_screen = 'main'
 
+        # set text on bottom of screen to init value
+        self.NoUserText()
+        self.stop_timeoutBarcode()
+
         time.sleep(0.5)
         self.logger.info('Interface initialised')
 
@@ -202,30 +342,57 @@ class Shotmachine_Interface():
                 if self.recievebuffer == 'Roll_screen':
                     self.load_main_screen()
                     current_screen = 'main'
-                if self.recievebuffer == 'Take_picture':
+                elif self.recievebuffer == 'Take_picture':
                     self.load_live_camera_screen()
                     current_screen = 'livecamera'
-                if self.recievebuffer == 'Start_roll' and current_screen == 'main':
+                elif self.recievebuffer == 'Start_roll' and current_screen == 'main':
+                    print('roll')
                     self.run_rollers()
+                    #self.NoUserText()
+                    if self.EnableBarcodeScanner:
+                        timer_resetuser = Timer(10, self.stop_timeoutBarcode)
+                        timer_resetuser.start()
+                    #self.stop_timeoutBarcode()
+
+                elif "New_User:" in self.recievebuffer:
+                    self.currentUser = self.recievebuffer.split(':')[1]
+                    #print(str(Username))
+                    if self.EnableBarcodeScanner:
+                        updatelist.extend(self.newUserScanned())
+                elif "Shotglass:" in self.recievebuffer:
+                    self.shotglassStatus = bool(int(self.recievebuffer[-1:]))
+                    print('shotglass status: ' + str(self.shotglassStatus))
+
                 self.recievebuffer = ''
+
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.sendbuffer = 'Quit'
                     self.done = True
                 if event.type == pygame.KEYDOWN:
-                    if event.key == 282:  # F1
+                    if event.key == 32:  # Space
                         self.load_config_screen()
                         current_screen = 'config'
                     if event.key == 113 and current_screen == 'config':  # q
                         self.sendbuffer = 'Quit'
                         self.done = True
+                    if event.key == 98 and current_screen == 'config':  # b
+                        self.load_main_screen()
+                        current_screen = 'main'
+                        self.NoUserText()
+
 
             # Update the rollers if needed
             if current_screen == 'main':
                 updatelist.append(self.roller1.update_roller())
                 updatelist.append(self.roller2.update_roller())
                 updatelist.append(self.roller3.update_roller())
+
+                updatelist.append(self.update_timeoutBarcode())
+
+            if current_screen == 'config':
+                updatelist.append(self.button("Wifi settings", 150, 250, 150, 50, self.RED, self.GREEN, self.start_WIFI_config))
                 
             if current_screen == 'livecamera':
                 self.screen.fill([0,0,0])
@@ -239,6 +406,8 @@ class Shotmachine_Interface():
                 if showtime_elapsed > showtime:
                     self.load_main_screen()
                     current_screen = 'main'
+                    self.reset_timeoutBarcode()
+                    updatelist.extend(self.newUserScanned())
                         
                 
             # Limit to 60 frames per second
