@@ -5,7 +5,7 @@ from google.oauth2.credentials import Credentials
 credentials_file = 'credentials.json'
 clientID_file = 'client_id.json'
 
-def upload(credentials, file):
+def uploadPicture(credentials, file, albumId, picture_name):
     f = open(file, 'rb').read()
     url = 'https://photoslibrary.googleapis.com/v1/uploads'
     headers = {
@@ -16,9 +16,9 @@ def upload(credentials, file):
     }
     r = requests.post(url, data=f, headers=headers)
     upload_token = str(r.content, 'utf-8')
-    return upload_token
+    #return upload_token
 
-def createItem(credentials, upload_token, albumId, picture_name):
+#def createItem(credentials, upload_token, albumId, picture_name):
     url = 'https://photoslibrary.googleapis.com/v1/mediaItems:batchCreate'
     body = {
         'newMediaItems': [
@@ -41,7 +41,8 @@ def createItem(credentials, upload_token, albumId, picture_name):
     jsn = ''.join(str(x, 'utf-8') for x in r.content.split())
     creation_info = json.loads(jsn)
     status = creation_info['newMediaItemResults'][0]['status']['message']
-    if status == 'OK':
+    #print('status: '+str(status))
+    if status == 'Success':
         result = True
         print('Succesfull uploaded ' + picture_name )
     else:
@@ -50,6 +51,7 @@ def createItem(credentials, upload_token, albumId, picture_name):
     return result
 
 def create_album(credentials, album_name):
+    print('Create new album')
     url_create = 'https://photoslibrary.googleapis.com/v1/albums'
     headers = {
         'Authorization': "Bearer " + credentials.token,

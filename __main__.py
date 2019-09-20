@@ -154,7 +154,7 @@ class Shotmachine_controller():
                     barcode = ""
                 elif 'Taken Image' in s:
                     imagename = s.split(':')[1]
-                    print("recieved Image in main:" + imagename + "for user: " + barcode)
+                    print("recieved Image in main:" + imagename + " for user: " + barcode)
                 else:
                     print("Unknown command to main: " + s)
                 s = ""

@@ -6,14 +6,14 @@ dir(sys)
 #sys.path.append('C:/Users/marce/Dropbox/Drank-O-Matic/Software/Python/shotmachine2019/Functions/GooglePhotos')
 
 import glob
-from Functions.GooglePhotos_final.google_photos_functions import *
+from Functions.GooglePhotos.google_photos_functions import *
 
 ### Variables ###
 
 scopes = ['https://www.googleapis.com/auth/photoslibrary', 'https://www.googleapis.com/auth/photoslibrary.sharing']
-Album_Id = 'AOivGk-YDEEsGNAF7UfIxI9iGxnaXCmqLgtE6Tbgy1R_VSQaUzzMiLGOPGpJ6UnGeg2duIiTxR_Z'
+Album_Id = 'AOivGk9mA_hdf1F75tg5n3GxCN_BHFHY-Z2-rnWZXQTLFRoeq6FpMBfyatxwjfFOiWDnNxPfLF_5'
 album_name = 'Housewarming Lisa'
-Create_new_album = True
+Create_new_album = False
 
 ### Main code ###
 
@@ -41,10 +41,13 @@ if __name__ == "__main__":
     if Create_new_album == True:
         [Album_Id, albumURL] = create_album(creds, album_name)
 
-    #filelist = glob.glob("./TakenImages/NotUploaded/*.png")
-    #print(filelist)
-    #for foto in filelist:
-    #    print("Uploading file " + foto)
+    filelist = glob.glob("./TakenImages/NotUploaded/*.png")
+    print(filelist)
+    for foto in filelist:
+        print("Uploading file " + foto)
+        foto.split('/')[3]
+        fotoname = "Housewarming Lisa " + foto.split('/')[3]
         # Upload picture to album (2 steps required)
-    #    upload_token = upload(creds, foto)
-    #    response = createItem(creds,upload_token, Album_Id, foto)
+        response = uploadPicture(creds, foto, Album_Id, fotoname)
+        #response = createItem(creds,upload_token, Album_Id, foto)
+        print(response)
