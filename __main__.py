@@ -6,6 +6,7 @@ from Functions.Interface import shotmachine_interface
 from Functions.DatabaseSync import databasesync
 from Functions.InputsOutputs import inputsoutputs
 from Functions.Database import database_connection
+from Functions.GooglePhotos.photosUploader import PhotoUploader
 
 import platform
 import random
@@ -47,6 +48,7 @@ HandleShotmachine = {
         "EnableI2C": True,
         "EnableDBSync":False,
         "EnableBarcodeScanner": True
+        "EnablePhotoUploader": True
     },
     "Hardware": {
         "OnOffSwitch": 27,
@@ -155,6 +157,7 @@ class Shotmachine_controller():
                 elif 'Taken Image' in s:
                     imagename = s.split(':')[1]
                     print("recieved Image in main:" + imagename + " for user: " + barcode)
+                    ToPhotoUploaderQueue.put(imagename + ":" + barcode)
                 else:
                     print("Unknown command to main: " + s)
                 s = ""
@@ -186,6 +189,9 @@ shotmachine_interface.Shotmachine_Interface("Interface_main",
 
 if HandleShotmachine["Settings"]["EnableDBSync"]:
     db_syncer = databasesync.DatabaseSync(ToDBSyncQueue, ToMainQueue)
+
+if HandleShotmachine["Settings"]["EnablePhotoUploader"]:
+    PhotoUploader_program = PhotoUploader(ToPhotoUploaderQueue)
 
 main_controller = Shotmachine_controller('Main_controller',
                                          ToInterfQueue,

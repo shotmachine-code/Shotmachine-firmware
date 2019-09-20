@@ -105,3 +105,53 @@ class database_connection():
             return "Error"
 
     #def pictureToDatabase(self):
+
+    def GetGoogleAlbumId(self, partyId):
+        sql_get_google_album_id = "SELECT google_photoalbum_id FROM parties WHERE id={};"
+        db = pymysql.connect(self.localMysqlIP, self.localMysqlUser, self.localMysqlPass, "shotmachine")
+
+        cursor = db.cursor(pymysql.cursors.Cursor)
+        cursor.execute(sql_get_google_album_id.format(str(partyId)))
+        answer = cursor.fetchone()
+        albumId = str(answer[0])
+        cursor.close()
+        db.close()
+        return albumId
+
+    def SetGoogleAlbumId(self, partyID, Album_Id, albumurl):
+        sql_write_Google_album_data = "INSERT INTO parties (google_photoalbum_id, google_photoshareable_url) VALUES (%s, %s) WHERE id=%s;"
+        try:
+            db = pymysql.connect(self.localMysqlIP, self.localMysqlUser, self.localMysqlPass, "shotmachine")
+            cursor.execute(sql_write_Google_album_data, (Album_Id, albumurl, partyID))
+            db.commit()
+            cursor.close()
+            db.close()
+        except:
+            print("Unexpected error:", sys.exc_info()[0])
+            try:
+                db.rollback()
+                db.close()
+            except:
+                pass
+
+    def SetPhotoToUser(self, party_id, barcode, imagename):
+        sql_get_user_id = "SELECT id FROM users WHERE (barcode = {} AND party_id = {});"
+        sql_write_picture = "INSERT INTO photos (datetime, user_id, party_id, picture_name) VALUES (now(), %s, %s, %s);"
+        try:
+            db = pymysql.connect(self.localMysqlIP, self.localMysqlUser, self.localMysqlPass, "shotmachine")
+            cursor = db.cursor(pymysql.cursors.Cursor)
+
+            cursor.execute(sql_get_user_id.format(barcode, party_id))
+            user_id = str(cursor.fetchone()[0])
+            cursor.execute(sql_write_picture, (user_id, party_id, imagename))
+            db.commit()
+            cursor.close()
+            db.close()
+        except:
+            print("Unexpected error:", sys.exc_info()[0])
+            try:
+                db.rollback()
+                db.close()
+            except:
+                pass
+
