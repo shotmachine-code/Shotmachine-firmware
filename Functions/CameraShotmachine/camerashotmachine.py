@@ -50,7 +50,17 @@ class CameraShotmachine:
             self.camera.rotation = 270
             self.camera.hflip = True
         if self.onRaspberry and self.useCamera == "USB":
-            pass
+            self.stream = cv2.VideoCapture(0)
+            self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 960)  # 800
+            self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 540)  # 600
+            self.stream.set(cv2.CAP_PROP_BUFFERSIZE, 3)
+            self.stream.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
+            (self.grabbed, self.frame) = self.stream.read()
+
+            self.stopped = False
+            self.grabbed_small = False
+            self.grabbed_full = False
+            self.getSmallFrame = True
 
         else:
             # Create a black frame
@@ -66,7 +76,7 @@ class CameraShotmachine:
         Thread(target=self.run, args=()).start()
         self.logger.info('Class started')
         
-    def run(self):
+    def run(self): # CSI
         
         
         while not self.stop:
@@ -88,6 +98,7 @@ class CameraShotmachine:
                     cv2.imwrite(self.save_image_name,self.captured_image)
                     self.logger.info('Image saved in: ' + self.save_image_name)
                 self.running = False
+
             time.sleep(0.1)
 
         if self.onRaspberry:
@@ -95,15 +106,22 @@ class CameraShotmachine:
         self.logger.info('Camera module stopped')
         
 
-    def start(self):
+    def start_CSI(self):
         # start the thread to read frames from the video stream
-        if self.onRaspberry:
+        if self.onRaspberry and self.useCamera == "CSI":
             self.camera.start_preview(fullscreen = False, window = self.window, resolution = (1632,1232))
             self.start_time = time.time()
             self.captured_image = PiRGBArray(self.camera)
-        self.elapsed_time = 0
-        self.running = True
-        self.logger.info("Start taking picture")
+            self.elapsed_time = 0
+            self.running = True
+            self.logger.info("Start taking picture withh CSI camera")
+        if self.onRaspberry and self.useCamera == "USB":
+            Thread(target=self.update, args=()).start()
+            return self
+
+
+            self.logger.info("Start taking picture with USB")
+
 
 
     def getprogress(self):
@@ -126,4 +144,79 @@ class CameraShotmachine:
         self.stop = True
 
     def getimagename(self):
+        return self.save_image_name
+
+
+################## USB camera ########################
+
+    def start_USB(self):
+        # start the thread to read frames from the video stream
+        self.grabbed_small = False
+        self.grabbed_full = False
+        Thread(target=self.update_USB, args=()).start()
+        return self
+
+
+   def update_USB(self): # USB camera
+        while not self.stopped:
+            #self.elapsed_time = time.time() - self.start_time
+            # print(self.elapsed_time)
+            if self.getSmallFrame:
+                try:
+                    success_grab = False
+                    while success_grab:
+                        (success_grab, frame) = self.stream.read()
+                    #cv2.imshow("window camera", camera_frame)
+                    print("New frame")
+                    self.frame_small = frame
+                    self.grabbed_small = success_grab
+                except:
+                    continue
+            else:
+                self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 3840)
+                self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 2160)
+                success_grab = False
+                while not success_grab:
+                    (success_grab, frame) = self.stream.read()
+                    #(success_grab, self.full_frame) = self.stream.read()
+                print("New full frame")
+                self.frame_full = frame
+
+                #self.full_frame = self.frame
+                #self.grabbed_small = False
+
+
+                datetimestring = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+                self.save_image_name = os.path.join(self.storagepath, datetimestring + '.png')
+                cv2.imwrite(self.save_image_name, self.frame_full)
+                self.logger.info('Image saved in: ' + self.save_image_name)
+                #cv2.imshow("window camera", camera_frame)
+
+                #self.grabbed_full = success_grab
+                self.grabbed_full = success_grab
+                self.stopped = True
+
+
+
+    def read_small(self): # USB camera
+        # return the frame most recently read
+        while not self.grabbed_small and self.getSmallFrame:
+            time.sleep(0.0001)
+        self.grabbed_small = False
+        return self.small_frame
+
+    def read_full(self): # USB camera
+        self.getSmallFrame = False
+        while not self.grabbed_full and not self.getSmallFrame:
+            time.sleep(0.0001)
+        self.grabbed_full = False
+        #self.stopped = True
+        return self.full_frame
+
+
+    #def stop(self): # USB camera
+    #    # indicate that the thread should be stopped
+    #    self.stopped = True
+
+    def getimagename_USB(self):
         return self.save_image_name

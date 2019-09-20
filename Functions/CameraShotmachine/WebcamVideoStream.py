@@ -8,8 +8,8 @@ import time
 class WebcamVideoStream:
 	def __init__(self, _src=0, _resx=600, _resy=400):
 		self.src = _src
-		self.resx = _resx
-		self.resy = _resy
+		#self.resx = _resx
+		#self.resy = _resy
 		# initialize the video camera stream and read the first frame
 		# from the stream
 		self.stream = cv2.VideoCapture(self.src)
@@ -24,34 +24,21 @@ class WebcamVideoStream:
 		# initialize the variable used to indicate if the thread should
 		# be stopped
 		self.stopped = False
-		self.small_ready = False
+		#self.small_ready = False
 		self.grabbed_small = False
 		self.grabbed_full = False
-		self.small_flip_ready = False
+		#self.small_flip_ready = False
 		self.getSmallFrame = True
 
 		
-	def start(self):
+	def start_USB(self):
 		# start the thread to read frames from the video stream
-		Thread(target=self.update, args=()).start()
+		Thread(target=self.update_USB, args=()).start()
 		return self
  
-	def update(self):
-		# keep looping infinitely until the thread is stopped
+	def update_USB(self):
 		while not self.stopped:
-			# if the thread indicator variable is set, stop the thread
-			#if :
-			#	return
- 
-			#while(True):
-			#	prev_time=time.time()
-			#	frame_ref = self.stream.grab()
-			#	duration = time.time()-prev_time
-			#	print(duration)
-			#	if (duration)>0.030:#something around 33 FPS
-			#		break
-			#(success_grab,self.frame) = self.stream.retrieve(frame_ref)
-			
+
 			# otherwise, read the next frame from the stream
 			if self.getSmallFrame:
 				try:
