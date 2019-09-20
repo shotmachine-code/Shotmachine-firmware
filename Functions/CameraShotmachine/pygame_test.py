@@ -79,12 +79,13 @@ while going:
 	run_time = round((curr_millis - start_millis )/1000)
 	camera_frame = vs.read_small()
 	frame = cv2.putText(camera_frame, str(run_time), org, font, fontScale, color, thickness, cv2.LINE_AA)
-	cv2.imshow("window", camera_frame)  
+	cv2.imshow("window camera", camera_frame)  
 	print("refresh frame")
 	if cv2.waitKey(1) == 27:
-		vs.stop()
+		#vs.stop()
 		picture = vs.read_full()
 		cv2.imwrite("Image.jpg", picture)
+		cv2.imshow("window picture", picture)
 		#vs.stop()
 		going = False
 		exit(0)
