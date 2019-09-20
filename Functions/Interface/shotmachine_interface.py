@@ -21,6 +21,7 @@ from threading import Timer
 from Functions.Interface.roller import Roller
 #from Functions.PiVideoStream.PiVideoStream import PiVideoStream
 from Functions.CameraShotmachine import camerashotmachine
+from Functions.Database import database_connection
 
 
 class Shotmachine_Interface():
@@ -37,6 +38,8 @@ class Shotmachine_Interface():
         self.stopwatcher = False
         pygame.font.init()
         self.myfont = pygame.font.SysFont('freesansbold.ttf', 30)
+
+        self.db_conn = database_connection.database_connection()
 
         self.EnableBarcodeScanner = self.HandleShotmachine["Settings"]["EnableBarcodeScanner"]
 
@@ -139,6 +142,11 @@ class Shotmachine_Interface():
                 cputemp = "error"
         cputemp_surface = self.myfont.render(cputemp, False, (0, 0, 0))
         self.screen.blit(cputemp_surface,(100,100))
+
+        last_sync = self.db_conn.getLastSyncTime()
+        lastSyncMessage_surf = self.myfont.render("last db sync: " + str(last_sync), False, (0, 0, 0))
+        self.screen.blit(lastSyncMessage_surf, (100, 200))
+
 
         quitmessage_surf = self.myfont.render('press q to quit', False, (0, 0, 0))
         self.screen.blit(quitmessage_surf,(300,100))

@@ -38,7 +38,9 @@ class CameraShotmachine:
             self.onRaspberry = False
         self.onRaspberry = False
 
-        if self.onRaspberry:
+        self.useCamera = "USB" #, "CSI"
+
+        if self.onRaspberry and self.useCamera = "CSI":
             # initialize the camera and stream
             self.camera = PiCamera(sensor_mode = 4, resolution = (1632,1232))
             # self.captured_image = PiRGBArray(camera)
@@ -47,6 +49,9 @@ class CameraShotmachine:
             self.camera.image_denoise = True
             self.camera.rotation = 270
             self.camera.hflip = True
+        if self.onRaspberry and self.useCamera = "USB":
+
+
         else:
             # Create a black frame
             #picture = pygame.image.load('Functions/CameraShotmachine/testimage.png')

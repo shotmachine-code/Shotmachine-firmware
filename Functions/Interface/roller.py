@@ -21,13 +21,19 @@ class Roller:
 
         # Load roller images
         filelist = os.listdir(_roll_images_dir)
-        for fichier in filelist:
-            if not fichier.endswith(".png") and not fichier.endswith(".jpg"):
-                filelist.remove(fichier)
+
         for i in range(len(filelist)):
-            imagepath = os.path.join(_roll_images_dir, filelist[i])
-            image = pygame.image.load(imagepath).convert()
-            self.Roll_images.append(pygame.transform.scale(image, (_roller_width, _roller_width)))
+            try:
+                #print(fichier.endswith)
+                #if not fichier.endswith(".png") and not fichier.endswith(".jpg") and not fichier.endswith(".jpeg"):
+                #filelist.remove(fichier)
+                #for i in range(len(filelist)):
+                imagepath = os.path.join(_roll_images_dir, filelist[i])
+                #print(imagepath)
+                image = pygame.image.load(imagepath).convert()
+                self.Roll_images.append(pygame.transform.scale(image, (_roller_width, _roller_width)))
+            except:
+                continue
         if len(filelist) < 4:
             print('Error: Not enough roll images in folder. Need al least 4 images')
         self.n_roll_images = len(self.Roll_images)

@@ -33,7 +33,7 @@ class DatabaseSync:
             self.toMainQueue = _tomainqueue
 
             self.machine_id= 1
-            self.party_id = 2
+            self.party_id = 3
 
             self.FullSyncFromOnline =    'pt-table-sync --execute --verbose ' + \
                                     '-t error_logs,error_types,machines,parties,party_has_shots,photos,shots,takenshots,users ' + \
