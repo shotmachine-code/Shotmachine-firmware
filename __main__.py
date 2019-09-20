@@ -34,7 +34,7 @@ if (currentOS == 'Linux' and currentArch[0] != '64bit'):
     onRaspberry = True
 else:
     onRaspberry = False
-#onRaspberry = False
+onRaspberry = False
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
