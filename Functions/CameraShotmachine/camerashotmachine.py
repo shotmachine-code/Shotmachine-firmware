@@ -40,7 +40,7 @@ class CameraShotmachine:
 
         self.useCamera = "USB" #, "CSI"
 
-        if self.onRaspberry and self.useCamera = "CSI":
+        if self.onRaspberry and self.useCamera == "CSI":
             # initialize the camera and stream
             self.camera = PiCamera(sensor_mode = 4, resolution = (1632,1232))
             # self.captured_image = PiRGBArray(camera)
@@ -49,8 +49,8 @@ class CameraShotmachine:
             self.camera.image_denoise = True
             self.camera.rotation = 270
             self.camera.hflip = True
-        if self.onRaspberry and self.useCamera = "USB":
-
+        if self.onRaspberry and self.useCamera == "USB":
+            pass
 
         else:
             # Create a black frame
