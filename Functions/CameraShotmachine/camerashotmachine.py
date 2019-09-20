@@ -36,7 +36,7 @@ class CameraShotmachine:
             self.onRaspberry = True
         else:
             self.onRaspberry = False
-        self.onRaspberry = False
+        #self.onRaspberry = False
 
         self.useCamera = "USB" #, "CSI"
 
@@ -50,12 +50,21 @@ class CameraShotmachine:
             self.camera.rotation = 270
             self.camera.hflip = True
         if self.onRaspberry and self.useCamera == "USB":
+            self.size = (960, 540)
+            
             self.stream = cv2.VideoCapture(0)
-            self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 960)  # 800
-            self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 540)  # 600
-            self.stream.set(cv2.CAP_PROP_BUFFERSIZE, 3)
+            self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, self.size[0])  # 800 960
+            self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, self.size[1])  # 600 540
+            self.stream.set(cv2.CAP_PROP_BUFFERSIZE, 2)
             self.stream.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
             (self.grabbed, self.frame) = self.stream.read()
+            center_small = (480, 270)
+            center_full = (3840 / 2, 2160 / 2)
+            
+            
+            self.rotationMatrix_small = cv2.getRotationMatrix2D(center_small, 90, 1)
+            self.rotationMatrix_full = cv2.getRotationMatrix2D(center_full, 90, 1)
+
 
             self.stopped = False
             self.grabbed_small = False
@@ -73,7 +82,7 @@ class CameraShotmachine:
             #self.boundbox = picture.get_rect()
             self.image = picture
         
-        Thread(target=self.run, args=()).start()
+        #Thread(target=self.run, args=()).start()
         self.logger.info('Class started')
         
     def run(self): # CSI
@@ -153,21 +162,30 @@ class CameraShotmachine:
         # start the thread to read frames from the video stream
         self.grabbed_small = False
         self.grabbed_full = False
+        self.getSmallFrame = True
+        self.stopped = False
+        self.success_save = False
+        #self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 3840)
+        #self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 2160)
+        
         Thread(target=self.update_USB, args=()).start()
         return self
 
 
-   def update_USB(self): # USB camera
+    def update_USB(self): # USB camera
         while not self.stopped:
             #self.elapsed_time = time.time() - self.start_time
             # print(self.elapsed_time)
             if self.getSmallFrame:
                 try:
                     success_grab = False
-                    while success_grab:
-                        (success_grab, frame) = self.stream.read()
+                    while not success_grab:
+                        (success_grab, frame_raw) = self.stream.read()
+                        #self.rotationMatrix_small
+                        #frame = cv2.warpAffine(frame_raw, self.rotationMatrix_small, (self.size[1], self.size[0]))
+                        frame = np.rot90(frame_raw)
                     #cv2.imshow("window camera", camera_frame)
-                    print("New frame")
+                    #print("New frame")
                     self.frame_small = frame
                     self.grabbed_small = success_grab
                 except:
@@ -178,23 +196,28 @@ class CameraShotmachine:
                 success_grab = False
                 while not success_grab:
                     (success_grab, frame) = self.stream.read()
+                    self.frame_full = np.rot90(frame)
                     #(success_grab, self.full_frame) = self.stream.read()
                 print("New full frame")
-                self.frame_full = frame
+                #self.frame_full = frame
+                self.stopped = True
+                self.grabbed_full = success_grab
+                
 
                 #self.full_frame = self.frame
                 #self.grabbed_small = False
-
+                self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 960)  # 800
+                self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 540)  # 600
 
                 datetimestring = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
                 self.save_image_name = os.path.join(self.storagepath, datetimestring + '.png')
-                cv2.imwrite(self.save_image_name, self.frame_full)
+                cv2.imwrite(self.save_image_name, frame)
                 self.logger.info('Image saved in: ' + self.save_image_name)
                 #cv2.imshow("window camera", camera_frame)
 
                 #self.grabbed_full = success_grab
-                self.grabbed_full = success_grab
-                self.stopped = True
+                self.success_save = True
+                
 
 
 
@@ -202,8 +225,10 @@ class CameraShotmachine:
         # return the frame most recently read
         while not self.grabbed_small and self.getSmallFrame:
             time.sleep(0.0001)
+            #print("wait 1ms")
         self.grabbed_small = False
-        return self.small_frame
+        #print("New frame")
+        return self.frame_small
 
     def read_full(self): # USB camera
         self.getSmallFrame = False
@@ -211,7 +236,7 @@ class CameraShotmachine:
             time.sleep(0.0001)
         self.grabbed_full = False
         #self.stopped = True
-        return self.full_frame
+        return self.frame_full
 
 
     #def stop(self): # USB camera
@@ -219,4 +244,6 @@ class CameraShotmachine:
     #    self.stopped = True
 
     def getimagename_USB(self):
+        while not self.success_save:
+            time.sleep(0.0001)
         return self.save_image_name

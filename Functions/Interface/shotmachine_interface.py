@@ -113,10 +113,19 @@ class Shotmachine_Interface():
         self.CameraStartTime = time.time() #progress = 0
         pygame.display.update()
         self.logger.info('Live camera screen')
+        image = self.camera.read_small()
+        cameraImageSurf = pygame.surfarray.make_surface(image)
+
+        cameraImageSurf.get_rect()
+        self.cameraImageRect = cameraImageSurf.get_rect()
+        self.cameraImageRect.center = (self.screeninfo.current_w /2 , self.screeninfo.current_h /2)
+        self.screen.blit(cameraImageSurf, self.cameraImageRect) #, special_flags=pygame.HWSURFACE)
+        self.updatelist.append(self.cameraImageRect)
 
 
     def load_picture_screen(self):
         self.screen.fill(self.WHITE)
+        pygame.display.update()
         #self.screen.blit(self.background_image, [0, 0])
         #image = self.camera.getimage() #CSI
         image = self.camera.read_full() #USB
@@ -132,15 +141,17 @@ class Shotmachine_Interface():
         self.logger.info('Taken picture screen')
 
     def Update_camera(self):
+        #print("update camera live screen function")
         image = self.camera.read_small()
         cameraImageSurf = pygame.surfarray.make_surface(image)
 
-        cameraImageSurf.get_rect()
-        cameraImageRect = surf.get_rect()
-        cameraImageRect.center = (self.screeninfo.current_w /2 , self.screeninfo.current_h /2)
+        #cameraImageSurf.get_rect()
+        #cameraImageRect = cameraImageSurf.get_rect()
+        #cameraImageRect.center = (self.screeninfo.current_w /2 , self.screeninfo.current_h /2)
 
-        self.screen.blit(cameraImageSurf, cameraImageRect)
-        self.updatelist.append(cameraImageRect)
+        self.screen.blit(cameraImageSurf, self.cameraImageRect) #, special_flags=pygame.HWSURFACE)
+        self.updatelist.append(self.cameraImageRect)
+        #self.updatelist.append(shotImagesurfRect)
 
         #picturesize = (1920, 1080)
         # picturesize = (round(self.screensize[1]*(4/3)), self.screensize[1])
@@ -390,7 +401,8 @@ class Shotmachine_Interface():
         Roll_posy = 300
         Roll_width = 300
         Roll_height = 420  # Must be less than 2x width
-        showtime = 5 # Defines how long the taken picture is shown
+        #showtime = 5 # Defines how long the taken picture is shown
+        self.cameraPictureTime = 5
 
         # Init some system variables, do not change those
         self.updatelist = []
@@ -400,8 +412,9 @@ class Shotmachine_Interface():
         pygame.init()
         self.screeninfo = pygame.display.Info()
         self.screensize = [self.screeninfo.current_w, self.screeninfo.current_h]
-        self.screen = pygame.display.set_mode(self.screensize)
+        self.screen = pygame.display.set_mode(self.screensize, (pygame.DOUBLEBUF)) #|pygame.HWSURFACE))
         #self.screen = pygame.display.set_mode((0,0),pygame.FULLSCREEN)
+        #self.screen = pygame.display.set_mode(pygame.DOUBLEBUF)
 
 
         self.logger.info("Set screensize to: " + str(self.screensize[0]) + "x" + str(self.screensize[1]))
@@ -510,10 +523,13 @@ class Shotmachine_Interface():
                 self.updatelist.append(self.button("Wifi settings", 150, 250, 150, 50, self.RED, self.GREEN, self.start_WIFI_config))
                 
             if current_screen == 'livecamera':
+                #print("live camera")
                 self.CameraRunTime = time.time() - self.CameraStartTime
                 if self.CameraRunTime > self.cameraLiveTime:
                     current_screen = 'picture'
+                    self.load_picture_screen()
                 else:
+                    #print("live camera Update")
                     self.Update_camera()
                     #self.screen.fill(self.WHITE)
                     #self.camera.start_USB()
@@ -530,9 +546,12 @@ class Shotmachine_Interface():
             if current_screen == 'picture':
                 #self.cameraScreenStarted = False
                 showtime_elapsed = time.time() - self.start_showtime
-                if showtime_elapsed > showtime:
+                if showtime_elapsed > self.cameraPictureTime:
                     self.load_main_screen()
                     current_screen = 'main'
+                    #ImageName = self.camera.getimagename_USB()
+                    #self.sendbuffer = 'TakenPicture:'+ ImageName
+                    
 
                     if not self.EnableBarcodeScanner:
                         self.NoUserText()
@@ -546,7 +565,7 @@ class Shotmachine_Interface():
                 
             # Limit to 60 frames per second
             clock.tick(60)
-            print("FRP: " + str(clock.get_fps()))
+            print("FPS: " + str(clock.get_fps()))
 
             # Update the screen with what has changed.
             pygame.display.update(self.updatelist)
@@ -554,7 +573,7 @@ class Shotmachine_Interface():
 
         # Close everything down
         pygame.quit()
-        self.camera.requeststop()
+        #self.camera.requeststop()
         while self.stopwatcher == False:
                 time.sleep(0.1)
         self.logger.info('Interface stopped')

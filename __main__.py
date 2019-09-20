@@ -45,7 +45,7 @@ HandleShotmachine = {
         "OnRaspberry": onRaspberry,
         "EnableSPI": True,
         "EnableI2C": True,
-        "EnableDBSync":True,
+        "EnableDBSync":False,
         "EnableBarcodeScanner": True
     },
     "Hardware": {
@@ -98,7 +98,7 @@ class Shotmachine_controller():
                     self.ToIOQueue.put("Busy")
                     self.ToIOQueue.put("Flashlight 1")
                     #self.ToInterfQueue.put('Take_picture')
-                    time.sleep(4)
+                    time.sleep(7)
                     self.ToIOQueue.put("Flashlight 0")
                     time.sleep(1)
                     f = open(Logfile, "a")
@@ -152,6 +152,9 @@ class Shotmachine_controller():
                 elif 'NoUser' in s:
                     username = ""
                     barcode = ""
+                elif 'Taken Image' in s:
+                    imagename = s.split(':')[1]
+                    print("recieved Image in main:" + imagename + "for user: " + barcode)
                 else:
                     print("Unknown command to main: " + s)
                 s = ""
