@@ -12,8 +12,8 @@ from Functions.GooglePhotos_final.google_photos_functions import *
 
 scopes = ['https://www.googleapis.com/auth/photoslibrary', 'https://www.googleapis.com/auth/photoslibrary.sharing']
 Album_Id = 'AOivGk-YDEEsGNAF7UfIxI9iGxnaXCmqLgtE6Tbgy1R_VSQaUzzMiLGOPGpJ6UnGeg2duIiTxR_Z'
-album_name = 'Retrorave'
-Create_new_album = False
+album_name = 'Housewarming Lisa'
+Create_new_album = True
 
 ### Main code ###
 
@@ -41,10 +41,10 @@ if __name__ == "__main__":
     if Create_new_album == True:
         [Album_Id, albumURL] = create_album(creds, album_name)
 
-    filelist = glob.glob("./TakenImages/NotUploaded/*.png")
-    print(filelist)
-    for foto in filelist:
-        print("Uploading file " + foto)
+    #filelist = glob.glob("./TakenImages/NotUploaded/*.png")
+    #print(filelist)
+    #for foto in filelist:
+    #    print("Uploading file " + foto)
         # Upload picture to album (2 steps required)
-        upload_token = upload(creds, foto)
-        response = createItem(creds,upload_token, Album_Id, foto)
+    #    upload_token = upload(creds, foto)
+    #    response = createItem(creds,upload_token, Album_Id, foto)
