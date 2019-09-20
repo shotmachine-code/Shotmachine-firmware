@@ -1,5 +1,6 @@
 import json
 import requests
+import time
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
@@ -11,9 +12,9 @@ class googlePhotoUploader():
     def __init__(self, _albumId = None):
         scopes = ['https://www.googleapis.com/auth/photoslibrary',
                   'https://www.googleapis.com/auth/photoslibrary.sharing']
-
+        print("start init uploader")
         result = self.Get_Credentials()
-
+        #print(result)
         # No valid credentials have been found, ask user for new one
         if not result:
             print('No credentials found, requesting from user')
@@ -27,13 +28,15 @@ class googlePhotoUploader():
             self.Save_Credentials()
 
         # Build handler and refresh access token
-        service = build('photoslibrary', 'v1', credentials=self.credentials)
+        
+        service = build('photoslibrary', 'v1', credentials=self.credentials, cache_discovery=False)
         results = service.albums().list(pageSize=10).execute()
-
+        print("album id: " + _albumId)
         if _albumId == None:
             self.create_album()
         else:
             self.albumId = _albumId
+        print("init uploader done")
 
     def Get_Credentials(self):
         try:
@@ -69,18 +72,21 @@ class googlePhotoUploader():
             json.dump(credentials_data, f)
         print('Credentials saved')
 
-    def uploadPicture(self, file, picture_name):
-        f = open(file, 'rb').read()
+    def uploadPicture(self, _file, picture_name):
+        print('21')
+        f = open(_file, 'rb').read()
         url = 'https://photoslibrary.googleapis.com/v1/uploads'
         headers = {
             'Authorization': "Bearer " + self.credentials.token,
             'Content-Type': 'application/octet-stream',
-            'X-Goog-Upload-File-Name': file,
+            'X-Goog-Upload-File-Name': _file,
             'X-Goog-Upload-Protocol': "raw",
         }
+        print('22')
         r = requests.post(url, data=f, headers=headers)
+        print(r)
         upload_token = str(r.content, 'utf-8')
-
+        print('23')
         url = 'https://photoslibrary.googleapis.com/v1/mediaItems:batchCreate'
         body = {
             'newMediaItems': [
@@ -92,6 +98,7 @@ class googlePhotoUploader():
                 }
             ]
         }
+        print('23')
         if self.albumId is not None:
             body['albumId'] = self.albumId
         bodySerialized = json.dumps(body)
@@ -99,11 +106,12 @@ class googlePhotoUploader():
             'Authorization': "Bearer " + self.credentials.token,
             'Content-Type': 'application/json',
         }
+        print('24')
         r = requests.post(url, data=bodySerialized, headers=headers)
         jsn = ''.join(str(x, 'utf-8') for x in r.content.split())
         creation_info = json.loads(jsn)
         status = creation_info['newMediaItemResults'][0]['status']['message']
-        # print('status: '+str(status))
+        print('status: '+str(status))
         if status == 'Success':
             result = True
             print('Succesfull uploaded ' + picture_name)

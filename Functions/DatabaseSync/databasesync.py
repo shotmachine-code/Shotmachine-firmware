@@ -40,9 +40,9 @@ class DatabaseSync:
                                     'h=' + self.onlineMysqlIP + ', -u ' + self.onlineMysqlUser +', -p' + self.onlineMysqlPass + \
                                     ', h=' + self.localMysqlIP + ', -u ' + self.localMysqlUser + ', -p' + self.localMysqlPass
             self.LastSyncToOnline = 'pt-table-sync --execute --verbose --set-vars wait_timeout=60 --where "created_at > CURDATE() - INTERVAL 1 DAY" ' + \
-                               '-t takenshots,photos,machines,error_logs ' + \
+                               '-t takenshots,machines,error_logs ' + \
                                'h=' + self.localMysqlIP + ', -u ' + self.localMysqlUser + ', -p' + self.localMysqlPass + \
-                               ', h=' + self.onlineMysqlIP + ', -u ' + self.onlineMysqlUser +', -p' + self.onlineMysqlPass
+                               ', h=' + self.onlineMysqlIP + ', -u ' + self.onlineMysqlUser +', -p' + self.onlineMysqlPass #'-t takenshots,photos,machines,error_logs ' + 
             self.LastSyncTimeToOnline = 'pt-table-sync --execute --verbose --set-vars wait_timeout=60 --where "id = {}" ' + \
                                    '-t machines ' + \
                                    'h=' + self.localMysqlIP + ', -u ' + self.localMysqlUser + ', -p' + self.localMysqlPass + \

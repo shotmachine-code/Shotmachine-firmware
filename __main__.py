@@ -6,7 +6,7 @@ from Functions.Interface import shotmachine_interface
 from Functions.DatabaseSync import databasesync
 from Functions.InputsOutputs import inputsoutputs
 from Functions.Database import database_connection
-from Functions.GooglePhotos.photosUploader import PhotoUploader
+from Functions.GooglePhotos.PhotoUploader import PhotoUploader
 
 import platform
 import random
@@ -46,8 +46,8 @@ HandleShotmachine = {
         "OnRaspberry": onRaspberry,
         "EnableSPI": True,
         "EnableI2C": True,
-        "EnableDBSync":False,
-        "EnableBarcodeScanner": True
+        "EnableDBSync":True,
+        "EnableBarcodeScanner": True,
         "EnablePhotoUploader": True
     },
     "Hardware": {
@@ -69,12 +69,13 @@ HandleShotmachine = {
 
 
 class Shotmachine_controller():
-    def __init__(self, _name, _ToInterfQueue, _ToMainQueue, _ToDBSyncQueue, _ToIOQueue):
+    def __init__(self, _name, _ToInterfQueue, _ToMainQueue, _ToDBSyncQueue, _ToIOQueue, _ToPhotoUploaderQueue):
         self.name = _name
         self.ToInterfQueue = _ToInterfQueue
         self.ToMainQueue = _ToMainQueue
         self.ToDBSyncQueue = _ToDBSyncQueue
         self.ToIOQueue = _ToIOQueue
+        self.ToPhotoUploaderQueue = _ToPhotoUploaderQueue
         self.state = 'Boot'
         self.quitprogram = False
 
@@ -137,7 +138,7 @@ class Shotmachine_controller():
                     self.quitprogram = True
                     self.ToDBSyncQueue.put("Quit")
                     self.ToIOQueue.put("Quit")
-
+                    self.ToPhotoUploaderQueue.put("Quit")
                     logger.info("main quit")
                 elif "ShotglassState" in s:
                     self.Shotglass = bool(int(s[-1:]))
@@ -157,7 +158,7 @@ class Shotmachine_controller():
                 elif 'Taken Image' in s:
                     imagename = s.split(':')[1]
                     print("recieved Image in main:" + imagename + " for user: " + barcode)
-                    ToPhotoUploaderQueue.put(imagename + ":" + barcode)
+                    self.ToPhotoUploaderQueue.put(imagename + ":" + barcode)
                 else:
                     print("Unknown command to main: " + s)
                 s = ""
@@ -190,19 +191,21 @@ shotmachine_interface.Shotmachine_Interface("Interface_main",
 if HandleShotmachine["Settings"]["EnableDBSync"]:
     db_syncer = databasesync.DatabaseSync(ToDBSyncQueue, ToMainQueue)
 
-if HandleShotmachine["Settings"]["EnablePhotoUploader"]:
-    PhotoUploader_program = PhotoUploader(ToPhotoUploaderQueue)
+
 
 main_controller = Shotmachine_controller('Main_controller',
                                          ToInterfQueue,
                                          ToMainQueue,
                                          ToDBSyncQueue,
-                                         ToIOQueue)
+                                         ToIOQueue,
+                                         ToPhotoUploaderQueue)
 
 inputsoutputs.InputsOutputs(HandleShotmachine,
                             ToMainQueue,
                             ToIOQueue)
 
+if HandleShotmachine["Settings"]["EnablePhotoUploader"]:
+    PhotoUploader_program = PhotoUploader('3', ToPhotoUploaderQueue)
 
 controller_alive = True
 while controller_alive:

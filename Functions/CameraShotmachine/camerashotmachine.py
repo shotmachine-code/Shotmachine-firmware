@@ -216,6 +216,7 @@ class CameraShotmachine:
                 #cv2.imshow("window camera", camera_frame)
 
                 #self.grabbed_full = success_grab
+                
                 self.success_save = True
                 
 

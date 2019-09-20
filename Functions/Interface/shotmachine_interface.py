@@ -565,7 +565,7 @@ class Shotmachine_Interface():
                 
             # Limit to 60 frames per second
             clock.tick(60)
-            print("FPS: " + str(clock.get_fps()))
+            #print("FPS: " + str(clock.get_fps()))
 
             # Update the screen with what has changed.
             pygame.display.update(self.updatelist)

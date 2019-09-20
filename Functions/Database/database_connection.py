@@ -20,6 +20,10 @@ class database_connection():
                     self.localMysqlUser = mysqlXML.find('user').text
                     self.localMysqlPass = mysqlXML.find('password').text
                     self.localMysqlIP = mysqlXML.find('ip').text
+                if mysqlXML.get('name') == 'online':
+                    self.onlineMysqlUser = mysqlXML.find('user').text
+                    self.onlineMysqlPass = mysqlXML.find('password').text
+                    self.onlineMysqlIP = mysqlXML.find('ip').text
 
             #self.db = pymysql.connect(self.localMysqlIP, self.localMysqlUser, self.localMysqlPass, "shotmachine")
             #cursor = self.db.cursor()
@@ -134,19 +138,22 @@ class database_connection():
             except:
                 pass
 
-    def SetPhotoToUser(self, party_id, barcode, imagename):
+    def SetPhotoToUser(self, party_id, barcode, imagename, timestamp):
+        print("start writing photo to db")
         sql_get_user_id = "SELECT id FROM users WHERE (barcode = {} AND party_id = {});"
-        sql_write_picture = "INSERT INTO photos (datetime, user_id, party_id, picture_name) VALUES (now(), %s, %s, %s);"
+        sql_write_picture = "INSERT INTO photos (datetime, user_id, party_id, picture_name, created_at ,updated_at) VALUES (%s, %s, %s, %s, %s, %s);"
         try:
-            db = pymysql.connect(self.localMysqlIP, self.localMysqlUser, self.localMysqlPass, "shotmachine")
+            db = pymysql.connect(self.onlineMysqlIP, self.onlineMysqlUser, self.onlineMysqlPass, "shotmachine")
             cursor = db.cursor(pymysql.cursors.Cursor)
 
             cursor.execute(sql_get_user_id.format(barcode, party_id))
             user_id = str(cursor.fetchone()[0])
-            cursor.execute(sql_write_picture, (user_id, party_id, imagename))
+            print("User_id: " + user_id)
+            cursor.execute(sql_write_picture, (timestamp, user_id, party_id, imagename, timestamp, timestamp))
             db.commit()
             cursor.close()
             db.close()
+            print("finished writing to db")
         except:
             print("Unexpected error:", sys.exc_info()[0])
             try:
