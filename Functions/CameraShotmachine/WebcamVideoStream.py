@@ -6,19 +6,19 @@ import pygame
 import time
  
 class WebcamVideoStream:
-	def __init__(self, src=0, _resx=600, _resy=400):
-		
+	def __init__(self, _src=0, _resx=600, _resy=400):
+		self.src = _src
 		self.resx = _resx
 		self.resy = _resy
 		# initialize the video camera stream and read the first frame
 		# from the stream
-		self.stream = cv2.VideoCapture(src)
-		self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 800)
-		self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 600)
+		self.stream = cv2.VideoCapture(self.src)
+		self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 800) #800
+		self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 600) #600
 		self.stream.set(cv2.CAP_PROP_BUFFERSIZE, 3)
 		self.stream.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
 		(self.grabbed, self.frame) = self.stream.read()
-		#self.small_frame = cv2.resize(self.frame, None, (0,0), fx = 0.33, fy = 0.33)
+		#self.small_frame = cv2.resize(self.frame, None, (0,0), fx = 0.4, fy = 0.4)
 		
  
 		# initialize the variable used to indicate if the thread should
@@ -37,10 +37,10 @@ class WebcamVideoStream:
  
 	def update(self):
 		# keep looping infinitely until the thread is stopped
-		while True:
+		while not self.stopped:
 			# if the thread indicator variable is set, stop the thread
-			if self.stopped:
-				return
+			#if :
+			#	return
  
 			#while(True):
 			#	prev_time=time.time()
@@ -52,13 +52,16 @@ class WebcamVideoStream:
 			#(success_grab,self.frame) = self.stream.retrieve(frame_ref)
 			
 			# otherwise, read the next frame from the stream
-			(success_grab, self.frame) = self.stream.read()
-			print("New frame")
-			
-			#self.small_frame = cv2.resize(self.frame, None, (0,0), fx = 0.3, fy = 0.3)
-			#self.small_frame_flip = cv2.flip(self.small_frame, 0)
-			self.grabbed_small = success_grab
-			self.grabbed_full = success_grab
+			try:
+				(success_grab, self.frame) = self.stream.read()
+				print("New frame")
+				self.small_frame = self.frame
+				#self.small_frame = cv2.resize(self.frame, None, (0,0), fx = 0.4, fy = 0.4)
+				#self.small_frame_flip = cv2.flip(self.small_frame, 0)
+				self.grabbed_small = success_grab
+				self.grabbed_full = success_grab
+			except:
+				continue
 			
 
 
@@ -66,18 +69,24 @@ class WebcamVideoStream:
 	def read_small(self):
 		# return the frame most recently read
 		while not self.grabbed_small:
-			time.sleep(0.001)
+			time.sleep(0.0001)
 		self.grabbed_small = False
-		return self.frame
+		return self.small_frame
 		
 		
 	def read_full(self):
 		# return the frame most recently read
-		while not self.grabbed_full:
-			time.sleep(0.001)
+		#self.stream.release()
+		#stream = cv2.VideoCapture(self.src)
+		self.stopped = True
+		self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 3840) #800
+		self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 2160) #600
+		(success_grab, full_frame) = self.stream.read()
+		#while not self.grabbed_full:
+		#	time.sleep(0.0001)
 		#self.full_frame_flip = cv2.flip(self.frame, 0)
-		return self.frame
-		self.grabbed_full = False
+		return full_frame
+		#self.grabbed_full = False
 
  
 	def stop(self):

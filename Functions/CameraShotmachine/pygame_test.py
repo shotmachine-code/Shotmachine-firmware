@@ -34,7 +34,7 @@ size = [1240,720]
 going = True
 
 
-vs = WebcamVideoStream.WebcamVideoStream(src=0, _resx=size[0], _resy=size[1])
+vs = WebcamVideoStream.WebcamVideoStream(_src=0, _resx=size[0], _resy=size[1])
 vs.start()
 #fps = FPS().start()
 
@@ -78,13 +78,14 @@ while going:
 	
 	run_time = round((curr_millis - start_millis )/1000)
 	camera_frame = vs.read_small()
-	#frame = cv2.putText(camera_frame, str(run_time), org, font, fontScale, color, thickness, cv2.LINE_AA)
+	frame = cv2.putText(camera_frame, str(run_time), org, font, fontScale, color, thickness, cv2.LINE_AA)
 	cv2.imshow("window", camera_frame)  
 	print("refresh frame")
 	if cv2.waitKey(1) == 27:
+		vs.stop()
 		picture = vs.read_full()
 		cv2.imwrite("Image.jpg", picture)
-		vs.stop()
+		#vs.stop()
 		going = False
 		exit(0)
 	
