@@ -188,18 +188,19 @@ class InputsOutputs:
             if self.makeshot:
                 self.logger.info('Making shot' + str(self.shotnumber))
                 if self.EnableI2COutput:
+                    self.shotnumber = 4
                     self.MCP.output(self.shotnumber, 0)
 
                     if self.shotnumber == 0:
-                        time.sleep(8)  # 8
+                        time.sleep(80)  # 8
                     elif self.shotnumber == 1:
-                        time.sleep(4)  # 4
+                        time.sleep(40)  # 4
                     elif self.shotnumber == 2:
-                        time.sleep(5)  # 5
+                        time.sleep(50)  # 5
                     elif self.shotnumber == 3:
-                        time.sleep(5)  # 5
+                        time.sleep(50)  # 5
                     elif self.shotnumber == 4:
-                        time.sleep(4)  # 4
+                        time.sleep(40)  # 4
 
                     self.MCP.output(self.shotnumber, 1)
 
@@ -348,20 +349,27 @@ class InputsOutputs:
     def checkshotglas(self):
         while self.run:
             if self.EnableI2COutput:
-                self.bus.write_byte_data(self.shotdetectorAddress, 0, 0x51)
-                time.sleep(0.7)
-                msb = self.bus.read_byte_data(self.shotdetectorAddress, 2)
-                lsb = self.bus.read_byte_data(self.shotdetectorAddress, 3)
-                measuredRange = (msb << 8) + lsb
-                if measuredRange < 23:
-                    self.CheckShotglass = True
-                else:
-                    self.CheckShotglass = False
-                if self.shotglass != self.CheckShotglass:
-                    self.logger.info('shotglas status changed to: ' + str(int(self.CheckShotglass)))
-                    self.ToMainQueue.put("ShotglassState " + str(int(self.CheckShotglass)))
-                    self.shotglass = self.CheckShotglass
-
+                try:
+                    self.bus.write_byte_data(self.shotdetectorAddress, 0, 0x51)
+                    time.sleep(0.7)
+                    msb = self.bus.read_byte_data(self.shotdetectorAddress, 2)
+                    lsb = self.bus.read_byte_data(self.shotdetectorAddress, 3)
+                    measuredRange = (msb << 8) + lsb
+                except:
+                    measuredRange = 23
+                if (measuredRange != 7) or (measuredRange != 110):
+                        #print(measuredRange)
+                    if measuredRange < 25:
+                        self.CheckShotglass = True
+                    else:
+                        self.CheckShotglass = False
+                    if self.shotglass != self.CheckShotglass:
+                        self.logger.info('shotglas status changed to: ' + str(int(self.CheckShotglass)))
+                        self.ToMainQueue.put("ShotglassState " + str(int(self.CheckShotglass)))
+                        self.shotglass = self.CheckShotglass
+                #except:
+                    #continue
+                    
 
     def setflashlightfunc(self, state):
 

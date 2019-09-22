@@ -413,7 +413,7 @@ class Shotmachine_Interface():
         self.screeninfo = pygame.display.Info()
         self.screensize = [self.screeninfo.current_w, self.screeninfo.current_h]
         self.screen = pygame.display.set_mode(self.screensize, (pygame.DOUBLEBUF)) #|pygame.HWSURFACE))
-        #self.screen = pygame.display.set_mode((0,0),pygame.FULLSCREEN)
+        self.screen = pygame.display.set_mode((0,0),pygame.FULLSCREEN)
         #self.screen = pygame.display.set_mode(pygame.DOUBLEBUF)
 
 
