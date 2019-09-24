@@ -192,19 +192,20 @@ class InputsOutputs:
                     self.MCP.output(self.shotnumber, 0)
 
                     if self.shotnumber == 0:
-                        time.sleep(80)  # 8
+                        time.sleep(8)  # 8
                     elif self.shotnumber == 1:
-                        time.sleep(40)  # 4
+                        time.sleep(4)  # 4
                     elif self.shotnumber == 2:
-                        time.sleep(50)  # 5
+                        time.sleep(5)  # 5
                     elif self.shotnumber == 3:
-                        time.sleep(50)  # 5
+                        time.sleep(5)  # 5
                     elif self.shotnumber == 4:
-                        time.sleep(40)  # 4
+                        time.sleep(4)  # 4
 
                     self.MCP.output(self.shotnumber, 1)
 
                 self.makeshot = False
+                time.sleep(1)
                 self.ToMainQueue.put("Done with shot")
 
             if self.setflashlight:
@@ -216,6 +217,9 @@ class InputsOutputs:
                 self.checkshothandle()
                 self.checkfotoknop()
 
+        if self.EnableI2COutput:
+            self.MCP.__del__()
+            time.sleep(4)
         self.GPIO.cleanup()
 
     def barcodeReaderThreat(self):
@@ -358,8 +362,8 @@ class InputsOutputs:
                 except:
                     measuredRange = 23
                 if (measuredRange != 7) or (measuredRange != 110):
-                        #print(measuredRange)
-                    if measuredRange < 25:
+                    #print(measuredRange)
+                    if measuredRange < 30: #25:
                         self.CheckShotglass = True
                     else:
                         self.CheckShotglass = False

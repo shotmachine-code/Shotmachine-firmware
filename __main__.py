@@ -100,7 +100,6 @@ class Shotmachine_controller():
                 if ((username != "") or not self.EnableBarcodeScanner):
                     self.ToIOQueue.put("Busy")
                     self.ToIOQueue.put("Flashlight 1")
-                    #self.ToInterfQueue.put('Take_picture')
                     time.sleep(7)
                     self.ToIOQueue.put("Flashlight 0")
                     time.sleep(1)
@@ -116,7 +115,6 @@ class Shotmachine_controller():
                 self.ToInterfQueue.put('Start_roll')
                 if self.Shotglass and ((username != "") or not self.EnableBarcodeScanner) :
                     self.ToIOQueue.put("Busy")
-                    #self.ToInterfQueue.put('Start_roll')
                     i = random.randint(0, 4)
                     #i = 0
                     time.sleep(6)
@@ -129,8 +127,6 @@ class Shotmachine_controller():
                     f.write("shot " + str(i)  + " at " + datetimestring + "\n")
                     f.close()
                     self.ToIOQueue.put("Ready")
-                #else:
-                #    self.ToInterfQueue.put('Missing_Shotglass')
 
             try:
                 s = self.ToMainQueue.get(block=True, timeout=0.1)
