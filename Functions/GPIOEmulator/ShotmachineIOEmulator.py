@@ -451,7 +451,10 @@ class MCP230XX:
 
 
     def cleanup():
-        app.callback()
+        #app.callback()
+        pass
+
+    def __del__(self):
         pass
 
 

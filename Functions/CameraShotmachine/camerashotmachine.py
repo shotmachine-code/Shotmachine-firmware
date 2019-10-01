@@ -76,8 +76,10 @@ class CameraShotmachine:
             #picture = pygame.image.load('Functions/CameraShotmachine/testimage.png')
             img = Image.open('Functions/CameraShotmachine/testimage.png')
             img.load()
-            picture = np.asarray(img, dtype="int32")
+            img.resize((540, 960))
+            picture_raw = np.asarray(img, dtype="int32")
             self.save_image_name = "Test mode, no picture taken"
+            picture = np.rot90(picture_raw)
             #picture = pygame.transform.scale(picture, (1440, 1080))
             #self.boundbox = picture.get_rect()
             self.image = picture
@@ -167,12 +169,25 @@ class CameraShotmachine:
         self.success_save = False
         #self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 3840)
         #self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 2160)
-        
-        Thread(target=self.update_USB, args=()).start()
+        if not self.onRaspberry:
+            #picture = pygame.image.load('Functions/CameraShotmachine/testimage.png')
+            img = Image.open('Functions/CameraShotmachine/testimage.png')
+            img.load()
+            img.resize(((540, 960)))
+            picture_raw = np.asarray(img, dtype="int32")
+            picture = np.rot90(picture_raw)
+            self.save_image_name = "Test mode, no picture taken"
+            #picture = pygame.transform.scale(picture, (960, 540))
+            # self.boundbox = picture.get_rect()
+            self.TestImage = picture
+
+        if self.onRaspberry:
+            Thread(target=self.update_USB, args=()).start()
         return self
 
 
     def update_USB(self): # USB camera
+
         while not self.stopped:
             if self.getSmallFrame:
                 try:
@@ -207,21 +222,32 @@ class CameraShotmachine:
 
     def read_small(self): # USB camera
         # return the frame most recently read
-        while not self.grabbed_small and self.getSmallFrame:
-            time.sleep(0.0001)
-        self.grabbed_small = False
-        return self.frame_small
+        if self.onRaspberry:
+            while not self.grabbed_small and self.getSmallFrame:
+                time.sleep(0.0001)
+            self.grabbed_small = False
+            return self.frame_small
+        else:
+            self.grabbed_small = False
+            return self.TestImage
 
 
     def read_full(self): # USB camera
         self.getSmallFrame = False
-        while not self.grabbed_full and not self.getSmallFrame:
-            time.sleep(0.0001)
-        self.grabbed_full = False
-        return self.frame_full
+        if self.onRaspberry:
+            while not self.grabbed_full and not self.getSmallFrame:
+                time.sleep(0.0001)
+            self.grabbed_full = False
+            return self.frame_full
+        else:
+            self.grabbed_full = False
+            return self.TestImage
 
 
     def getimagename_USB(self):
-        while not self.success_save:
-            time.sleep(0.0001)
-        return self.save_image_name
+        if self.onRaspberry:
+            while not self.success_save:
+                time.sleep(0.0001)
+            return self.save_image_name
+        else:
+            return "No Image"

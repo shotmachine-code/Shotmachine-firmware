@@ -45,7 +45,7 @@ HandleShotmachine = {
     "Settings": {
         "OnRaspberry": onRaspberry,
         "EnableSPI": True,
-        "EnableI2C": True,
+        "EnableI2C": False,
         "EnableDBSync":False,
         "EnableBarcodeScanner": False,
         "EnablePhotoUploader": False
@@ -77,6 +77,10 @@ class Shotmachine_controller():
         self.ToIOQueue = _ToIOQueue
         self.ToPhotoUploaderQueue = _ToPhotoUploaderQueue
         self.state = 'Boot'
+
+        self.username = ""
+        self.barcode = ""
+
         self.quitprogram = False
 
         self.Shotglass = False
@@ -97,7 +101,7 @@ class Shotmachine_controller():
             if self.fotoknop:
                 self.fotoknop = False
                 self.ToInterfQueue.put('Take_picture')
-                if ((username != "") or not self.EnableBarcodeScanner):
+                if ((self.username != "") or not self.EnableBarcodeScanner):
                     self.ToIOQueue.put("Busy")
                     self.ToIOQueue.put("Flashlight 1")
                     time.sleep(7)
@@ -113,14 +117,14 @@ class Shotmachine_controller():
             if self.Shothendel:
                 self.Shothendel = False
                 self.ToInterfQueue.put('Start_roll')
-                if self.Shotglass and ((username != "") or not self.EnableBarcodeScanner) :
+                if self.Shotglass and ((self.username != "") or not self.EnableBarcodeScanner) :
                     self.ToIOQueue.put("Busy")
                     i = random.randint(0, 4)
                     #i = 0
                     time.sleep(6)
                     self.ToIOQueue.put("Shot " + str(i))
                     time.sleep(2)
-                    self.db_conn.ShotToDatabase(barcode, str(i))
+                    self.db_conn.ShotToDatabase(self.barcode, str(i))
 
                     f = open(Logfile, "a")
                     datetimestring = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
@@ -144,17 +148,18 @@ class Shotmachine_controller():
                 elif s == "Fotoknop":
                     self.fotoknop = True
                 elif "Barcode:" in s:
-                    barcode = s.split(':')[1]
-                    username = self.db_conn.getUserName(barcode)
-                    print("barcode scanned in main: " + str(barcode) + " User: " + username)
-                    self.ToInterfQueue.put('New_User:'+username)
+                    self.barcode = s.split(':')[1]
+                    self.username = self.db_conn.getUserName(self.barcode)
+                    print("barcode scanned in main: " + str(self.barcode) + " User: " + self.username)
+                    self.ToInterfQueue.put('New_User:'+self.username)
                 elif 'NoUser' in s:
-                    username = ""
-                    barcode = ""
+                    self.username = ""
+                    self.barcode = ""
                 elif 'Taken Image' in s:
                     imagename = s.split(':')[1]
-                    print("recieved Image in main:" + imagename + " for user: " + barcode)
-                    self.ToPhotoUploaderQueue.put(imagename + ":" + barcode)
+                    if imagename != "No Image":
+                        print("recieved Image in main:" + imagename + " for user: " + self.barcode)
+                        self.ToPhotoUploaderQueue.put(imagename + ":" + self.barcode)
                 else:
                     print("Unknown command to main: " + s)
                 s = ""
