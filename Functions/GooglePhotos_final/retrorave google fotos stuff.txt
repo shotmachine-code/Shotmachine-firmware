@@ -1,9 +1,0 @@
-C:\Users\marce\AppData\Local\Programs\Python\Python36-32\python.exe C:/Users/marce/Shotmachine/Shotmachine-firmware/Functions/google_photos_example.py
-successfull retrieved credentials from file
-New album created 
-Name:  Retrorave
-ID:  AOivGk-YDEEsGNAF7UfIxI9iGxnaXCmqLgtE6Tbgy1R_VSQaUzzMiLGOPGpJ6UnGeg2duIiTxR_Z
-Sharable URL:  https://photos.app.goo.gl/PddKzRvEg89KCVb38
-Failed to upload Test picture
-
-Process finished with exit code 0

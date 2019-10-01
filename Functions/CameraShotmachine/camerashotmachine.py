@@ -174,18 +174,12 @@ class CameraShotmachine:
 
     def update_USB(self): # USB camera
         while not self.stopped:
-            #self.elapsed_time = time.time() - self.start_time
-            # print(self.elapsed_time)
             if self.getSmallFrame:
                 try:
                     success_grab = False
                     while not success_grab:
                         (success_grab, frame_raw) = self.stream.read()
-                        #self.rotationMatrix_small
-                        #frame = cv2.warpAffine(frame_raw, self.rotationMatrix_small, (self.size[1], self.size[0]))
                         frame = np.rot90(frame_raw)
-                    #cv2.imshow("window camera", camera_frame)
-                    #print("New frame")
                     self.frame_small = frame
                     self.grabbed_small = success_grab
                 except:
@@ -197,15 +191,9 @@ class CameraShotmachine:
                 while not success_grab:
                     (success_grab, frame) = self.stream.read()
                     self.frame_full = np.rot90(frame)
-                    #(success_grab, self.full_frame) = self.stream.read()
-                print("New full frame")
-                #self.frame_full = frame
                 self.stopped = True
                 self.grabbed_full = success_grab
                 
-
-                #self.full_frame = self.frame
-                #self.grabbed_small = False
                 self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 960)  # 800
                 self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 540)  # 600
 
@@ -213,35 +201,25 @@ class CameraShotmachine:
                 self.save_image_name = os.path.join(self.storagepath, datetimestring + '.png')
                 cv2.imwrite(self.save_image_name, frame)
                 self.logger.info('Image saved in: ' + self.save_image_name)
-                #cv2.imshow("window camera", camera_frame)
-
-                #self.grabbed_full = success_grab
+                
                 self.success_save = True
                 
-
-
 
     def read_small(self): # USB camera
         # return the frame most recently read
         while not self.grabbed_small and self.getSmallFrame:
             time.sleep(0.0001)
-            #print("wait 1ms")
         self.grabbed_small = False
-        #print("New frame")
         return self.frame_small
+
 
     def read_full(self): # USB camera
         self.getSmallFrame = False
         while not self.grabbed_full and not self.getSmallFrame:
             time.sleep(0.0001)
         self.grabbed_full = False
-        #self.stopped = True
         return self.frame_full
 
-
-    #def stop(self): # USB camera
-    #    # indicate that the thread should be stopped
-    #    self.stopped = True
 
     def getimagename_USB(self):
         while not self.success_save:

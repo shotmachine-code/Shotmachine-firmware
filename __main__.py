@@ -6,7 +6,7 @@ from Functions.Interface import shotmachine_interface
 from Functions.DatabaseSync import databasesync
 from Functions.InputsOutputs import inputsoutputs
 from Functions.Database import database_connection
-from Functions.GooglePhotos.photosUploader import PhotoUploader
+from Functions.GooglePhotos.PhotoUploader import PhotoUploader
 
 import platform
 import random
@@ -35,7 +35,7 @@ if (currentOS == 'Linux' and currentArch[0] != '64bit'):
     onRaspberry = True
 else:
     onRaspberry = False
-onRaspberry = False
+#onRaspberry = False
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -47,8 +47,8 @@ HandleShotmachine = {
         "EnableSPI": True,
         "EnableI2C": True,
         "EnableDBSync":False,
-        "EnableBarcodeScanner": True
-        "EnablePhotoUploader": True
+        "EnableBarcodeScanner": False,
+        "EnablePhotoUploader": False
     },
     "Hardware": {
         "OnOffSwitch": 27,
@@ -69,12 +69,13 @@ HandleShotmachine = {
 
 
 class Shotmachine_controller():
-    def __init__(self, _name, _ToInterfQueue, _ToMainQueue, _ToDBSyncQueue, _ToIOQueue):
+    def __init__(self, _name, _ToInterfQueue, _ToMainQueue, _ToDBSyncQueue, _ToIOQueue, _ToPhotoUploaderQueue):
         self.name = _name
         self.ToInterfQueue = _ToInterfQueue
         self.ToMainQueue = _ToMainQueue
         self.ToDBSyncQueue = _ToDBSyncQueue
         self.ToIOQueue = _ToIOQueue
+        self.ToPhotoUploaderQueue = _ToPhotoUploaderQueue
         self.state = 'Boot'
         self.quitprogram = False
 
@@ -99,7 +100,6 @@ class Shotmachine_controller():
                 if ((username != "") or not self.EnableBarcodeScanner):
                     self.ToIOQueue.put("Busy")
                     self.ToIOQueue.put("Flashlight 1")
-                    #self.ToInterfQueue.put('Take_picture')
                     time.sleep(7)
                     self.ToIOQueue.put("Flashlight 0")
                     time.sleep(1)
@@ -115,7 +115,6 @@ class Shotmachine_controller():
                 self.ToInterfQueue.put('Start_roll')
                 if self.Shotglass and ((username != "") or not self.EnableBarcodeScanner) :
                     self.ToIOQueue.put("Busy")
-                    #self.ToInterfQueue.put('Start_roll')
                     i = random.randint(0, 4)
                     #i = 0
                     time.sleep(6)
@@ -128,8 +127,6 @@ class Shotmachine_controller():
                     f.write("shot " + str(i)  + " at " + datetimestring + "\n")
                     f.close()
                     self.ToIOQueue.put("Ready")
-                #else:
-                #    self.ToInterfQueue.put('Missing_Shotglass')
 
             try:
                 s = self.ToMainQueue.get(block=True, timeout=0.1)
@@ -137,7 +134,7 @@ class Shotmachine_controller():
                     self.quitprogram = True
                     self.ToDBSyncQueue.put("Quit")
                     self.ToIOQueue.put("Quit")
-
+                    self.ToPhotoUploaderQueue.put("Quit")
                     logger.info("main quit")
                 elif "ShotglassState" in s:
                     self.Shotglass = bool(int(s[-1:]))
@@ -157,7 +154,7 @@ class Shotmachine_controller():
                 elif 'Taken Image' in s:
                     imagename = s.split(':')[1]
                     print("recieved Image in main:" + imagename + " for user: " + barcode)
-                    ToPhotoUploaderQueue.put(imagename + ":" + barcode)
+                    self.ToPhotoUploaderQueue.put(imagename + ":" + barcode)
                 else:
                     print("Unknown command to main: " + s)
                 s = ""
@@ -190,19 +187,21 @@ shotmachine_interface.Shotmachine_Interface("Interface_main",
 if HandleShotmachine["Settings"]["EnableDBSync"]:
     db_syncer = databasesync.DatabaseSync(ToDBSyncQueue, ToMainQueue)
 
-if HandleShotmachine["Settings"]["EnablePhotoUploader"]:
-    PhotoUploader_program = PhotoUploader(ToPhotoUploaderQueue)
+
 
 main_controller = Shotmachine_controller('Main_controller',
                                          ToInterfQueue,
                                          ToMainQueue,
                                          ToDBSyncQueue,
-                                         ToIOQueue)
+                                         ToIOQueue,
+                                         ToPhotoUploaderQueue)
 
 inputsoutputs.InputsOutputs(HandleShotmachine,
                             ToMainQueue,
                             ToIOQueue)
 
+if HandleShotmachine["Settings"]["EnablePhotoUploader"]:
+    PhotoUploader_program = PhotoUploader('3', ToPhotoUploaderQueue)
 
 controller_alive = True
 while controller_alive:

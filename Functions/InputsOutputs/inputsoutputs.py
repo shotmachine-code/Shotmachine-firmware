@@ -188,6 +188,7 @@ class InputsOutputs:
             if self.makeshot:
                 self.logger.info('Making shot' + str(self.shotnumber))
                 if self.EnableI2COutput:
+                    self.shotnumber = 4
                     self.MCP.output(self.shotnumber, 0)
 
                     if self.shotnumber == 0:
@@ -204,6 +205,7 @@ class InputsOutputs:
                     self.MCP.output(self.shotnumber, 1)
 
                 self.makeshot = False
+                time.sleep(1)
                 self.ToMainQueue.put("Done with shot")
 
             if self.setflashlight:
@@ -215,6 +217,9 @@ class InputsOutputs:
                 self.checkshothandle()
                 self.checkfotoknop()
 
+        if self.EnableI2COutput:
+            self.MCP.__del__()
+            time.sleep(4)
         self.GPIO.cleanup()
 
     def barcodeReaderThreat(self):
@@ -348,20 +353,27 @@ class InputsOutputs:
     def checkshotglas(self):
         while self.run:
             if self.EnableI2COutput:
-                self.bus.write_byte_data(self.shotdetectorAddress, 0, 0x51)
-                time.sleep(0.7)
-                msb = self.bus.read_byte_data(self.shotdetectorAddress, 2)
-                lsb = self.bus.read_byte_data(self.shotdetectorAddress, 3)
-                measuredRange = (msb << 8) + lsb
-                if measuredRange < 23:
-                    self.CheckShotglass = True
-                else:
-                    self.CheckShotglass = False
-                if self.shotglass != self.CheckShotglass:
-                    self.logger.info('shotglas status changed to: ' + str(int(self.CheckShotglass)))
-                    self.ToMainQueue.put("ShotglassState " + str(int(self.CheckShotglass)))
-                    self.shotglass = self.CheckShotglass
-
+                try:
+                    self.bus.write_byte_data(self.shotdetectorAddress, 0, 0x51)
+                    time.sleep(0.7)
+                    msb = self.bus.read_byte_data(self.shotdetectorAddress, 2)
+                    lsb = self.bus.read_byte_data(self.shotdetectorAddress, 3)
+                    measuredRange = (msb << 8) + lsb
+                except:
+                    measuredRange = 23
+                if (measuredRange != 7) or (measuredRange != 110):
+                    #print(measuredRange)
+                    if measuredRange < 30: #25:
+                        self.CheckShotglass = True
+                    else:
+                        self.CheckShotglass = False
+                    if self.shotglass != self.CheckShotglass:
+                        self.logger.info('shotglas status changed to: ' + str(int(self.CheckShotglass)))
+                        self.ToMainQueue.put("ShotglassState " + str(int(self.CheckShotglass)))
+                        self.shotglass = self.CheckShotglass
+                #except:
+                    #continue
+                    
 
     def setflashlightfunc(self, state):
 
