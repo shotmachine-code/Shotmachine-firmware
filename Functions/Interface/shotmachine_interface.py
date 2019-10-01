@@ -206,7 +206,7 @@ class Shotmachine_Interface():
         self.updatelist.append(self.cameraImageRect)
 
         CameraTimeToGo = self.cameraLiveTime - (time.time() - self.CameraStartTime)+0.5
-        print(str(round(CameraTimeToGo)))
+        #print(str(round(CameraTimeToGo)))
         textsurface = self.CountdownFont.render(str(round(CameraTimeToGo)), False, self.BLACK)
         textRect = textsurface.get_rect()
         textRect.center = (200, self.screeninfo.current_h / 2)
