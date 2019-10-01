@@ -3,6 +3,9 @@ import sys
 import os
 import glob
 from Functions.GooglePhotos.google_photos_functions import googlePhotoUploader
+import logging
+
+logging.getLogger('googleapicliet.discovery_cache').setLevel(logging.ERROR)
 
 #Album_Id = 'AOivGk9mA_hdf1F75tg5n3GxCN_BHFHY-Z2-rnWZXQTLFRoeq6FpMBfyatxwjfFOiWDnNxPfLF_5'
 #album_name = 'Housewarming Lisa 2'
