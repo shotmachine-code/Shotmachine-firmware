@@ -115,7 +115,7 @@ class Shotmachine_Interface():
         self.logger.info('Photobooth screen loaded')
 
     def update_photoBoothPicture(self, Position, _StartTimer):
-        FileList = os.listdir(self.TakenPhotosDir)
+        FileList = sorted(os.listdir(self.TakenPhotosDir))
         if not self.showLastImage:
             PhotoNumber = randint(0, len(FileList)-1)
         else:
