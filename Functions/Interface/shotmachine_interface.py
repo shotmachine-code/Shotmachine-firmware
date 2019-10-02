@@ -29,6 +29,7 @@ class Shotmachine_Interface():
         self.myfont = pygame.font.SysFont('freesansbold.ttf', 30)
         self.CountdownFont = pygame.font.SysFont('freesansbold.ttf', 600)
         self.showLastImage = False
+        self.FileList = []
 
         self.OperationMode = "PhotoBooth"
         #self.OperationMode = "Shotmachine"
@@ -100,7 +101,7 @@ class Shotmachine_Interface():
         pygame.display.update(FullScreenRect)
         #pygame.display.update()
 
-        self.update_photoBoothPicture(1, True)
+        self.update_photoBoothPicture(1, True, True)
 
         #self.update_photoBoothPicture(2, False)
         #self.timer_PhotoBoothPhotoRefresh_2 = Timer(6.3, self.update_photoBoothPicture, [2, True])
@@ -114,40 +115,45 @@ class Shotmachine_Interface():
 
         self.logger.info('Photobooth screen loaded')
 
-    def update_photoBoothPicture(self, Position, _StartTimer):
-        FileList = sorted(os.listdir(self.TakenPhotosDir))
-        if not self.showLastImage:
-            PhotoNumber = randint(0, len(FileList)-1)
-        else:
-            PhotoNumber = len(FileList) - 1
-            self.showLastImage = False
-        #print(PhotoNumber)
-        PhotoPath = os.path.join(self.TakenPhotosDir, FileList[PhotoNumber])
-        PhotoSurface = pygame.image.load(PhotoPath).convert()
-        PictureSize = (1280, 720) #(845, 475)
-        PhotoSurfaceScaled = pygame.transform.scale(PhotoSurface, PictureSize)
-        PhotoRect = PhotoSurfaceScaled.get_rect()
-        if Position == 1:
-            PhotoRect.center = (700, 400) #(500, 250)
-        elif Position == 2:
-            PhotoRect.center = (1420, 280) #(1420, 280)
-        elif Position == 3:
-            PhotoRect.center = (960, 780) #(960, 780)
-        else:
-            PhotoRect.center = (0, 0)
+    def update_photoBoothPicture(self, Position, _StartTimer, _ReloadFilelist):
+        if _ReloadFilelist or len(self.FileList) == 0:
+            #print("Reload filelist")
+            self.FileList = sorted(os.listdir(self.TakenPhotosDir))
+        if len(self.FileList) != 0:
+            if not self.showLastImage:
+                PhotoNumber = randint(0, len(self.FileList)-1)
+            else:
+                #print("Show just taken image")
+                PhotoNumber = len(self.FileList) - 1
+                self.showLastImage = False
+            #print(PhotoNumber)
+        
+            PhotoPath = os.path.join(self.TakenPhotosDir, self.FileList[PhotoNumber])
+            PhotoSurface = pygame.image.load(PhotoPath).convert()
+            PictureSize = (1280, 720) #(845, 475)
+            PhotoSurfaceScaled = pygame.transform.scale(PhotoSurface, PictureSize)
+            PhotoRect = PhotoSurfaceScaled.get_rect()
+            if Position == 1:
+                PhotoRect.center = (700, 400) #(500, 250)
+            elif Position == 2:
+                PhotoRect.center = (1420, 280) #(1420, 280)
+            elif Position == 3:
+                PhotoRect.center = (960, 780) #(960, 780)
+            else:
+                PhotoRect.center = (0, 0)
 
-        self.screen.blit(PhotoSurfaceScaled, PhotoRect)
-        self.updatelist.append(PhotoRect)
+            self.screen.blit(PhotoSurfaceScaled, PhotoRect)
+            self.updatelist.append(PhotoRect)
 
         if _StartTimer:
             if Position == 1:
-                self.timer_PhotoBoothPhotoRefresh_1 = Timer(8, self.update_photoBoothPicture, [1, True]) #20
+                self.timer_PhotoBoothPhotoRefresh_1 = Timer(8, self.update_photoBoothPicture, [1, True, False]) #20
                 self.timer_PhotoBoothPhotoRefresh_1.start()
             elif Position == 2:
-                self.timer_PhotoBoothPhotoRefresh_2 = Timer(20, self.update_photoBoothPicture, [2, True])
+                self.timer_PhotoBoothPhotoRefresh_2 = Timer(20, self.update_photoBoothPicture, [2, True, False])
                 self.timer_PhotoBoothPhotoRefresh_2.start()
             elif Position == 3:
-                self.timer_PhotoBoothPhotoRefresh_3 = Timer(20, self.update_photoBoothPicture, [3, True])
+                self.timer_PhotoBoothPhotoRefresh_3 = Timer(20, self.update_photoBoothPicture, [3, True, False])
                 self.timer_PhotoBoothPhotoRefresh_3.start()
 
 
@@ -190,7 +196,7 @@ class Shotmachine_Interface():
         pygame.display.update(FullScreenRect)
         #pygame.display.update()
         self.start_showtime = time.time()
-        imagename = self.camera.getimagename()
+        imagename = self.camera.getimagename_USB()
         if self.OperationMode == "PhotoBooth":
             self.showLastImage = True
         if imagename != "No Image":
@@ -426,7 +432,7 @@ class Shotmachine_Interface():
         self.screeninfo = pygame.display.Info()
         self.screensize = [self.screeninfo.current_w, self.screeninfo.current_h]
         self.screen = pygame.display.set_mode(self.screensize, (pygame.DOUBLEBUF)) #|pygame.HWSURFACE))
-        #self.screen = pygame.display.set_mode((0,0),pygame.FULLSCREEN)
+        #self.screen = pygame.display.set_mode((0,0),pygame.FULLSCREEN) #, (pygame.DOUBLEBUF))
 
         self.logger.info("Set screensize to: " + str(self.screensize[0]) + "x" + str(self.screensize[1]))
         pygame.display.set_caption(Appname)

@@ -205,7 +205,8 @@ class CameraShotmachine:
                 success_grab = False
                 while not success_grab:
                     (success_grab, frame) = self.stream.read()
-                    self.frame_full = np.rot90(frame)
+                ScreenFrame = cv2.resize(frame, dsize=(1920, 1080), interpolation=cv2.INTER_CUBIC)
+                self.frame_full = np.rot90(ScreenFrame)
                 self.stopped = True
                 self.grabbed_full = success_grab
                 
@@ -214,7 +215,8 @@ class CameraShotmachine:
 
                 datetimestring = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
                 self.save_image_name = os.path.join(self.storagepath, datetimestring + '.png')
-                cv2.imwrite(self.save_image_name, frame)
+                FrameToSave = np.fliplr(frame)
+                cv2.imwrite(self.save_image_name, FrameToSave)
                 self.logger.info('Image saved in: ' + self.save_image_name)
                 
                 self.success_save = True
