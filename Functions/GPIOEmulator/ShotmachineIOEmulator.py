@@ -92,6 +92,13 @@ class App(threading.Thread):
         pin07btn.grid(row=4, column=1, padx=(10, 10))
         dictionaryPinsTkinter["4"] = pin07btn
 
+        # Reset Arduino (GPIO13)
+        pin33btn = Button(text="Reset\nArduino", command="13", padx="1px", pady="1px", bd="0px", fg="blue",
+                          relief="sunken",
+                          activeforeground="blue")
+        pin33btn.grid(row=2, column=3, padx=(10, 10))
+        dictionaryPinsTkinter["13"] = pin33btn
+
 
         # Pump 0 (MCP230xx 0)
         mcp230xx0btn = Button(text="Pomp 0", command="4", padx="1px", pady="1px", bd="0px", fg="blue",

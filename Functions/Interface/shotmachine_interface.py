@@ -82,7 +82,6 @@ class Shotmachine_Interface():
         self.screen.blit(self.background_image, [0, 0])
         FullScreenRect = pygame.Rect(0, 0, self.screeninfo.current_w , self.screeninfo.current_h)
         pygame.display.update(FullScreenRect)
-        #pygame.display.update()
         boundingboxes = []
         number = randint(1, 100)
         self.roller1.stop_roller_direct(number)
@@ -99,7 +98,6 @@ class Shotmachine_Interface():
         self.screen.blit(self.background_image, [0, 0])
         FullScreenRect = pygame.Rect(0, 0, self.screeninfo.current_w , self.screeninfo.current_h)
         pygame.display.update(FullScreenRect)
-        #pygame.display.update()
 
         self.update_photoBoothPicture(1, True, True)
 
@@ -166,7 +164,6 @@ class Shotmachine_Interface():
         except:
             pass
         self.screen.fill(self.WHITE)
-        #self.screen.blit(self.background_image, [0, 0])
         #self.camera.start_CSI()
         self.camera.start_USB()
         self.CameraStartTime = time.time() #progress = 0
@@ -174,7 +171,6 @@ class Shotmachine_Interface():
         self.logger.info('Live camera screen')
         image = self.camera.read_small()
         cameraImageSurf = pygame.surfarray.make_surface(image)
-        #cameraImageSurf.get_rect()
         self.cameraImageRect = cameraImageSurf.get_rect()
         self.cameraImageRect.center = (self.screeninfo.current_w /2 , self.screeninfo.current_h /2)
         self.screen.blit(cameraImageSurf, self.cameraImageRect)
@@ -189,12 +185,10 @@ class Shotmachine_Interface():
         PictureSurface = pygame.surfarray.make_surface(image)
         PictureRect = PictureSurface.get_rect()
         PictureRect.center = (self.screeninfo.current_w / 2, self.screeninfo.current_h / 2)
-        #imgsurface  = pygame.transform.scale(imgsurface, picturesize)
 
         self.screen.blit(PictureSurface, PictureRect)
         FullScreenRect = pygame.Rect(0, 0, self.screeninfo.current_w, self.screeninfo.current_h)
         pygame.display.update(FullScreenRect)
-        #pygame.display.update()
         self.start_showtime = time.time()
         imagename = self.camera.getimagename_USB()
         if self.OperationMode == "PhotoBooth":
@@ -212,17 +206,16 @@ class Shotmachine_Interface():
         self.updatelist.append(self.cameraImageRect)
 
         CameraTimeToGo = self.cameraLiveTime - (time.time() - self.CameraStartTime)+0.5
-        #print(str(round(CameraTimeToGo)))
         textsurface = self.CountdownFont.render(str(round(CameraTimeToGo)), False, self.BLACK)
         textRect = textsurface.get_rect()
         textRect.center = (200, self.screeninfo.current_h / 2)
-        self.screen.blit(textsurface, textRect) #( self.screeninfo.current_h / 2, 200)
+        self.screen.blit(textsurface, textRect)
         self.updatelist.append(textRect)
 
         textsurface = self.CountdownFont.render(str(round(CameraTimeToGo)), False, self.BLACK)
         textRect = textsurface.get_rect()
         textRect.center = (1720, self.screeninfo.current_h / 2)
-        self.screen.blit(textsurface, textRect)  # ( self.screeninfo.current_h / 2, 200)
+        self.screen.blit(textsurface, textRect)
         self.updatelist.append(textRect)
 
 

@@ -76,6 +76,9 @@ class InputsOutputs:
         self.FotoKnopState = False
         self.FotoKnopSend = False
 
+        self.ConfigSwitchState = False
+        self.ConfigSwitchStateSend = False
+
         self.flashlightState = 0
         self.setflashlight = False
 
@@ -100,12 +103,17 @@ class InputsOutputs:
         self.EnableI2COutput = self.HandleShotmachine["Settings"]["EnableI2C"]
         self.EnableBarcodeScanner = self.HandleShotmachine["Settings"]["EnableBarcodeScanner"]
         self.EnableSPI = self.HandleShotmachine["Settings"]["EnableSPI"]
+        self.ConfigSwitchPin = self.HandleShotmachine["Hardware"]["ConfigSwitch"]
+        self.ResetArduinoPin = self.HandleShotmachine["Hardware"]["ResetArduino"]
 
         self.GPIO.setup(self.EnableI2COutputPin, GPIO.OUT)
+        self.GPIO.setup(self.ResetArduinoPin, GPIO.OUT)
         self.GPIO.setup(self.HendelSwitch, GPIO.IN)
         self.GPIO.setup(self.FotoSwitch, GPIO.IN)
+        self.GPIO.setup(self.ConfigSwitchPin, GPIO.IN)
 
         self.GPIO.output(self.EnableI2COutputPin, 0)
+        self.GPIO.output(self.ResetArduinoPin, 0)
 
         # init MCP IO extender
         if self.EnableI2COutput:
@@ -216,6 +224,7 @@ class InputsOutputs:
             if not self.busy:
                 self.checkshothandle()
                 self.checkfotoknop()
+                self.checkArduinoReset()
 
         if self.EnableI2COutput:
             self.MCP.__del__()
@@ -337,6 +346,20 @@ class InputsOutputs:
             self.ShotHendelSend = True
         if not self.ShotHendelState:
             self.ShotHendelSend = False
+
+
+    def checkArduinoReset(self):
+        self.ConfigSwitchState = self.GPIO.input(self.ConfigSwitchPin)
+
+        if not self.ConfigSwitchStateSend and self.ConfigSwitchState:
+            self.logger.info('Config button pressed, reset arduino')
+            self.ConfigSwitchStateSend = True
+            self.GPIO.output(self.ResetArduinoPin, 1)
+            time.sleep(1)
+            self.GPIO.output(self.ResetArduinoPin, 0)
+        if not self.ConfigSwitchState:
+            self.ConfigSwitchStateSend = False
+
 
     def checkfotoknop(self):
         if self.HandleShotmachine["Settings"]["OnRaspberry"]:
