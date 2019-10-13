@@ -1,0 +1,20 @@
+2019-10-12 19:54:34,074 INFO: __main__: Start
+2019-10-12 19:54:34,490 INFO: Functions.InputsOutputs.inputsoutputs: Starting IO program
+2019-10-12 19:54:34,785 INFO: Functions.Interface.shotmachine_interface: Set screensize to: 1920x1080
+2019-10-12 19:54:35,037 INFO: Functions.CameraShotmachine.camerashotmachine: Class started
+2019-10-12 19:54:35,996 INFO: Functions.Interface.shotmachine_interface: Photobooth screen loaded
+2019-10-12 19:54:36,080 INFO: Functions.InputsOutputs.inputsoutputs: Input Output program started
+2019-10-12 19:54:36,501 INFO: Functions.Interface.shotmachine_interface: Interface initialised
+2019-10-12 19:54:37,087 INFO: Functions.InputsOutputs.inputsoutputs: fotoknop pressed
+2019-10-12 19:54:37,133 INFO: Functions.InputsOutputs.inputsoutputs: Machine busy, ignore inputs
+2019-10-12 19:54:37,245 INFO: Functions.InputsOutputs.inputsoutputs: changing flashlight state to: 1
+2019-10-12 19:54:37,245 INFO: Functions.Interface.shotmachine_interface: Live camera screen
+2019-10-12 19:54:42,320 INFO: Functions.Interface.shotmachine_interface: Taken picture screen
+2019-10-12 19:54:44,142 INFO: Functions.InputsOutputs.inputsoutputs: changing flashlight state to: 0
+2019-10-12 19:54:45,127 INFO: __main__: foto at 20191012_195445 
+
+2019-10-12 19:54:45,154 INFO: Functions.InputsOutputs.inputsoutputs: Machine ready, checking inputs
+2019-10-12 19:54:48,044 INFO: Functions.Interface.shotmachine_interface: Photobooth screen loaded
+2019-10-12 19:57:47,724 INFO: __main__: main quit
+2019-10-12 19:57:47,771 INFO: Functions.InputsOutputs.inputsoutputs: IO quit
+2019-10-12 19:57:48,263 INFO: Functions.Interface.shotmachine_interface: Interface stopped

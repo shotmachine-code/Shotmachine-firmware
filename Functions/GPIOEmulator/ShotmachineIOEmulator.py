@@ -69,11 +69,11 @@ class App(threading.Thread):
         pin11btn.grid(row=0, column=1, padx=(10, 10))
         dictionaryPinsTkinter["17"] = pin11btn
 
-        # Config led (GPIO21)
-        pin40btn = Button(text="Config\nled", command="21", padx="1px", pady="1px", bd="0px", fg="blue",
+        # Config led (GPIO20)
+        pin38btn = Button(text="Config\nled", command="20", padx="1px", pady="1px", bd="0px", fg="blue",
                           relief="sunken", activeforeground="blue")
-        pin40btn.grid(row=1, column=1, padx=(10, 10))
-        dictionaryPinsTkinter["21"] = pin40btn
+        pin38btn.grid(row=1, column=1, padx=(10, 10))
+        dictionaryPinsTkinter["20"] = pin38btn
 
         # Spoel led (GPIO12)
         pin32btn = Button(text="Spoel\nled", command="12", padx ="1px", pady="1px", bd="0px", fg="blue", relief="sunken", activeforeground="blue")
@@ -169,7 +169,7 @@ class App(threading.Thread):
         barcodeReadUpdate.grid(row=6, column=1, padx=(10, 10))
 
         # wrap up GUI
-        self.root.geometry('%dx%d+%d+%d' % (300, 300, 0, 0))
+        self.root.geometry('%dx%d+%d+%d' % (350, 300, 0, 0))
         self.root.mainloop()
 
 

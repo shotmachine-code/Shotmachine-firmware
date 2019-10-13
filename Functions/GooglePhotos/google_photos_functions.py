@@ -14,7 +14,6 @@ class googlePhotoUploader():
                   'https://www.googleapis.com/auth/photoslibrary.sharing']
         print("start init uploader")
         result = self.Get_Credentials()
-        #print(result)
         # No valid credentials have been found, ask user for new one
         if not result:
             print('No credentials found, requesting from user')

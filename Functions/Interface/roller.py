@@ -24,12 +24,7 @@ class Roller:
 
         for i in range(len(filelist)):
             try:
-                #print(fichier.endswith)
-                #if not fichier.endswith(".png") and not fichier.endswith(".jpg") and not fichier.endswith(".jpeg"):
-                #filelist.remove(fichier)
-                #for i in range(len(filelist)):
                 imagepath = os.path.join(_roll_images_dir, filelist[i])
-                #print(imagepath)
                 image = pygame.image.load(imagepath).convert()
                 self.Roll_images.append(pygame.transform.scale(image, (_roller_width, _roller_width)))
             except:
@@ -61,11 +56,6 @@ class Roller:
         # Determine bounding box around roller
         self.roll_boundingbox = pygame.Rect(self.Roll_posx_left, self.Roll_posy_top,
                                             _roller_width, self.roller_height)
-
-    #def set_reset_roller(self):
-    #    # Reset roller and start rolling
-    #    self.brake = False
-    #    self.brake_request = False
 
     def draw_roller(self):
         # Print roll images to screen buffer:

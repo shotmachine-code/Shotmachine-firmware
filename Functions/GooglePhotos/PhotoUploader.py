@@ -81,29 +81,3 @@ class PhotoUploader():
 
             except queue.Empty:
                 continue
-
-
-    #def UploadImage(self, Filename, Barcode):
-    #    self.ToDoQueue.put(Filename + ":" + Barcode)
-
-    #def StopUploader(self):
-    #    self.run = False
-
-
-### Main code ###
-
-#googlePhotoHandle = googlePhotoUploader(Album_Id)
-
-#if createAlbum:
-#    (albumurl, Album_Id) = googlePhotoHandle.create_album(album_name)
-#    print(albumurl)
-#    print(Album_Id)
-
-#filelist = glob.glob("./TakenImages/NotUploaded/*")
-#print(filelist)
-#for foto in filelist:
-#    print("Uploading file " + foto)
-#    foto.split('/')[3]
-#    fotoname = "Housewarming Lisa " + foto.split('/')[3]
-#    response = googlePhotoHandle.uploadPicture(foto, fotoname)
-#    print(response)

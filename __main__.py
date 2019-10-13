@@ -26,6 +26,7 @@ for mysqlXML in root.findall('mysql'):
         localMysqlPass = mysqlXML.find('password').text
         localMysqlIP = mysqlXML.find('ip').text
 
+#TODO
 party_id = 2
 
 
@@ -37,8 +38,16 @@ else:
     onRaspberry = False
 #onRaspberry = False
 
+
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
+Logdate = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+Logname = "Logs/" + Logdate + ".log"
+logging.basicConfig(format='%(asctime)s %(levelname)s: %(name)s: %(message)s', filename=Logname, level=logging.INFO)
+
+ConsoleLogHandle = logging.StreamHandler()
+ConsoleLogHandle.setLevel(logging.INFO)
+
+
 logger.info("Start")
 
 HandleShotmachine = {
@@ -59,7 +68,7 @@ HandleShotmachine = {
         "EnableI2COutput": 4,
         "OnOffLed": 17,
         "ResetArduino": 13,
-        "LedConfig": 21,
+        "LedConfig": 20,
         "LedSpoel": 12,
         "LedSignal": 25
     },
@@ -107,10 +116,10 @@ class Shotmachine_controller():
                     time.sleep(7)
                     self.ToIOQueue.put("Flashlight 0")
                     time.sleep(1)
-                    f = open(Logfile, "a")
+                    #f = open(Logfile, "a")
                     datetimestring = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
-                    f.write("foto at " + datetimestring + " \n")
-                    f.close()
+                    logger.info("foto at " + datetimestring + " \n")
+                    #f.close()
                     self.ToIOQueue.put("Ready")
 
 
@@ -126,10 +135,10 @@ class Shotmachine_controller():
                     time.sleep(2)
                     self.db_conn.ShotToDatabase(self.barcode, str(i))
 
-                    f = open(Logfile, "a")
+                    #f = open(Logfile, "a")
                     datetimestring = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
-                    f.write("shot " + str(i)  + " at " + datetimestring + "\n")
-                    f.close()
+                    logger.info("shot " + str(i)  + " at " + datetimestring + "\n")
+                    #f.close()
                     self.ToIOQueue.put("Ready")
 
             try:
@@ -150,7 +159,7 @@ class Shotmachine_controller():
                 elif "Barcode:" in s:
                     self.barcode = s.split(':')[1]
                     self.username = self.db_conn.getUserName(self.barcode)
-                    print("barcode scanned in main: " + str(self.barcode) + " User: " + self.username)
+                    logger.info("barcode scanned in main: " + str(self.barcode) + " User: " + self.username)
                     self.ToInterfQueue.put('New_User:'+self.username)
                 elif 'NoUser' in s:
                     self.username = ""
@@ -158,10 +167,10 @@ class Shotmachine_controller():
                 elif 'Taken Image' in s:
                     imagename = s.split(':')[1]
                     if imagename != "No Image":
-                        print("recieved Image in main:" + imagename + " for user: " + self.barcode)
+                        logger.info("recieved Image in main:" + imagename + " for user: " + self.barcode)
                         self.ToPhotoUploaderQueue.put(imagename + ":" + self.barcode)
                 else:
-                    print("Unknown command to main: " + s)
+                    logger.warning("Unknown command to main: " + s)
                 s = ""
 
             except queue.Empty:
@@ -174,8 +183,8 @@ class Shotmachine_controller():
 
 
 
-Logfile = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
-Logfile = Logfile +".txt"
+#Logfile = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+#Logfile = Logfile +".txt"
 
 ToInterfQueue = queue.Queue()
 ToMainQueue = queue.Queue()

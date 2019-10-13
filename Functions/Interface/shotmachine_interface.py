@@ -489,8 +489,7 @@ class Shotmachine_Interface():
                 elif 'Missing_Shotglass' in self.recievebuffer:
                     self.DisplayMissingShotglass()
                 else:
-                    print("Unknown connamd to interface")
-                    print(self.recievebuffer)
+                    self.logger.info("Unknown commamd from interface" + self.recievebuffer)
                 self.recievebuffer = ''
 
             for event in pygame.event.get():
