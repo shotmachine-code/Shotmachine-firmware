@@ -82,6 +82,9 @@ class InputsOutputs:
         self.flashlightState = 0
         self.setflashlight = False
 
+        self.FlushPump = False
+        self.flushnumber = 0
+
         self.busy = False
 
         #Barcode scanner settings
@@ -170,17 +173,19 @@ class InputsOutputs:
                     self.recievebuffer = self.ToIOQueue.get(block=True, timeout=0.1)
                     if self.recievebuffer == "Quit":
                         self.run = False
-
                         self.logger.info("IO quit")
                     elif "Shot" in self.recievebuffer:
                         self.shotnumber = int(self.recievebuffer[-1:])
                         self.makeshot = True
+                    elif "Flush" in self.recievebuffer:
+                        self.flushnumber = int(self.recievebuffer[-1:])
+                        self.FlushPump = True
                     elif "Flashlight" in self.recievebuffer:
                         self.flashlightState = int(self.recievebuffer[-1:])
                         self.setflashlight = True
-                    elif "Busy" in self.recievebuffer:
-                        self.busy = True
-                        self.logger.info('Machine busy, ignore inputs')
+                    #elif "Busy" in self.recievebuffer:
+                    #    self.busy = True
+                    #    self.logger.info('Machine busy, ignore inputs')
                     elif "Ready" in self.recievebuffer:
                         self.busy = False
                         self.logger.info('Machine ready, checking inputs')
@@ -194,11 +199,10 @@ class InputsOutputs:
         while self.run:
             # make shot if requested
             if self.makeshot:
-                self.logger.info('Making shot' + str(self.shotnumber))
+                self.logger.info('Making shot: ' + str(self.shotnumber))
                 if self.EnableI2COutput:
-                    self.shotnumber = 4
+                    #self.shotnumber = 4
                     self.MCP.output(self.shotnumber, 0)
-
                     if self.shotnumber == 0:
                         time.sleep(8)  # 8
                     elif self.shotnumber == 1:
@@ -209,18 +213,28 @@ class InputsOutputs:
                         time.sleep(5)  # 5
                     elif self.shotnumber == 4:
                         time.sleep(4)  # 4
-
                     self.MCP.output(self.shotnumber, 1)
-
                 self.makeshot = False
                 time.sleep(1)
                 self.ToMainQueue.put("Done with shot")
 
-            if self.setflashlight:
+            if self.FlushPump:
+                self.logger.info('Spoelen van pomp: ' + str(self.flushnumber))
+                if self.EnableI2COutput:
+                    self.MCP.output(self.flushnumber, 0)
+                    print("Spoel pomp " + str(self.flushnumber))
+                    time.sleep(1)
+                    self.MCP.output(self.flushnumber, 1)
+                self.FlushPump = False
+                time.sleep(1)
+                self.ToMainQueue.put("Klaar met spoelen")
 
+            # Change flashlight state
+            if self.setflashlight:
                 self.setflashlightfunc(self.flashlightState)
                 self.setflashlight = False
 
+            # Check inputs
             if not self.busy:
                 self.checkshothandle()
                 self.checkfotoknop()
@@ -228,7 +242,7 @@ class InputsOutputs:
 
         if self.EnableI2COutput:
             del self.MCP
-            time.sleep(4)
+            time.sleep(1)
         self.GPIO.cleanup()
 
     def barcodeReaderThreat(self):
@@ -346,6 +360,7 @@ class InputsOutputs:
             self.logger.info('shothendel pulled')
             self.ToMainQueue.put("Shothendel")
             self.ShotHendelSend = True
+            self.busy = True
         if not self.ShotHendelState:
             self.ShotHendelSend = False
 
@@ -372,6 +387,7 @@ class InputsOutputs:
             self.logger.info('fotoknop pressed')
             self.ToMainQueue.put("Fotoknop")
             self.FotoKnopSend = True
+            self.busy = True
         if not self.FotoKnopState:
             self.FotoKnopSend = False
 

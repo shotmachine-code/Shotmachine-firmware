@@ -57,24 +57,27 @@ class Shotmachine_Interface():
             time.sleep(0.1)
 
 
-    def button(self, msg, x, y, w, h, ic, ac, action=None):
+    def button(self, msg, x, y, w, h, ic, ac, action=None, PumpNumber=-1):
         mouse = pygame.mouse.get_pos()
         click = pygame.mouse.get_pressed()
-
         if x + w > mouse[0] > x and y + h > mouse[1] > y:
             buttoncolor = ac
-            if click[0] == 1 and action != None:
+            if click[0] == 1 and action != None and PumpNumber == -1: # Wifi config
                 action()
+                time.sleep(2)
+            if click[0] == 1 and action != None and PumpNumber != -1: # een van de spoelknoppen
+                action(PumpNumber)
                 time.sleep(2)
         else:
             buttoncolor = ic
-
-        smallText = pygame.font.SysFont("comicsansms", 30)
-        textSurf = smallText.render(msg, False, self.BLACK, buttoncolor)
+        textSurf = self.myfont.render(msg, False, self.BLACK, buttoncolor)
         textRect = textSurf.get_rect()
         textRect.center = ((x + (w / 2)), (y + (h / 2)))
         self.screen.blit(textSurf, textRect)
         return textRect
+
+    def FlushPump(self, number):
+        self.From_interface.put('Flush:'+str(number))
 
 
     def load_main_screen(self):
@@ -527,6 +530,11 @@ class Shotmachine_Interface():
 
             if current_screen == 'config':
                 self.updatelist.append(self.button("Wifi settings", 150, 250, 150, 50, self.RED, self.GREEN, self.start_WIFI_config))
+                self.updatelist.append(self.button("Spoel pomp 0", 400, 250, 150, 50, self.RED, self.GREEN, self.FlushPump, 0))
+                self.updatelist.append(self.button("Spoel pomp 1", 400, 300, 150, 50, self.RED, self.GREEN, self.FlushPump, 1))
+                self.updatelist.append(self.button("Spoel pomp 2", 400, 350, 150, 50, self.RED, self.GREEN, self.FlushPump, 2))
+                self.updatelist.append(self.button("Spoel pomp 3", 400, 400, 150, 50, self.RED, self.GREEN, self.FlushPump, 3))
+                self.updatelist.append(self.button("Spoel pomp 4", 400, 450, 150, 50, self.RED, self.GREEN, self.FlushPump, 4))
                 
             if current_screen == 'livecamera':
                 self.CameraRunTime = time.time() - self.CameraStartTime

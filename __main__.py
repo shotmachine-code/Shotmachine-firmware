@@ -120,14 +120,14 @@ class Shotmachine_controller():
                     datetimestring = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
                     logger.info("foto at " + datetimestring + " \n")
                     #f.close()
-                    self.ToIOQueue.put("Ready")
+                self.ToIOQueue.put("Ready")
 
 
             if self.Shothendel:
                 self.Shothendel = False
                 self.ToInterfQueue.put('Start_roll')
                 if self.Shotglass and ((self.username != "") or not self.EnableBarcodeScanner) :
-                    self.ToIOQueue.put("Busy")
+                    #self.ToIOQueue.put("Busy")
                     i = random.randint(0, 4)
                     #i = 0
                     time.sleep(6)
@@ -139,7 +139,7 @@ class Shotmachine_controller():
                     datetimestring = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
                     logger.info("shot " + str(i)  + " at " + datetimestring + "\n")
                     #f.close()
-                    self.ToIOQueue.put("Ready")
+                self.ToIOQueue.put("Ready")
 
             try:
                 s = self.ToMainQueue.get(block=True, timeout=0.1)
@@ -161,6 +161,8 @@ class Shotmachine_controller():
                     self.username = self.db_conn.getUserName(self.barcode)
                     logger.info("barcode scanned in main: " + str(self.barcode) + " User: " + self.username)
                     self.ToInterfQueue.put('New_User:'+self.username)
+                elif "Flush" in s:
+                    self.ToIOQueue.put(s)
                 elif 'NoUser' in s:
                     self.username = ""
                     self.barcode = ""
