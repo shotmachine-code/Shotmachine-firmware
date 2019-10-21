@@ -227,7 +227,7 @@ class InputsOutputs:
                 self.checkArduinoReset()
 
         if self.EnableI2COutput:
-            self.MCP.__del__()
+            del self.MCP
             time.sleep(4)
         self.GPIO.cleanup()
 
@@ -251,7 +251,8 @@ class InputsOutputs:
                 if self.OnRaspberry:
                     #self.device = usb_core.find(idVendor=self.barcode_vencor_id, idProduct=self.barcode_product_id)
                     if self.device is None:
-                        print("Is the barcode reader connected and turned on?")
+                        self.logger.error("No barcode scanner found, is it connected and turned on?")
+                        #print("Is the barcode reader connected and turned on?")
                         connected = False
                         break
                         
@@ -264,7 +265,7 @@ class InputsOutputs:
 
                         # claim the device and it's two interfaces
                         if self.device.is_kernel_driver_active(0):
-                            print("Device interface 0 is busy, claiming device")
+                            #print("Device interface 0 is busy, claiming device")
                             self.device.detach_kernel_driver(0)
 
                         # is dit nodig? lijkt er op dat we alleen 0 gebruiken
@@ -275,8 +276,9 @@ class InputsOutputs:
                         endpoint = self.device[0][(1, 0)][0]
                         self.device.set_configuration()
 
-                        print("Barcode reader ready, start scanning")
+                        self.logger.info("Barcode reader ready, start scanning")
                 else:
+                    self.logger.info("Barcode scanner in emulation mode")
                     connected = True
                     endpoint = self.usbEndpointEmu(bEndpointAddress = None, wMaxPacketSize=None)
 
@@ -292,17 +294,16 @@ class InputsOutputs:
                             read_number = None
 
                         if read_number != None:
-                            #print("Barcode scanned: " + str(read_number))
+                            self.logger.info("Barcode scanned: " + str(read_number))
                             self.ToMainQueue.put("Barcode:" + str(read_number))
 
                     except usb_core.USBError as e:
                         data = None
-                        print(e.errno)
+                        #print(e.errno)
                         if e.errno == 110:
                             continue
                         if e.errno == 19:
-                            print("disconnected")
-                            print("Closed barcode scanner reader")
+                            self.logger.warning("Connection to barode scanner lost, closed connection if software")
                             connected = False
                             break
                             
@@ -316,13 +317,14 @@ class InputsOutputs:
                             read_number = None
 
                         if read_number != None:
-                            # print("Barcode scanned: " + str(read_number))
+                            self.logger.info("Barcode scanned: " + str(read_number))
                             self.ToMainQueue.put("Barcode:" + str(read_number))
 
                     except Exception as e:
                         if str(e) == 'Timeout':
                             continue
                         else:
+                            self.logger.error("Warning in barcode reader: " + e)
                             raise
 
         finally:
@@ -335,7 +337,7 @@ class InputsOutputs:
                 # self.device.attach_kernel_driver(0)
                 # is dit nodig? lijkt er op dat we alleen 0 gebruiken
                 #self.device.attach_kernel_driver(1)
-            print("Closed barcode scanner reader")
+            self.logger.info("Closed barcode scanner reader")
 
     def checkshothandle(self):
         self.ShotHendelState = self.GPIO.input(self.HendelSwitch)
@@ -352,7 +354,7 @@ class InputsOutputs:
         self.ConfigSwitchState = self.GPIO.input(self.ConfigSwitchPin)
 
         if not self.ConfigSwitchStateSend and self.ConfigSwitchState:
-            self.logger.info('Config button pressed, reset arduino')
+            self.logger.info('Config button pressed, resetting arduino')
             self.ConfigSwitchStateSend = True
             self.GPIO.output(self.ResetArduinoPin, 1)
             time.sleep(1)

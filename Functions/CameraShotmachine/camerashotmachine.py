@@ -19,11 +19,12 @@ if (currentOS == 'Linux' and currentArch[0] != '64bit'):
     import cv2
 
 class CameraShotmachine:
-    def __init__(self, _windowPosSize=(200,0,900, 1200), waittime=3, _storagepath = ''):
+    def __init__(self, _windowPosSize=(200,0,900, 1200), waittime=3, _storagepath = '', HandleShotmachine = []):
         if _storagepath == '':
             self.storagepath = 'TakenImages/NotUploaded'
         else:
             self.storagepath = _storagepath
+        self.HandleShotmachine = HandleShotmachine
         self.logger = logging.getLogger(__name__)
         self.wait_time = waittime
         self.start_time = time.time()
@@ -32,10 +33,12 @@ class CameraShotmachine:
         self.image = None
         self.stop = False
         self.running = False
-        if (currentOS == 'Linux' and currentArch[0] != '64bit'):
-            self.onRaspberry = True
-        else:
-            self.onRaspberry = False
+        self.onRaspberry = self.HandleShotmachine["Settings"]["OnRaspberry"]
+        
+        #if (currentOS == 'Linux' and currentArch[0] != '64bit'):
+        #    self.onRaspberry = True
+        #else:
+        #    self.onRaspberry = False
         #self.onRaspberry = False
 
         self.useCamera = "USB" #, "CSI"

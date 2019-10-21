@@ -49,12 +49,14 @@ class database_connection():
             db.close()
 
             if result == None:
+                self.logger.info("No user found with barcode: " + str(barcode))
                 return ""
             else:
                 Username = result[0]
-                return Username
+                self.logger.info("User found with barcode: " + str(barcode) + " User: " + str(Username))
+                return str(Username)
         except:
-            print("Unexpected error:", sys.exc_info()[0])
+            self.logger.warning("Unexpected error:", sys.exc_info()[0])
             try:
                 db.rollback()
                 db.close()

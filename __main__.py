@@ -54,9 +54,9 @@ HandleShotmachine = {
     "Settings": {
         "OnRaspberry": onRaspberry,
         "EnableSPI": True,
-        "EnableI2C": False,
+        "EnableI2C": True,
         "EnableDBSync":False,
-        "EnableBarcodeScanner": False,
+        "EnableBarcodeScanner": True,
         "EnablePhotoUploader": False
     },
     "Hardware": {

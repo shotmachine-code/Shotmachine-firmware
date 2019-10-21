@@ -31,8 +31,8 @@ class Shotmachine_Interface():
         self.showLastImage = False
         self.FileList = []
 
-        self.OperationMode = "PhotoBooth"
-        #self.OperationMode = "Shotmachine"
+        #self.OperationMode = "PhotoBooth"
+        self.OperationMode = "Shotmachine"
 
         self.TakenPhotosDir = 'TakenImages/NotUploaded'
 
@@ -435,7 +435,7 @@ class Shotmachine_Interface():
         self.background_image = pygame.image.load(background_path).convert()
 
         # Init camera
-        self.camera = camerashotmachine.CameraShotmachine(_windowPosSize = (270,0,1440, 1080), waittime=3)
+        self.camera = camerashotmachine.CameraShotmachine(_windowPosSize = (270,0,1440, 1080), waittime=3, HandleShotmachine = self.HandleShotmachine)
         
         # Init rollers
         self.roller1 = Roller(Roll_1_posx, Roll_posy, Roll_height, Roll_width, Roll_Images_dir)
