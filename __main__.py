@@ -12,22 +12,11 @@ import platform
 import random
 import datetime
 import os
+import sys
 
-
-import xml.etree.ElementTree as ET
-
-xml_file_path = os.path.join(os.getcwd(), 'mysql_settings.xml')
-tree = ET.parse(xml_file_path)
-root = tree.getroot()
-
-for mysqlXML in root.findall('mysql'):
-    if mysqlXML.get('name') == 'local':
-        localMysqlUser = mysqlXML.find('user').text
-        localMysqlPass = mysqlXML.find('password').text
-        localMysqlIP = mysqlXML.find('ip').text
 
 #TODO
-party_id = 2
+party_id = 3
 
 
 currentOS = platform.system()
@@ -39,13 +28,19 @@ else:
 #onRaspberry = False
 
 
-logger = logging.getLogger(__name__)
+#logger = logging.getLogger(__name__).addHandler(logging.StreamHandler(sys.stdout))
 Logdate = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
 Logname = "Logs/" + Logdate + ".log"
-logging.basicConfig(format='%(asctime)s %(levelname)s: %(name)s: %(message)s', filename=Logname, level=logging.INFO)
-
-ConsoleLogHandle = logging.StreamHandler()
-ConsoleLogHandle.setLevel(logging.INFO)
+logging.basicConfig(format='%(asctime)s %(levelname)s: %(name)s: %(message)s',
+                    #filename=Logname,
+                    level=logging.INFO,
+                    handlers = [
+                        logging.FileHandler(Logname),
+                        logging.StreamHandler()
+                    ])
+logger = logging.getLogger(__name__)
+#ConsoleLogHandle = logging.StreamHandler()
+#ConsoleLogHandle.setLevel(logging.INFO)
 
 
 logger.info("Start")
@@ -57,7 +52,7 @@ HandleShotmachine = {
         "EnableI2C": True,
         "EnableDBSync":False,
         "EnableBarcodeScanner": True,
-        "EnablePhotoUploader": False
+        "EnablePhotoUploader": True
     },
     "Hardware": {
         "OnOffSwitch": 27,
@@ -96,6 +91,9 @@ class Shotmachine_controller():
         self.Shothendel = False
 
         self.fotoknop = False
+
+        photoDir = "/home/marcel/Shotmachine/Shotmachine-firmware/TakenImages/NotUploaded"
+        self.ToPhotoUploaderQueue.put(photoDir + "/20190922_003448.png" + ":13183")
 
         self.EnableBarcodeScanner = HandleShotmachine["Settings"]["EnableBarcodeScanner"]
 
@@ -217,7 +215,7 @@ inputsoutputs.InputsOutputs(HandleShotmachine,
                             ToIOQueue)
 
 if HandleShotmachine["Settings"]["EnablePhotoUploader"]:
-    PhotoUploader_program = PhotoUploader('3', ToPhotoUploaderQueue)
+    PhotoUploader_program = PhotoUploader(party_id, ToPhotoUploaderQueue)
 
 controller_alive = True
 while controller_alive:

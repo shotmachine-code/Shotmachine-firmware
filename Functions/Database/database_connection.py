@@ -11,16 +11,16 @@ class database_connection():
         self.logger = logging.getLogger("Database_connection")
         self.party_id = 3
         try:
-            xml_file_path = os.path.join(os.getcwd(), 'mysql_settings.xml')
+            xml_file_path = os.path.join(os.getcwd(), 'settings.xml')
             tree = ET.parse(xml_file_path)
             root = tree.getroot()
 
             for mysqlXML in root.findall('mysql'):
-                if mysqlXML.get('name') == 'local':
+                if mysqlXML.get('name') == 'mysql_local':
                     self.localMysqlUser = mysqlXML.find('user').text
                     self.localMysqlPass = mysqlXML.find('password').text
                     self.localMysqlIP = mysqlXML.find('ip').text
-                if mysqlXML.get('name') == 'online':
+                if mysqlXML.get('name') == 'mysql_online':
                     self.onlineMysqlUser = mysqlXML.find('user').text
                     self.onlineMysqlPass = mysqlXML.find('password').text
                     self.onlineMysqlIP = mysqlXML.find('ip').text
