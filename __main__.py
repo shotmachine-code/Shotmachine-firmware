@@ -92,8 +92,8 @@ class Shotmachine_controller():
 
         self.fotoknop = False
 
-        photoDir = "/home/marcel/Shotmachine/Shotmachine-firmware/TakenImages/NotUploaded"
-        self.ToPhotoUploaderQueue.put(photoDir + "/20190922_003448.png" + ":13183")
+        #photoDir = "/home/marcel/Shotmachine/Shotmachine-firmware/TakenImages/NotUploaded"
+        #self.ToPhotoUploaderQueue.put(photoDir + "/20190922_003448.png" + ":13183")
 
         self.EnableBarcodeScanner = HandleShotmachine["Settings"]["EnableBarcodeScanner"]
 

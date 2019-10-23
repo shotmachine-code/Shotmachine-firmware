@@ -224,6 +224,7 @@ class InputsOutputs:
                     self.MCP.output(self.flushnumber, 0)
                     print("Spoel pomp " + str(self.flushnumber))
                     time.sleep(1)
+                    #TODO add possibility to stop on command
                     self.MCP.output(self.flushnumber, 1)
                 self.FlushPump = False
                 time.sleep(1)

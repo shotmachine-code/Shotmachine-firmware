@@ -68,7 +68,7 @@ class PhotoUploader():
                         self.sftpUser = settingsXML.find('user').text
                         self.sftpPass = settingsXML.find('password').text
                         self.sftpAdress = settingsXML.find('adress').text
-                        self.sftpHostKey = settingsXML.find('hostkey').text
+                        #self.sftpHostKey = settingsXML.find('hostkey').text
             except:
                 self.logger.error("error in loading settings from xml file")
                 raise
@@ -138,13 +138,16 @@ class PhotoUploader():
                             self.logger.info("Connection succesfully stablished with sftp server")
                             remoteFilePath = '/root/Photos/'+ self.party_id + '/' + photoname
                             sftp.put(Filename, remoteFilePath)
-                    except:
+                            self.logger.info("upload success")
+                            self.db_conn.SetPhotoToUser(self.party_id, Barcode, photoname, timestamp)
+                            self.logger.info("photo written to db")
+                    except FileNotFoundError as e:
                         self.logger.warning("Upload failed, try again")
+                        self.logger.warning(e)
+                        #raise
                         self.ToDoQueue.put(Filename + ":" + Barcode)
 
-                    self.logger.info("upload success")
-                    self.db_conn.SetPhotoToUser(self.party_id, Barcode, photoname, timestamp)
-                    self.logger.info("photo written to db")
+                    
 
 
             except queue.Empty:
