@@ -11,8 +11,6 @@ import logging
 import pysftp
 import xml.etree.ElementTree as ET
 
-#logging.getLogger('googleapicliet.discovery_cache').setLevel(logging.ERROR)
-
 #Album_Id = 'AOivGk9mA_hdf1F75tg5n3GxCN_BHFHY-Z2-rnWZXQTLFRoeq6FpMBfyatxwjfFOiWDnNxPfLF_5'
 #album_name = 'Housewarming Lisa 2'
 #Create_new_album = False
@@ -27,10 +25,10 @@ class PhotoUploader():
         done = False
         self.logger = logging.getLogger(__name__)
 
-        GooglePhotoUploader = False
+        GooglePhotoUploader = False         ### Old uploader, can probably be removed
         sftpUploader = True
 
-        if GooglePhotoUploader:
+        if GooglePhotoUploader:     ### Old uploader, can probably be removed
             while not done:
                 try:
                     self.logger.info("Start Google photo uploader")
@@ -59,6 +57,8 @@ class PhotoUploader():
             self.sftpPass = ""
             self.sftpAdress = ""
 
+            cnopts = pysftp.CnOpts()
+
             try:
                 xml_file_path = os.path.join(os.getcwd(), 'settings.xml')
                 tree = ET.parse(xml_file_path)
@@ -68,36 +68,12 @@ class PhotoUploader():
                         self.sftpUser = settingsXML.find('user').text
                         self.sftpPass = settingsXML.find('password').text
                         self.sftpAdress = settingsXML.find('adress').text
-                        #self.sftpHostKey = settingsXML.find('hostkey').text
             except:
                 self.logger.error("error in loading settings from xml file")
                 raise
 
-            #cnopts = CnOpts()
-
-            #hostkeys = None
-
-            #if cnopts.hostkeys.lookup(host) == None:
-                #print("New host - will accept any host key")
-                # Backup loaded .ssh/known_hosts file
-                #hostkeys = cnopts.hostkeys
-                # And do not verify host key of the new host
-                #cnopts.hostkeys = None
-
-            #with Connection(host, username=user, private_key=pkey, cnopts=cnopts) as sftp:
-            #    if hostkeys != None:
-            #        print("Connected to new host, caching its hostkey")
-            #        hostkeys.add(host, sftp.remote_server_key.get_name(), sftp.remote_server_key)
-            #        hostkeys.save(pysftp.helpers.known_hosts())
-            cnopts = pysftp.CnOpts()
-            #cnopts.hostkeys.load('')
-
             try:
                 with pysftp.Connection(host=self.sftpAdress, username=self.sftpUser, password=self.sftpPass, cnopts=cnopts) as sftp:
-                    #if hostkeys != None:
-                    #    print("Connected to new host, caching its hostkey")
-                    #    hostkeys.add(host, sftp.remote_server_key.get_name(), sftp.remote_server_key)
-                    #    hostkeys.save(pysftp.helpers.known_hosts())
                     self.logger.info("Connection succesfully stablished with sftp server")
                     remoteFilePath = '/root/Photos/' + self.party_id + '/'
                     DirExists = sftp.exists(remoteFilePath)
@@ -113,25 +89,20 @@ class PhotoUploader():
             self.thread.start()
 
 
-
     def uploaderThreadSFTP(self):
         self.logger.info("SFTP photo uploader started")
         while self.run:
             try:
                 Task = self.ToDoQueue.get(block=True, timeout=1)
-
                 if Task == "Quit":
                     self.run = False
                 elif Task != "":
-                    self.logger.info("New photo to upload: " + Task)
                     ts = time.time()
                     timestamp = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
                     Filename = Task.split(':')[0]
-                    print("Filename: " + Filename)
                     Barcode = Task.split(':')[1]
-                    print("Barcode: " + Barcode)
                     photoname = Filename.split('/')[-1]
-                    print('photoname: ' + photoname)
+                    self.logger.info("New photo to upload: " + photoname + " For barcode: " + Barcode)
                     time.sleep(5)
                     try:
                         with pysftp.Connection(host=self.sftpAdress, username=self.sftpUser, password=self.sftpPass) as sftp:
@@ -144,19 +115,13 @@ class PhotoUploader():
                     except FileNotFoundError as e:
                         self.logger.warning("Upload failed, try again")
                         self.logger.warning(e)
-                        #raise
                         self.ToDoQueue.put(Filename + ":" + Barcode)
-
-                    
-
-
             except queue.Empty:
                 continue
         self.logger.info("Uploader thread closed")
 
-            
 
-
+    ### Old uploader, can probably be removed
     def uploaderThreadGoogle(self):
         print("6")
         while self.run:

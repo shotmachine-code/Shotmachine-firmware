@@ -81,7 +81,7 @@ class database_connection():
             cursor.close()
             db.close()
         except:
-            print("Unexpected error:", sys.exc_info()[0])
+            self.logger.warning("Unexpected error:", sys.exc_info()[0])
             try:
                 db.rollback()
                 db.close()
@@ -112,7 +112,7 @@ class database_connection():
 
     #def pictureToDatabase(self):
 
-    def GetGoogleAlbumId(self, partyId):
+    def GetGoogleAlbumId(self, partyId):            ### Old uploader, can probably be removed
         sql_get_google_album_id = "SELECT google_photoalbum_id FROM parties WHERE id={};"
         db = pymysql.connect(self.localMysqlIP, self.localMysqlUser, self.localMysqlPass, "shotmachine")
 
@@ -124,7 +124,7 @@ class database_connection():
         db.close()
         return albumId
 
-    def SetGoogleAlbumId(self, partyID, Album_Id, albumurl):
+    def SetGoogleAlbumId(self, partyID, Album_Id, albumurl):     ### Old uploader, can probably be removed
         sql_write_Google_album_data = "INSERT INTO parties (google_photoalbum_id, google_photoshareable_url) VALUES (%s, %s) WHERE id=%s;"
         try:
             db = pymysql.connect(self.localMysqlIP, self.localMysqlUser, self.localMysqlPass, "shotmachine")
@@ -133,7 +133,7 @@ class database_connection():
             cursor.close()
             db.close()
         except:
-            print("Unexpected error:", sys.exc_info()[0])
+            self.logger.warning("Unexpected error:", sys.exc_info()[0])
             try:
                 db.rollback()
                 db.close()
@@ -141,23 +141,22 @@ class database_connection():
                 pass
 
     def SetPhotoToUser(self, party_id, barcode, imagename, timestamp):
-        print("start writing photo to db")
+        self.logger.info("start writing photo to db")
         sql_get_user_id = "SELECT id FROM users WHERE (barcode = {} AND party_id = {});"
         sql_write_picture = "INSERT INTO photos (datetime, user_id, party_id, picture_name, created_at ,updated_at) VALUES (%s, %s, %s, %s, %s, %s);"
         try:
             db = pymysql.connect(self.onlineMysqlIP, self.onlineMysqlUser, self.onlineMysqlPass, "shotmachine")
             cursor = db.cursor(pymysql.cursors.Cursor)
-
             cursor.execute(sql_get_user_id.format(barcode, party_id))
             user_id = str(cursor.fetchone()[0])
-            print("User_id: " + user_id)
+            self.logger.info("User_id: " + user_id)
             cursor.execute(sql_write_picture, (timestamp, user_id, party_id, imagename, timestamp, timestamp))
             db.commit()
             cursor.close()
             db.close()
-            print("finished writing to db")
+            self.logger.info("finished writing to db")
         except:
-            print("Unexpected error:", sys.exc_info()[0])
+            self.logger.warning("Unexpected error:", sys.exc_info()[0])
             try:
                 db.rollback()
                 db.close()
