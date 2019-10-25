@@ -51,7 +51,7 @@ HandleShotmachine = {
         "EnableSPI": True,
         "EnableI2C": True,
         "EnableDBSync":False,
-        "EnableBarcodeScanner": True,
+        "EnableBarcodeScanner": False,
         "EnablePhotoUploader": True
     },
     "Hardware": {
@@ -89,8 +89,10 @@ class Shotmachine_controller():
 
         self.Shotglass = False
         self.Shothendel = False
+        self.possibleShots = list(range(0, 5))
 
         self.fotoknop = False
+        #self.ToIOQueue.put("Flashlight 1") # turn on leds in shothok and set flashlight to waitstate
 
         #photoDir = "/home/marcel/Shotmachine/Shotmachine-firmware/TakenImages/NotUploaded"
         #self.ToPhotoUploaderQueue.put(photoDir + "/20190922_003448.png" + ":13183")
@@ -110,9 +112,9 @@ class Shotmachine_controller():
                 self.ToInterfQueue.put('Take_picture')
                 if ((self.username != "") or not self.EnableBarcodeScanner):
                     self.ToIOQueue.put("Busy")
-                    self.ToIOQueue.put("Flashlight 1")
+                    self.ToIOQueue.put("Flashlight 2")
                     time.sleep(7)
-                    self.ToIOQueue.put("Flashlight 0")
+                    self.ToIOQueue.put("Flashlight 1")
                     time.sleep(1)
                     #f = open(Logfile, "a")
                     datetimestring = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
@@ -126,7 +128,13 @@ class Shotmachine_controller():
                 self.ToInterfQueue.put('Start_roll')
                 if self.Shotglass and ((self.username != "") or not self.EnableBarcodeScanner) :
                     #self.ToIOQueue.put("Busy")
-                    i = random.randint(0, 4)
+                    if len(self.possibleShots) == 0:
+                        self.possibleShots = list(range(0, 5))
+                    index = random.randint(0, len(self.possibleShots))
+                    i = self.possibleShots[index]
+                    print(i)
+                    self.possibleShots.remove(i)
+                    #i = random.randint(0, 4)
                     #i = 0
                     time.sleep(6)
                     self.ToIOQueue.put("Shot " + str(i))
@@ -143,6 +151,7 @@ class Shotmachine_controller():
                 s = self.ToMainQueue.get(block=True, timeout=0.1)
                 if s == "Quit":
                     self.quitprogram = True
+                    self.ToIOQueue.put("Flashlight 0") # turn off all leds on machine
                     self.ToDBSyncQueue.put("Quit")
                     self.ToIOQueue.put("Quit")
                     self.ToPhotoUploaderQueue.put("Quit")

@@ -79,8 +79,8 @@ class InputsOutputs:
         self.ConfigSwitchState = False
         self.ConfigSwitchStateSend = False
 
-        self.flashlightState = 0
-        self.setflashlight = False
+        self.flashlightState = 1
+        self.setflashlight = True
 
         self.FlushPump = False
         self.flushnumber = 0
@@ -93,7 +93,7 @@ class InputsOutputs:
         #interface = 0
 
         #Temp variable/setting
-        party_id = 2
+        party_id = 3
 
 
         # init GPIO
@@ -145,11 +145,13 @@ class InputsOutputs:
         if self.EnableSPI:
             self.spi = SpiDev()
             self.spi.open(0, 0)
-            self.spi.max_speed_hz = 3900000
+            self.spi.max_speed_hz = 390000
 
+        #time.sleep(5) # ensure everyting is ready
         # start threads
         self.run = True
         self.recievebuffer = ''
+        
 
         self.mainThread = threading.Thread(target=self.main_IO_interface, name='IO_main')
         self.mainThread.start()
@@ -369,14 +371,17 @@ class InputsOutputs:
     def checkArduinoReset(self):
         self.ConfigSwitchState = self.GPIO.input(self.ConfigSwitchPin)
 
-        if not self.ConfigSwitchStateSend and self.ConfigSwitchState:
-            self.logger.info('Config button pressed, resetting arduino')
-            self.ConfigSwitchStateSend = True
-            self.GPIO.output(self.ResetArduinoPin, 1)
-            time.sleep(1)
-            self.GPIO.output(self.ResetArduinoPin, 0)
-        if not self.ConfigSwitchState:
-            self.ConfigSwitchStateSend = False
+        if self.ConfigSwitchState:
+            time.sleep(0.5)
+            self.ConfigSwitchState = self.GPIO.input(self.ConfigSwitchPin)
+            if not self.ConfigSwitchStateSend and self.ConfigSwitchState:
+                self.logger.info('Config button pressed, resetting arduino')
+                self.ConfigSwitchStateSend = True
+                self.GPIO.output(self.ResetArduinoPin, 1)
+                time.sleep(1)
+                self.GPIO.output(self.ResetArduinoPin, 0)
+            if not self.ConfigSwitchState:
+                self.ConfigSwitchStateSend = False
 
 
     def checkfotoknop(self):
@@ -418,9 +423,8 @@ class InputsOutputs:
                     
 
     def setflashlightfunc(self, state):
-
         self.logger.info('changing flashlight state to: ' + str(state))
-        string_to_send = str(state)
+        string_to_send = "state;"+ str(state) + "\n"
         string_to_bytes = str.encode(string_to_send)
         if self.EnableSPI:
             self.spi.xfer(string_to_bytes)
