@@ -268,7 +268,7 @@ class Shotmachine_Interface():
         textboxRect = pygame.Rect(0, self.screeninfo.current_h - 250, 275, 250)
         textboxSurf = pygame.draw.rect(self.screen, (0, 0, 0, 0), textboxRect)
         self.updatelist.append(textboxRect)
-        if (self.EnableBarcodeScanner and ("Hallo" in self.currentTextMessage)) or not self.EnableBarcodeScanner:s
+        if (self.EnableBarcodeScanner and ("Hallo" in self.currentTextMessage)) or not self.EnableBarcodeScanner:
             shotImagesurf = pygame.image.load('Functions/Interface/Images/camera.png')
             shotImagesurf = pygame.transform.scale(shotImagesurf, (150, 150))
             shotImagesurf = shotImagesurf.convert_alpha()
