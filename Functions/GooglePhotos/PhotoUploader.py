@@ -10,6 +10,7 @@ from Functions.Database import database_connection
 import logging
 import pysftp
 import xml.etree.ElementTree as ET
+import shutil
 
 #Album_Id = 'AOivGk9mA_hdf1F75tg5n3GxCN_BHFHY-Z2-rnWZXQTLFRoeq6FpMBfyatxwjfFOiWDnNxPfLF_5'
 #album_name = 'Housewarming Lisa 2'
@@ -20,11 +21,22 @@ class PhotoUploader():
 
         self.ToDoQueue = _ToPhotoUploaderQueue
         self.party_id = str(_partyid)
-
-        self.db_conn = database_connection.database_connection()
-        done = False
+        
         self.logger = logging.getLogger(__name__)
-
+        self.db_conn = database_connection.database_connection()
+        
+        MainUploadedFolder = 'TakenImages/Uploaded'
+        if not (os.path.isdir(MainUploadedFolder)):
+            os.mkdir(MainUploadedFolder)
+            self.logger.info("Created main folder for uploaded images: " + MainUploadedFolder)
+        
+        self.UploadedFolder = MainUploadedFolder + "/"+ self.party_id
+        if not (os.path.isdir(self.UploadedFolder)):
+            os.mkdir(self.UploadedFolder)
+            self.logger.info("Created folder for uploaded images of this party: " + self.UploadedFolder)
+        
+        done = False
+        
         GooglePhotoUploader = False         ### Old uploader, can probably be removed
         sftpUploader = True
 
@@ -112,6 +124,8 @@ class PhotoUploader():
                             self.logger.info("upload success")
                             self.db_conn.SetPhotoToUser(self.party_id, Barcode, photoname, timestamp)
                             self.logger.info("photo written to db")
+                            shutil.move(Filename, (self.UploadedFolder + "/" + photoname))
+                            self.logger.info("photo moved to uploaded folder under: " + (self.UploadedFolder + "/" + photoname))
                     except FileNotFoundError as e:
                         self.logger.warning("Upload failed, try again")
                         self.logger.warning(e)

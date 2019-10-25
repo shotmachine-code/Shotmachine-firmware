@@ -28,19 +28,16 @@ else:
 #onRaspberry = False
 
 
-#logger = logging.getLogger(__name__).addHandler(logging.StreamHandler(sys.stdout))
 Logdate = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
 Logname = "Logs/" + Logdate + ".log"
 logging.basicConfig(format='%(asctime)s %(levelname)s: %(name)s: %(message)s',
-                    #filename=Logname,
                     level=logging.INFO,
                     handlers = [
                         logging.FileHandler(Logname),
                         logging.StreamHandler()
                     ])
 logger = logging.getLogger(__name__)
-#ConsoleLogHandle = logging.StreamHandler()
-#ConsoleLogHandle.setLevel(logging.INFO)
+
 
 
 logger.info("Start")
@@ -92,10 +89,6 @@ class Shotmachine_controller():
         self.possibleShots = list(range(0, 5))
 
         self.fotoknop = False
-        #self.ToIOQueue.put("Flashlight 1") # turn on leds in shothok and set flashlight to waitstate
-
-        #photoDir = "/home/marcel/Shotmachine/Shotmachine-firmware/TakenImages/NotUploaded"
-        #self.ToPhotoUploaderQueue.put(photoDir + "/20190922_003448.png" + ":13183")
 
         self.EnableBarcodeScanner = HandleShotmachine["Settings"]["EnableBarcodeScanner"]
 
@@ -116,35 +109,26 @@ class Shotmachine_controller():
                     time.sleep(7)
                     self.ToIOQueue.put("Flashlight 1")
                     time.sleep(1)
-                    #f = open(Logfile, "a")
                     datetimestring = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
                     logger.info("foto at " + datetimestring + " \n")
-                    #f.close()
                 self.ToIOQueue.put("Ready")
-
 
             if self.Shothendel:
                 self.Shothendel = False
                 self.ToInterfQueue.put('Start_roll')
                 if self.Shotglass and ((self.username != "") or not self.EnableBarcodeScanner) :
-                    #self.ToIOQueue.put("Busy")
                     if len(self.possibleShots) == 0:
                         self.possibleShots = list(range(0, 5))
-                    index = random.randint(0, len(self.possibleShots))
+                    index = random.randint(0, len(self.possibleShots)-1)
                     i = self.possibleShots[index]
-                    print(i)
                     self.possibleShots.remove(i)
-                    #i = random.randint(0, 4)
-                    #i = 0
                     time.sleep(6)
                     self.ToIOQueue.put("Shot " + str(i))
                     time.sleep(2)
                     self.db_conn.ShotToDatabase(self.barcode, str(i))
 
-                    #f = open(Logfile, "a")
                     datetimestring = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
                     logger.info("shot " + str(i)  + " at " + datetimestring + "\n")
-                    #f.close()
                 self.ToIOQueue.put("Ready")
 
             try:
@@ -189,11 +173,6 @@ class Shotmachine_controller():
         return not self.quitprogram
 
 
-
-
-
-#Logfile = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
-#Logfile = Logfile +".txt"
 
 ToInterfQueue = queue.Queue()
 ToMainQueue = queue.Queue()

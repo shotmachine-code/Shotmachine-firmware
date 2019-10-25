@@ -68,12 +68,17 @@ class database_connection():
     def ShotToDatabase(self, barcode, shot):
         sql_get_shot_id = "SELECT shot_id FROM party_has_shots WHERE(party_id={} AND tank_index = {});"
         sql_get_user_id = "SELECT id FROM users WHERE (barcode = {} AND party_id = {});"
+        sql_get_organiser_barcode = "SELECT barcode FROM users WHERE party_id = {};"
         sql_write_shot = "INSERT INTO takenshots (datetime, shot_id, user_id, party_id, created_at, updated_at) VALUES (now(), %s, %s, %s,  now(), now());"
         try:
             db = pymysql.connect(self.localMysqlIP, self.localMysqlUser, self.localMysqlPass, "shotmachine")
             cursor = db.cursor(pymysql.cursors.Cursor)
             cursor.execute(sql_get_shot_id.format(self.party_id, shot))
             shot_id = str(cursor.fetchone()[0])
+            if barcode == "":
+                cursor.execute(sql_get_organiser_barcode.format(self.party_id))
+                barcode = str(cursor.fetchone()[0])
+                self.logger.info("No barcode scanned, using organizer barcode: " + barcode)
             cursor.execute(sql_get_user_id.format(barcode, self.party_id))
             user_id = str(cursor.fetchone()[0])
             cursor.execute(sql_write_shot, (shot_id, user_id, str(self.party_id)))
@@ -143,10 +148,15 @@ class database_connection():
     def SetPhotoToUser(self, party_id, barcode, imagename, timestamp):
         self.logger.info("start writing photo to db")
         sql_get_user_id = "SELECT id FROM users WHERE (barcode = {} AND party_id = {});"
+        sql_get_organiser_barcode = "SELECT barcode FROM users WHERE party_id = {};"
         sql_write_picture = "INSERT INTO photos (datetime, user_id, party_id, picture_name, created_at ,updated_at) VALUES (%s, %s, %s, %s, %s, %s);"
         try:
             db = pymysql.connect(self.onlineMysqlIP, self.onlineMysqlUser, self.onlineMysqlPass, "shotmachine")
             cursor = db.cursor(pymysql.cursors.Cursor)
+            if barcode == "":
+                cursor.execute(sql_get_organiser_barcode.format(self.party_id))
+                barcode = str(cursor.fetchone()[0])
+                self.logger.info("No barcode scanned, using organizer barcode: " + barcode)
             cursor.execute(sql_get_user_id.format(barcode, party_id))
             user_id = str(cursor.fetchone()[0])
             self.logger.info("User_id: " + user_id)
