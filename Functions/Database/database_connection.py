@@ -24,15 +24,6 @@ class database_connection():
                     self.onlineMysqlUser = mysqlXML.find('user').text
                     self.onlineMysqlPass = mysqlXML.find('password').text
                     self.onlineMysqlIP = mysqlXML.find('ip').text
-
-            #self.db = pymysql.connect(self.localMysqlIP, self.localMysqlUser, self.localMysqlPass, "shotmachine")
-            #cursor = self.db.cursor()
-            #cursor.execute("SELECT VERSION()")
-            #dbVersion = cursor.fetchone()
-            #cursor.close()
-            #self.logger.info("Connected to local database with version : %s " % dbVersion)
-            #db.close()
-
         except:
             self.logger.info('Error in reading database settings')
             raise
@@ -115,7 +106,6 @@ class database_connection():
                 pass
             return "Error"
 
-    #def pictureToDatabase(self):
 
     def GetGoogleAlbumId(self, partyId):            ### Old uploader, can probably be removed
         sql_get_google_album_id = "SELECT google_photoalbum_id FROM parties WHERE id={};"

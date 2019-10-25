@@ -477,7 +477,7 @@ class SpiDev():
 
     def xfer(self, data):
         objPin = dictionaryPins["SPISendBuffer"]
-        if data.decode() == '1':
+        if data.decode() == 'state;2\n':
             objPin.Out = "0"
         else:
             objPin.Out = "1"

@@ -87,6 +87,8 @@ class Shotmachine_controller():
         self.Shotglass = False
         self.Shothendel = False
         self.possibleShots = list(range(0, 5))
+        self.MakeShot = False
+        self.DoneWithShot = False
 
         self.fotoknop = False
 
@@ -109,26 +111,28 @@ class Shotmachine_controller():
                     time.sleep(7)
                     self.ToIOQueue.put("Flashlight 1")
                     time.sleep(1)
-                    datetimestring = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
-                    logger.info("foto at " + datetimestring + " \n")
                 self.ToIOQueue.put("Ready")
 
             if self.Shothendel:
                 self.Shothendel = False
-                self.ToInterfQueue.put('Start_roll')
                 if self.Shotglass and ((self.username != "") or not self.EnableBarcodeScanner) :
-                    if len(self.possibleShots) == 0:
-                        self.possibleShots = list(range(0, 5))
-                    index = random.randint(0, len(self.possibleShots)-1)
-                    i = self.possibleShots[index]
-                    self.possibleShots.remove(i)
-                    time.sleep(6)
-                    self.ToIOQueue.put("Shot " + str(i))
-                    time.sleep(2)
-                    self.db_conn.ShotToDatabase(self.barcode, str(i))
+                    self.ToInterfQueue.put('Start_roll')
+                else:
+                    self.logger.warning("Shot requeested, but no user scanned and barcode is enabled")
+                    self.ToIOQueue.put("Ready")
 
-                    datetimestring = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
-                    logger.info("shot " + str(i)  + " at " + datetimestring + "\n")
+            if self.MakeShot:
+                self.MakeShot = False
+                if len(self.possibleShots) == 0:
+                    self.possibleShots = list(range(0, 5))
+                index = random.randint(0, len(self.possibleShots)-1)
+                i = self.possibleShots[index]
+                self.possibleShots.remove(i)
+                self.ToIOQueue.put("Shot " + str(i))
+                self.db_conn.ShotToDatabase(self.barcode, str(i))
+
+            if self.DoneWithShot:
+                self.DoneWithShot = False
                 self.ToIOQueue.put("Ready")
 
             try:
@@ -145,6 +149,10 @@ class Shotmachine_controller():
                     self.ToInterfQueue.put("Shotglass:" + str(int(self.Shotglass)))
                 elif s == "Shothendel":
                     self.Shothendel = True
+                elif s == "RollsStopped":
+                    self.MakeShot = True
+                elif s == "Done with shot":
+                    self.DoneWithShot = True
                 elif s == "Fotoknop":
                     self.fotoknop = True
                 elif "Barcode:" in s:
@@ -169,8 +177,8 @@ class Shotmachine_controller():
             except queue.Empty:
                 pass
                 
-    def check_alive(self):
-        return not self.quitprogram
+    #def check_alive(self):
+        #return not self.quitprogram
 
 
 

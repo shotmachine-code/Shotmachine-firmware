@@ -166,6 +166,5 @@ class PhotoUploader():
                     self.db_conn.SetPhotoToUser(self.party_id, Barcode, Filename, timestamp)
                     print("photo written to db")
 
-
             except queue.Empty:
                 continue

@@ -1,6 +1,7 @@
 import pygame
 import os
 from random import randint
+import logging
 
 
 class Roller:
@@ -18,6 +19,7 @@ class Roller:
         self.brakedistancey = 0
         self.brakespeed = 0
         self.Shadow_image = 'Functions/Interface/Images/Roller_shadow.png'
+        self.logger = logging.getLogger(__name__)
 
         # Load roller images
         filelist = os.listdir(_roll_images_dir)
@@ -30,7 +32,7 @@ class Roller:
             except:
                 continue
         if len(filelist) < 4:
-            print('Error: Not enough roll images in folder. Need al least 4 images')
+            self.logger.error('Error: Not enough roll images in folder. Need al least 4 images')
         self.n_roll_images = len(self.Roll_images)
         self.rollerheight = self.Roll_images[0].get_height()
 
@@ -43,8 +45,10 @@ class Roller:
 
         # Determine a random starting position
         self.imageindex_1 = randint(0, self.n_roll_images-1)
-        self.imageindex_2 = (self.imageindex_1 + 1) % self.n_roll_images
-        self.imageindex_3 = (self.imageindex_1 + 2) % self.n_roll_images
+        self.imageindex_2 = randint(0, self.n_roll_images-1)
+        self.imageindex_3 = randint(0, self.n_roll_images-1)
+        #self.imageindex_2 = (self.imageindex_1 + 1) % self.n_roll_images
+        #self.imageindex_3 = (self.imageindex_1 + 2) % self.n_roll_images
 
         # Determine the exact starting positions of the images
         self.roll_1_y = self.posy - (1.5 * self.rollerheight)
@@ -79,8 +83,8 @@ class Roller:
 
     def stop_roller_smooth(self, stopimage_i):
         # function to initialize braking of the roller
-        self.brake_request = True
         self.stopimageindex = stopimage_i % self.n_roll_images
+        self.brake_request = True
 
     def stop_roller_direct(self,imageindex):
         self.cont_dy = 0
@@ -107,22 +111,46 @@ class Roller:
         # Check if one of the images is out of view(down), if so, move to top and change image
         if self.roll_1_y > self.posy + self.rollerheight:
             self.roll_1_y = self.roll_1_y - 3 * self.rollerheight
-            self.imageindex_1 = (self.imageindex_1 + 1) % self.n_roll_images
-            # if stoprequest has been made, calculate how fast we must brake and start braking
-            if self.brake_request and (self.imageindex_1 == self.stopimageindex):
+            if self.brake_request:
+                self.imageindex_1 = self.stopimageindex
                 self.brake = True
                 self.brake_request = False
                 self.brakedistancey = self.brakedistancei*self.rollerheight
                 self.brakedistancey = self.brakedistancey - (self.roll_1_y - self.posy + self.rollerheight)
                 self.brakespeed = (self.cont_dy * self.cont_dy) / self.brakedistancey
+            if self.brake:
+                self.imageindex_1 = self.imageindex_1
+            else:
+                self.imageindex_1 = randint(0, self.n_roll_images - 1)
 
         if self.roll_2_y > self.posy + self.rollerheight:
             self.roll_2_y = self.roll_2_y - 3 * self.rollerheight
-            self.imageindex_2 = randint(0, self.n_roll_images-1)
+            if self.brake_request:
+                self.imageindex_2 = self.stopimageindex
+                self.brake = True
+                self.brake_request = False
+                self.brakedistancey = self.brakedistancei*self.rollerheight
+                self.brakedistancey = self.brakedistancey - (self.roll_2_y - self.posy + self.rollerheight)
+                self.brakespeed = (self.cont_dy * self.cont_dy) / self.brakedistancey
+            if self.brake:
+                self.imageindex_2 = self.imageindex_2
+            else:
+                self.imageindex_2 = randint(0, self.n_roll_images - 1)
 
         if self.roll_3_y > self.posy + self.rollerheight:
             self.roll_3_y = self.roll_3_y - 3 * self.rollerheight
-            self.imageindex_3 = randint(0, self.n_roll_images-1)
+            if self.brake_request:
+                self.imageindex_3 = self.stopimageindex
+                self.brake = True
+                self.brake_request = False
+                self.brakedistancey = self.brakedistancei*self.rollerheight
+                self.brakedistancey = self.brakedistancey - (self.roll_3_y - self.posy + self.rollerheight)
+                self.brakespeed = (self.cont_dy * self.cont_dy) / self.brakedistancey
+            if self.brake:
+                self.imageindex_3 = self.imageindex_3
+            else:
+                self.imageindex_3 = randint(0, self.n_roll_images - 1)
+
         # Print roll images to screen buffer:
         screenref = pygame.display.get_surface()
         screenref.blit(self.Roll_images[self.imageindex_1], [self.Roll_posx_left, self.roll_1_y])

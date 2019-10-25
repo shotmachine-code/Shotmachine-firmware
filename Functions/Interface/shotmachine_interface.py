@@ -108,10 +108,6 @@ class Shotmachine_Interface():
         #self.timer_PhotoBoothPhotoRefresh_2 = Timer(6.3, self.update_photoBoothPicture, [2, True])
         #self.timer_PhotoBoothPhotoRefresh_2.start()
 
-        #self.update_photoBoothPicture(3, False)
-        #self.timer_PhotoBoothPhotoRefresh_3 = Timer(12.6, self.update_photoBoothPicture, [3, True])
-        #self.timer_PhotoBoothPhotoRefresh_3.start()
-
         #self.timer_PhotoBoothPhoto1Refresh.cancel()
 
         self.logger.info('Photobooth screen loaded')
@@ -124,10 +120,8 @@ class Shotmachine_Interface():
             if not self.showLastImage:
                 PhotoNumber = randint(0, len(self.FileList)-1)
             else:
-                #print("Show just taken image")
                 PhotoNumber = len(self.FileList) - 1
                 self.showLastImage = False
-            #print(PhotoNumber)
         
             PhotoPath = os.path.join(self.TakenPhotosDir, self.FileList[PhotoNumber])
             PhotoSurface = pygame.image.load(PhotoPath).convert()
@@ -169,7 +163,7 @@ class Shotmachine_Interface():
         self.screen.fill(self.WHITE)
         #self.camera.start_CSI()
         self.camera.start_USB()
-        self.CameraStartTime = time.time() #progress = 0
+        self.CameraStartTime = time.time()
         pygame.display.update()
         self.logger.info('Live camera screen')
         image = self.camera.read_small()
@@ -220,8 +214,6 @@ class Shotmachine_Interface():
         textRect.center = (1720, self.screeninfo.current_h / 2)
         self.screen.blit(textsurface, textRect)
         self.updatelist.append(textRect)
-
-
  
 
     def load_config_screen(self):
@@ -276,7 +268,7 @@ class Shotmachine_Interface():
         textboxRect = pygame.Rect(0, self.screeninfo.current_h - 250, 275, 250)
         textboxSurf = pygame.draw.rect(self.screen, (0, 0, 0, 0), textboxRect)
         self.updatelist.append(textboxRect)
-        if (self.EnableBarcodeScanner and ("Hallo" in self.currentTextMessage)) or not self.EnableBarcodeScanner:
+        if (self.EnableBarcodeScanner and ("Hallo" in self.currentTextMessage)) or not self.EnableBarcodeScanner:s
             shotImagesurf = pygame.image.load('Functions/Interface/Images/camera.png')
             shotImagesurf = pygame.transform.scale(shotImagesurf, (150, 150))
             shotImagesurf = shotImagesurf.convert_alpha()
@@ -378,12 +370,15 @@ class Shotmachine_Interface():
         self.roller2.start_roller(self.rollerspeed)
         self.roller3.start_roller(self.rollerspeed)
         stopimage = randint(1, 100)
-        timer1 = Timer(1, self.roller1.stop_roller_smooth, [stopimage])
+        timer1 = Timer(2, self.roller1.stop_roller_smooth, [stopimage])
         timer1.start()
-        timer2 = Timer(2.5, self.roller2.stop_roller_smooth, [stopimage])
+        timer2 = Timer(3, self.roller2.stop_roller_smooth, [stopimage])
         timer2.start()
         timer3 = Timer(4, self.roller3.stop_roller_smooth, [stopimage])
         timer3.start()
+        timer4 = Timer(5, self.From_interface.put, ['RollsStopped'])
+        timer4.start()
+
         self.logger.info('Starting rollers')
 
 
@@ -472,7 +467,7 @@ class Shotmachine_Interface():
                 elif self.recievebuffer == 'Start_roll' and current_screen == 'main':
                     if ((self.EnableBarcodeScanner and not (self.currentUser == "")) or not self.EnableBarcodeScanner):
                         if self.shotglassStatus:
-                            print('roll')
+                            #print('roll')
                             self.run_rollers()
                             timer_resetuser = Timer(10, self.stop_timeoutBarcode)
                             timer_resetuser.start()
