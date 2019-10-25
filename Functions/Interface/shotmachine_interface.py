@@ -167,10 +167,10 @@ class Shotmachine_Interface():
         pygame.display.update()
         self.logger.info('Live camera screen')
         image = self.camera.read_small()
-        cameraImageSurf = pygame.surfarray.make_surface(image)
-        self.cameraImageRect = cameraImageSurf.get_rect()
+        self.cameraImageSurf = pygame.surfarray.make_surface(image)
+        self.cameraImageRect = self.cameraImageSurf.get_rect()
         self.cameraImageRect.center = (self.screeninfo.current_w /2 , self.screeninfo.current_h /2)
-        self.screen.blit(cameraImageSurf, self.cameraImageRect)
+        self.screen.blit(self.cameraImageSurf, self.cameraImageRect)
         self.updatelist.append(self.cameraImageRect)
 
 
@@ -198,8 +198,11 @@ class Shotmachine_Interface():
     def Update_camera(self):
         self.screen.fill(self.WHITE)
         image = self.camera.read_small()
-        cameraImageSurf = pygame.surfarray.make_surface(image)
-        self.screen.blit(cameraImageSurf, self.cameraImageRect)
+        #cameraImageSurf = pygame.surfarray.make_surface(image)
+        ##cameraImageSurf = pygame.Surface(image, pygame.HWSURFACE)
+        pygame.surfarray.blit_array(self.cameraImageSurf, image)
+        self.screen.blit(self.cameraImageSurf, self.cameraImageRect)
+        
         self.updatelist.append(self.cameraImageRect)
 
         CameraTimeToGo = self.cameraLiveTime - (time.time() - self.CameraStartTime)+0.5
@@ -560,6 +563,7 @@ class Shotmachine_Interface():
                 
             # Limit to 60 frames per second
             clock.tick(60)
+            print(clock.get_fps())
 
             # Update the screen with what has changed.
             pygame.display.update(self.updatelist)

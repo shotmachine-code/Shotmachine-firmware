@@ -92,13 +92,19 @@ class PhotoUploader():
                     if not DirExists:
                         self.logger.info("Directory is not existing on sftp server, create it")
                         sftp.mkdir(remoteFilePath)
+                self.run = True
+                self.thread = threading.Thread(target=self.uploaderThreadSFTP)
+                self.thread.start()
+            except ConnectionException as e:
+                self.logger.error("No connection to sftp server, photo uploader not started")
             except:
-                self.logger.error("Could not cheack/create directory on remote sftp server")
+                self.logger.error("Could not check/create directory on remote sftp server")
                 raise
+                
 
-            self.run = True
-            self.thread = threading.Thread(target=self.uploaderThreadSFTP)
-            self.thread.start()
+            #self.run = True
+            #self.thread = threading.Thread(target=self.uploaderThreadSFTP)
+            #self.thread.start()
 
 
     def uploaderThreadSFTP(self):

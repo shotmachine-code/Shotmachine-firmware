@@ -54,19 +54,29 @@ class CameraShotmachine:
             self.camera.hflip = True
         if self.onRaspberry and self.useCamera == "USB":
             self.size = (960, 540)
-            
-            self.stream = cv2.VideoCapture(0)
-            self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, self.size[0])  # 800 960
-            self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, self.size[1])  # 600 540
+            #self.size = (1025, 577)
+            self.stream = cv2.VideoCapture()
+            self.stream.open(0, apiPreference=cv2.CAP_V4L2)
+            self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+            self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+            #self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, self.size[0])  # 800 960
+            #self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, self.size[1])  # 600 540
+            self.stream.set(cv2.CAP_PROP_FPS, 30.0)
             self.stream.set(cv2.CAP_PROP_BUFFERSIZE, 2)
             self.stream.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
-            (self.grabbed, self.frame) = self.stream.read()
-            center_small = (480, 270)
+            
+            (success_grab, frame_raw) = self.stream.read()
+            smallFrameRaw = cv2.resize(frame_raw, dsize=self.size, interpolation=cv2.INTER_NEAREST) 
+                        #RGB_frame = cv2.cvtColor(frame_raw, cv2.COLOR_BGR2RGB)
+            RGB_frame = cv2.cvtColor(smallFrameRaw, cv2.COLOR_BGR2RGB)
+            frame = np.rot90(RGB_frame)
+            
+            #(self.grabbed, self.frame) = self.stream.read()
+            center_small = (self.size[0] /2, self.size[1] / 2)
             center_full = (3840 / 2, 2160 / 2)
             
-            
-            self.rotationMatrix_small = cv2.getRotationMatrix2D(center_small, 90, 1)
-            self.rotationMatrix_full = cv2.getRotationMatrix2D(center_full, 90, 1)
+            #self.rotationMatrix_small = cv2.getRotationMatrix2D(center_small, 90, 1)
+            #self.rotationMatrix_full = cv2.getRotationMatrix2D(center_full, 90, 1)
 
 
             self.stopped = False
@@ -197,7 +207,10 @@ class CameraShotmachine:
                     success_grab = False
                     while not success_grab:
                         (success_grab, frame_raw) = self.stream.read()
-                        frame = np.rot90(frame_raw)
+                        smallFrameRaw = cv2.resize(frame_raw, dsize=self.size, interpolation=cv2.INTER_NEAREST) 
+                        #RGB_frame = cv2.cvtColor(frame_raw, cv2.COLOR_BGR2RGB)
+                        RGB_frame = cv2.cvtColor(smallFrameRaw, cv2.COLOR_BGR2RGB)
+                        frame = np.rot90(RGB_frame)
                     self.frame_small = frame
                     self.grabbed_small = success_grab
                 except:
@@ -208,13 +221,25 @@ class CameraShotmachine:
                 success_grab = False
                 while not success_grab:
                     (success_grab, frame) = self.stream.read()
-                ScreenFrame = cv2.resize(frame, dsize=(1920, 1080), interpolation=cv2.INTER_CUBIC)
-                self.frame_full = np.rot90(ScreenFrame)
+                ScreenFrame = cv2.resize(frame, dsize=(1920, 1080), interpolation=cv2.INTER_NEAREST) #cv2.INTER_CUBIC)
+                RGBScreenFrame = cv2.cvtColor(ScreenFrame, cv2.COLOR_BGR2RGB)
+                self.frame_full = np.rot90(RGBScreenFrame)
                 self.stopped = True
                 self.grabbed_full = success_grab
                 
-                self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 960)  # 800
-                self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 540)  # 600
+                self.stream.release()
+                self.stream = cv2.VideoCapture()
+                self.stream.open(0, apiPreference=cv2.CAP_V4L2)
+                self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+                self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+                #self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, self.size[0])  # 800 960
+                #self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, self.size[1])  # 600 540
+                self.stream.set(cv2.CAP_PROP_FPS, 30.0)
+                self.stream.set(cv2.CAP_PROP_BUFFERSIZE, 2)
+                self.stream.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
+                
+                #self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)  # 800 self.size[0]
+                #self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)  # 600 self.size[1]
 
                 datetimestring = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
                 self.save_image_name = os.path.join(self.storagepath, datetimestring + '.png')
