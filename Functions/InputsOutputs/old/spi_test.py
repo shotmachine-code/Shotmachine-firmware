@@ -6,7 +6,7 @@ import time
 def setflashlightfunc(spi, state):
       print('changing flashlight state to: ' + str(state))
       string_to_send = str(state)
-      string_to_bytes = str.encode(string_to_send)
+      string_to_bytes = str.encode("state;0")
       spi.xfer(string_to_bytes)
 
 
