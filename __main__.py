@@ -46,7 +46,7 @@ HandleShotmachine = {
     "Settings": {
         "OnRaspberry": onRaspberry,
         "EnableSPI": True,
-        "EnableI2C": True,
+        "EnableI2C": False,
         "EnableDBSync":False,
         "EnableBarcodeScanner": False,
         "EnablePhotoUploader": True
@@ -62,7 +62,8 @@ HandleShotmachine = {
         "ResetArduino": 13,
         "LedConfig": 20,
         "LedSpoel": 12,
-        "LedSignal": 25
+        "LedSignal": 25,
+        "SPISSPin": 6
     },
     "Logger": logger
 }
@@ -117,8 +118,14 @@ class Shotmachine_controller():
                 self.Shothendel = False
                 if self.Shotglass and ((self.username != "") or not self.EnableBarcodeScanner) :
                     self.ToInterfQueue.put('Start_roll')
+                if not self.Shotglass and ((self.username != "") or not self.EnableBarcodeScanner) :
+                    logger.warning("Shot requeested, but no shotglass present")
+                    self.ToIOQueue.put("ShotLeds:3") 
+                    self.ToIOQueue.put("Ready")
+                    ShotLedBlinkTimer = threading.Timer(5, self.ToIOQueue.put, ["ShotLeds:" + str(int(self.Shotglass)+1)])
+                    ShotLedBlinkTimer.start()
                 else:
-                    self.logger.warning("Shot requeested, but no user scanned and barcode is enabled")
+                    logger.warning("Shot requeested, but no user scanned and barcode is enabled")
                     self.ToIOQueue.put("Ready")
 
             if self.MakeShot:
@@ -128,7 +135,7 @@ class Shotmachine_controller():
                 index = random.randint(0, len(self.possibleShots)-1)
                 i = self.possibleShots[index]
                 self.possibleShots.remove(i)
-                self.ToIOQueue.put("Shot " + str(i))
+                self.ToIOQueue.put("MakeShot " + str(i))
                 self.db_conn.ShotToDatabase(self.barcode, str(i))
 
             if self.DoneWithShot:
@@ -140,6 +147,13 @@ class Shotmachine_controller():
                 if s == "Quit":
                     self.quitprogram = True
                     self.ToIOQueue.put("Flashlight 0") # turn off all leds on machine
+                    time.sleep(0.1)
+                    try:
+                        ShotLedBlinkTimer.cancel()
+                    except:
+                        pass
+                    self.ToIOQueue.put("ShotLeds:0") 
+                    time.sleep(0.1)
                     self.ToDBSyncQueue.put("Quit")
                     self.ToIOQueue.put("Quit")
                     self.ToPhotoUploaderQueue.put("Quit")
@@ -147,6 +161,11 @@ class Shotmachine_controller():
                 elif "ShotglassState" in s:
                     self.Shotglass = bool(int(s[-1:]))
                     self.ToInterfQueue.put("Shotglass:" + str(int(self.Shotglass)))
+                    try:
+                        ShotLedBlinkTimer.cancel()
+                    except:
+                        pass
+                    self.ToIOQueue.put("ShotLeds:" + str(int(self.Shotglass)+1)) 
                 elif s == "Shothendel":
                     self.Shothendel = True
                 elif s == "RollsStopped":

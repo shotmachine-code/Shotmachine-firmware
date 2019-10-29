@@ -53,16 +53,17 @@ class CameraShotmachine:
             self.camera.rotation = 270
             self.camera.hflip = True
         if self.onRaspberry and self.useCamera == "USB":
-            self.size = (960, 540)
+            #self.size = (960, 540)
+            self.size = (640, 480)
             #self.size = (1025, 577)
             self.stream = cv2.VideoCapture()
             self.stream.open(0, apiPreference=cv2.CAP_V4L2)
-            self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
-            self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+            self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+            self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
             #self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, self.size[0])  # 800 960
             #self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, self.size[1])  # 600 540
             self.stream.set(cv2.CAP_PROP_FPS, 30.0)
-            self.stream.set(cv2.CAP_PROP_BUFFERSIZE, 2)
+            self.stream.set(cv2.CAP_PROP_BUFFERSIZE, 3)
             self.stream.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
             
             (success_grab, frame_raw) = self.stream.read()
@@ -70,6 +71,7 @@ class CameraShotmachine:
                         #RGB_frame = cv2.cvtColor(frame_raw, cv2.COLOR_BGR2RGB)
             RGB_frame = cv2.cvtColor(smallFrameRaw, cv2.COLOR_BGR2RGB)
             frame = np.rot90(RGB_frame)
+            self.cameraImageSurf = pygame.surfarray.make_surface(frame)
             
             #(self.grabbed, self.frame) = self.stream.read()
             center_small = (self.size[0] /2, self.size[1] / 2)
@@ -83,6 +85,7 @@ class CameraShotmachine:
             self.grabbed_small = False
             self.grabbed_full = False
             self.getSmallFrame = True
+            self.grabFullFrame = False
 
         else:
             # Create a black frame
@@ -180,8 +183,8 @@ class CameraShotmachine:
         self.getSmallFrame = True
         self.stopped = False
         self.success_save = False
-        #self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 3840)
-        #self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 2160)
+        self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+        self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
         if not self.onRaspberry:
             #picture = pygame.image.load('Functions/CameraShotmachine/testimage.png')
             img = Image.open('Functions/CameraShotmachine/testimage.png')
@@ -207,35 +210,46 @@ class CameraShotmachine:
                     success_grab = False
                     while not success_grab:
                         (success_grab, frame_raw) = self.stream.read()
-                        smallFrameRaw = cv2.resize(frame_raw, dsize=self.size, interpolation=cv2.INTER_NEAREST) 
-                        #RGB_frame = cv2.cvtColor(frame_raw, cv2.COLOR_BGR2RGB)
-                        RGB_frame = cv2.cvtColor(smallFrameRaw, cv2.COLOR_BGR2RGB)
+                        #smallFrameRaw = cv2.resize(frame_raw, dsize=self.size, interpolation=cv2.INTER_NEAREST) 
+                        RGB_frame = cv2.cvtColor(frame_raw, cv2.COLOR_BGR2RGB)
+                        #RGB_frame = cv2.cvtColor(smallFrameRaw, cv2.COLOR_BGR2RGB)
                         frame = np.rot90(RGB_frame)
+                        pygame.pixelcopy.array_to_surface(self.cameraImageSurf, frame)
                     self.frame_small = frame
                     self.grabbed_small = success_grab
                 except:
                     continue
             else:
+                
                 self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 3840)
                 self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 2160)
+                #self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+                #self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
                 success_grab = False
                 while not success_grab:
                     (success_grab, frame) = self.stream.read()
+                while not self.grabFullFrame:
+                    time.sleep(0.0001)
+                    #print("Waiting for grab")
+                (success_grab, frame) = self.stream.read()
+                #(success_grab, frame) = self.stream.retrieve()
                 ScreenFrame = cv2.resize(frame, dsize=(1920, 1080), interpolation=cv2.INTER_NEAREST) #cv2.INTER_CUBIC)
                 RGBScreenFrame = cv2.cvtColor(ScreenFrame, cv2.COLOR_BGR2RGB)
+                #RGBScreenFrame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 self.frame_full = np.rot90(RGBScreenFrame)
                 self.stopped = True
                 self.grabbed_full = success_grab
+                self.grabFullFrame = False
                 
                 self.stream.release()
                 self.stream = cv2.VideoCapture()
                 self.stream.open(0, apiPreference=cv2.CAP_V4L2)
-                self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
-                self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+                self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+                self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
                 #self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, self.size[0])  # 800 960
                 #self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, self.size[1])  # 600 540
                 self.stream.set(cv2.CAP_PROP_FPS, 30.0)
-                self.stream.set(cv2.CAP_PROP_BUFFERSIZE, 2)
+                self.stream.set(cv2.CAP_PROP_BUFFERSIZE, 3)
                 self.stream.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
                 
                 #self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)  # 800 self.size[0]
@@ -256,18 +270,33 @@ class CameraShotmachine:
             while not self.grabbed_small and self.getSmallFrame:
                 time.sleep(0.0001)
             self.grabbed_small = False
-            return self.frame_small
+            #return self.frame_small
+            return self.cameraImageSurf
         else:
             self.grabbed_small = False
             return self.TestImage
 
+    def Switch_to_full(self):
+        self.grabFullFrame = True
+        self.getSmallFrame = False
+        #print("Switch")
 
     def read_full(self): # USB camera
-        self.getSmallFrame = False
+        
+        #self.getSmallFrame = False
+        #self.full_grabbed = True
         if self.onRaspberry:
+            self.grabFullFrame == True
+            #while True:
+            #    print("try to grab")
+            #    self.full_grabbed = self.stream.grab()
+            #    if self.full_grabbed == True:
+            #        break
             while not self.grabbed_full and not self.getSmallFrame:
+                #print("Waiting for frame")
                 time.sleep(0.0001)
             self.grabbed_full = False
+            print("Frame ready")
             return self.frame_full
         else:
             self.grabbed_full = False

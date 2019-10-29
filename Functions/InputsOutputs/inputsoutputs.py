@@ -81,6 +81,9 @@ class InputsOutputs:
 
         self.flashlightState = 1
         self.setflashlight = True
+        
+        self.SetShotLeds = True
+        self.shotLedsState = 0
 
         self.FlushPump = False
         self.flushnumber = 0
@@ -108,15 +111,20 @@ class InputsOutputs:
         self.EnableSPI = self.HandleShotmachine["Settings"]["EnableSPI"]
         self.ConfigSwitchPin = self.HandleShotmachine["Hardware"]["ConfigSwitch"]
         self.ResetArduinoPin = self.HandleShotmachine["Hardware"]["ResetArduino"]
+        self.SPISSPin = self.HandleShotmachine["Hardware"]["SPISSPin"]
+        
 
         self.GPIO.setup(self.EnableI2COutputPin, GPIO.OUT)
         self.GPIO.setup(self.ResetArduinoPin, GPIO.OUT)
+        self.GPIO.setup(self.SPISSPin, GPIO.OUT)
         self.GPIO.setup(self.HendelSwitch, GPIO.IN)
         self.GPIO.setup(self.FotoSwitch, GPIO.IN)
         self.GPIO.setup(self.ConfigSwitchPin, GPIO.IN)
+        
 
         self.GPIO.output(self.EnableI2COutputPin, 0)
         self.GPIO.output(self.ResetArduinoPin, 0)
+        self.GPIO.output(self.SPISSPin, 0)
 
         # init MCP IO extender
         if self.EnableI2COutput:
@@ -176,14 +184,19 @@ class InputsOutputs:
                     if self.recievebuffer == "Quit":
                         self.run = False
                         self.logger.info("IO quit")
-                    elif "Shot" in self.recievebuffer:
+                    elif "MakeShot" in self.recievebuffer:
                         self.shotnumber = int(self.recievebuffer[-1:])
                         self.makeshot = True
+                    elif "ShotLeds" in self.recievebuffer:
+                        self.shotLedsState = int(self.recievebuffer[-1:])
+                        self.SetShotLeds = True
                     elif "Flush" in self.recievebuffer:
                         self.flushnumber = int(self.recievebuffer[-1:])
                         self.FlushPump = True
                     elif "Flashlight" in self.recievebuffer:
+                        #self.logger.info("changing flashlight state")
                         self.flashlightState = int(self.recievebuffer[-1:])
+                        #self.logger.info("changing flashlight state to: " + str(self.flashlightState))
                         self.setflashlight = True
                     #elif "Busy" in self.recievebuffer:
                     #    self.busy = True
@@ -236,12 +249,17 @@ class InputsOutputs:
             if self.setflashlight:
                 self.setflashlightfunc(self.flashlightState)
                 self.setflashlight = False
+                
+            # Change shot leds state
+            if self.SetShotLeds:
+                self.setShotLedsfunc(self.shotLedsState)
+                self.SetShotLeds = False
 
             # Check inputs
             if not self.busy:
                 self.checkshothandle()
                 self.checkfotoknop()
-                self.checkArduinoReset()
+                #self.checkArduinoReset()
 
         if self.EnableI2COutput:
             del self.MCP
@@ -398,7 +416,10 @@ class InputsOutputs:
             self.FotoKnopSend = False
 
     def checkshotglas(self):
+        self.shotglass = True
+        self.CheckShotglass = True
         while self.run:
+            
             if self.EnableI2COutput:
                 try:
                     self.bus.write_byte_data(self.shotdetectorAddress, 0, 0x51)
@@ -420,11 +441,29 @@ class InputsOutputs:
                         self.shotglass = self.CheckShotglass
                 #except:
                     #continue
+            else:
+                if self.shotglass != self.CheckShotglass:
+                    self.logger.info('shotglas status changed to: ' + str(int(self.CheckShotglass)))
+                    self.ToMainQueue.put("ShotglassState " + str(int(self.CheckShotglass)))
+                    self.shotglass = self.CheckShotglass
                     
 
     def setflashlightfunc(self, state):
         self.logger.info('changing flashlight state to: ' + str(state))
         string_to_send = "state;"+ str(state) + "\n"
         string_to_bytes = str.encode(string_to_send)
+        self.GPIO.output(self.SPISSPin, 1)
+        time.sleep(0.03)
         if self.EnableSPI:
             self.spi.xfer(string_to_bytes)
+        self.GPIO.output(self.SPISSPin, 0)
+        
+    def setShotLedsfunc(self, state):
+        self.logger.info('changing shot leds state to: ' + str(state))
+        string_to_send = "shot;"+ str(state) + "\n"
+        string_to_bytes = str.encode(string_to_send)
+        self.GPIO.output(self.SPISSPin, 1)
+        time.sleep(0.03)
+        if self.EnableSPI:
+            self.spi.xfer(string_to_bytes)
+        self.GPIO.output(self.SPISSPin, 0)

@@ -166,11 +166,14 @@ class Shotmachine_Interface():
         self.CameraStartTime = time.time()
         pygame.display.update()
         self.logger.info('Live camera screen')
-        image = self.camera.read_small()
-        self.cameraImageSurf = pygame.surfarray.make_surface(image)
-        self.cameraImageRect = self.cameraImageSurf.get_rect()
+        #image = self.camera.read_small()
+        self.imageSurf = self.camera.read_small()
+        #self.cameraImageSurf = pygame.surfarray.make_surface(image)
+        #self.cameraImageRect = self.cameraImageSurf.get_rect()
+        self.cameraImageRect = self.imageSurf.get_rect()
         self.cameraImageRect.center = (self.screeninfo.current_w /2 , self.screeninfo.current_h /2)
-        self.screen.blit(self.cameraImageSurf, self.cameraImageRect)
+        #self.screen.blit(self.cameraImageSurf, self.cameraImageRect)
+        self.screen.blit(self.imageSurf, self.cameraImageRect)
         self.updatelist.append(self.cameraImageRect)
 
 
@@ -197,15 +200,17 @@ class Shotmachine_Interface():
 
     def Update_camera(self):
         self.screen.fill(self.WHITE)
-        image = self.camera.read_small()
+        self.imageSurf = self.camera.read_small()
         #cameraImageSurf = pygame.surfarray.make_surface(image)
         ##cameraImageSurf = pygame.Surface(image, pygame.HWSURFACE)
-        pygame.surfarray.blit_array(self.cameraImageSurf, image)
-        self.screen.blit(self.cameraImageSurf, self.cameraImageRect)
+        #pygame.surfarray.blit_array(self.cameraImageSurf, image)
+        #pygame.pixelcopy.array_to_surface(self.cameraImageSurf, image)
+        #self.screen.blit(self.cameraImageSurf, self.cameraImageRect)
+        self.screen.blit(self.imageSurf, self.cameraImageRect)
         
         self.updatelist.append(self.cameraImageRect)
 
-        CameraTimeToGo = self.cameraLiveTime - (time.time() - self.CameraStartTime)+0.5
+        CameraTimeToGo = self.cameraLiveTime - (time.time() - self.CameraStartTime) +0.5
         textsurface = self.CountdownFont.render(str(round(CameraTimeToGo)), False, self.BLACK)
         textRect = textsurface.get_rect()
         textRect.center = (200, self.screeninfo.current_h / 2)
@@ -217,6 +222,19 @@ class Shotmachine_Interface():
         textRect.center = (1720, self.screeninfo.current_h / 2)
         self.screen.blit(textsurface, textRect)
         self.updatelist.append(textRect)
+        
+    def Prepare_camera_photo(self):
+        self.screen.fill(self.WHITE)
+        self.camera.Switch_to_full()
+        #cameraImageSurf = pygame.surfarray.make_surface(image)
+        ##cameraImageSurf = pygame.Surface(image, pygame.HWSURFACE)
+        #pygame.surfarray.blit_array(self.cameraImageSurf, image)
+        #pygame.pixelcopy.array_to_surface(self.cameraImageSurf, image)
+        #self.screen.blit(self.cameraImageSurf, self.cameraImageRect)
+        #self.screen.blit(self.imageSurf, self.cameraImageRect)
+        screenRect = self.screen.get_rect()
+        self.updatelist.append(screenRect)
+ 
  
 
     def load_config_screen(self):
@@ -425,7 +443,7 @@ class Shotmachine_Interface():
         pygame.init()
         self.screeninfo = pygame.display.Info()
         self.screensize = [self.screeninfo.current_w, self.screeninfo.current_h]
-        self.screen = pygame.display.set_mode(self.screensize, (pygame.DOUBLEBUF)) #|pygame.HWSURFACE))
+        self.screen = pygame.display.set_mode(self.screensize, (pygame.DOUBLEBUF|pygame.HWSURFACE))
         #self.screen = pygame.display.set_mode((0,0),pygame.FULLSCREEN) #, (pygame.DOUBLEBUF))
 
         self.logger.info("Set screensize to: " + str(self.screensize[0]) + "x" + str(self.screensize[1]))
@@ -437,6 +455,7 @@ class Shotmachine_Interface():
 
         # Init camera
         self.camera = camerashotmachine.CameraShotmachine(_windowPosSize = (270,0,1440, 1080), waittime=3, HandleShotmachine = self.HandleShotmachine)
+        self.cameraSwitchedToPhoto = False
         
         # Init rollers
         self.roller1 = Roller(Roll_1_posx, Roll_posy, Roll_height, Roll_width, Roll_Images_dir)
@@ -536,11 +555,17 @@ class Shotmachine_Interface():
                 
             if current_screen == 'livecamera':
                 self.CameraRunTime = time.time() - self.CameraStartTime
+                
                 if self.CameraRunTime > self.cameraLiveTime:
                     current_screen = 'picture'
                     self.load_picture_screen()
+                elif self.CameraRunTime+0.5 > self.cameraLiveTime:
+                    if not self.cameraSwitchedToPhoto:
+                        self.cameraSwitchedToPhoto = True
+                        self.Prepare_camera_photo()
                 else:
                     self.Update_camera()
+                    self.cameraSwitchedToPhoto = False
 
             if current_screen == 'picture':
                 showtime_elapsed = time.time() - self.start_showtime
@@ -563,7 +588,7 @@ class Shotmachine_Interface():
                 
             # Limit to 60 frames per second
             clock.tick(60)
-            print(clock.get_fps())
+            #print(clock.get_fps())
 
             # Update the screen with what has changed.
             pygame.display.update(self.updatelist)
