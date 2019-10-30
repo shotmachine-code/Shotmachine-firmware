@@ -174,6 +174,7 @@ class Shotmachine_Interface():
         self.cameraImageRect.center = (self.screeninfo.current_w /2 , self.screeninfo.current_h /2)
         #self.screen.blit(self.cameraImageSurf, self.cameraImageRect)
         self.screen.blit(self.imageSurf, self.cameraImageRect)
+        self.CameraTimeToGoPrev = 0
         self.updatelist.append(self.cameraImageRect)
 
 
@@ -199,7 +200,7 @@ class Shotmachine_Interface():
 
 
     def Update_camera(self):
-        self.screen.fill(self.WHITE)
+        #self.screen.fill(self.WHITE)
         self.imageSurf = self.camera.read_small()
         #cameraImageSurf = pygame.surfarray.make_surface(image)
         ##cameraImageSurf = pygame.Surface(image, pygame.HWSURFACE)
@@ -209,19 +210,22 @@ class Shotmachine_Interface():
         self.screen.blit(self.imageSurf, self.cameraImageRect)
         
         self.updatelist.append(self.cameraImageRect)
+        
+        CameraTimeToGo = round(self.cameraLiveTime - (time.time() - self.CameraStartTime) +0.5)
+        if CameraTimeToGo != self.CameraTimeToGoPrev:
+            textsurface = self.CountdownFont.render(str(CameraTimeToGo), False, self.BLACK, self.WHITE)
+            textRect = textsurface.get_rect()
+            textRect.center = (200, self.screeninfo.current_h / 2)
+            self.screen.blit(textsurface, textRect)
+            self.updatelist.append(textRect)
 
-        CameraTimeToGo = self.cameraLiveTime - (time.time() - self.CameraStartTime) +0.5
-        textsurface = self.CountdownFont.render(str(round(CameraTimeToGo)), False, self.BLACK)
-        textRect = textsurface.get_rect()
-        textRect.center = (200, self.screeninfo.current_h / 2)
-        self.screen.blit(textsurface, textRect)
-        self.updatelist.append(textRect)
-
-        textsurface = self.CountdownFont.render(str(round(CameraTimeToGo)), False, self.BLACK)
-        textRect = textsurface.get_rect()
-        textRect.center = (1720, self.screeninfo.current_h / 2)
-        self.screen.blit(textsurface, textRect)
-        self.updatelist.append(textRect)
+            textsurface = self.CountdownFont.render(str(round(CameraTimeToGo)), False, self.BLACK, self.WHITE)
+            textRect = textsurface.get_rect()
+            textRect.center = (1720, self.screeninfo.current_h / 2)
+            self.screen.blit(textsurface, textRect)
+            self.updatelist.append(textRect)
+        
+        self.CameraTimeToGoPrev = CameraTimeToGo
         
     def Prepare_camera_photo(self):
         self.screen.fill(self.WHITE)
@@ -444,8 +448,8 @@ class Shotmachine_Interface():
         self.screeninfo = pygame.display.Info()
         self.screensize = [self.screeninfo.current_w, self.screeninfo.current_h]
         self.screen = pygame.display.set_mode(self.screensize, (pygame.DOUBLEBUF|pygame.HWSURFACE))
-        #self.screen = pygame.display.set_mode((0,0),pygame.FULLSCREEN) #, (pygame.DOUBLEBUF))
-
+        #self.screen = pygame.display.set_mode((0,0), (pygame.FULLSCREEN|pygame.DOUBLEBUF|pygame.HWSURFACE)) 
+        
         self.logger.info("Set screensize to: " + str(self.screensize[0]) + "x" + str(self.screensize[1]))
         pygame.display.set_caption(Appname)
         clock = pygame.time.Clock()
@@ -588,7 +592,7 @@ class Shotmachine_Interface():
                 
             # Limit to 60 frames per second
             clock.tick(60)
-            #print(clock.get_fps())
+            print(clock.get_fps())
 
             # Update the screen with what has changed.
             pygame.display.update(self.updatelist)
