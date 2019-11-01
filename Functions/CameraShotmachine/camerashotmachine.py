@@ -64,18 +64,18 @@ class CameraShotmachine:
             (success_grab, frame_raw) = self.stream.read()
             #smallFrameRaw = cv2.resize(frame_raw, dsize=self.size, interpolation=cv2.INTER_NEAREST) 
             #RGB_frame = cv2.cvtColor(frame_raw, cv2.COLOR_BGR2RGB)
-            frame_raw = frame_raw[:,:,::-1]
+            frame_raw = frame_raw[:,::-1,::-1]
             #frame_raw = frame_raw[:,::-1,::-1]
             #RGB_frame = cv2.cvtColor(smallFrameRaw, cv2.COLOR_BGR2RGB)
             #frame = np.rot90(RGB_frame)
-            frame = np.rot90(frame_raw)
-            #frame = RGB_frame.swapaxes(0,1)
-            self.cameraImageSurf = pygame.surfarray.make_surface(frame)
+            #frame = np.rot90(frame_raw)
+            frame = frame_raw.swapaxes(0,1)
+            self.cameraImageSmallSurf = pygame.surfarray.make_surface(frame)
             #self.ImageSmallArray = pygame.surfarray.pixels3d(self.cameraImageSurf)
             
             #(self.grabbed, self.frame) = self.stream.read()
-            center_small = (self.size[0] /2, self.size[1] / 2)
-            center_full = (3840 / 2, 2160 / 2)
+            #center_small = (self.size[0] /2, self.size[1] / 2)
+            #center_full = (3840 / 2, 2160 / 2)
             
             #self.rotationMatrix_small = cv2.getRotationMatrix2D(center_small, 90, 1)
             #self.rotationMatrix_full = cv2.getRotationMatrix2D(center_full, 90, 1)
@@ -196,7 +196,8 @@ class CameraShotmachine:
                     time.sleep(0.0001)
                 (success_grab, frame) = self.stream.read()
                 ScreenFrame = frame[::2,::-2,::-1] # scale image by 0.5 by removing every second row and column, swap BGR to RGB, flip Up/down
-                self.frame_full = ScreenFrame.swapaxes(0,1) # rotate image by flipping axis
+                frame_full = ScreenFrame.swapaxes(0,1) # rotate image by flipping axis
+                self.cameraImagefullSurf = pygame.surfarray.make_surface(frame_full)
                 self.stopped = True
                 self.grabbed_full = success_grab
                 self.grabFullFrame = False
@@ -227,7 +228,7 @@ class CameraShotmachine:
                     self.grabbed_small = False
                     frameFlip = frameIn[:,::-1,::-1] # flip Up/down with second operator, flip colors from BGR to RGB with last operator
                     frameRot = frameFlip.swapaxes(0,1) # Rotate image so it is now mirrored instead of flipped up/down
-                    pygame.pixelcopy.array_to_surface(self.cameraImageSurf, frameRot)
+                    pygame.pixelcopy.array_to_surface(self.cameraImageSmallSurf, frameRot)
                     self.SmallProcessed = True
         
 
@@ -237,7 +238,7 @@ class CameraShotmachine:
             while not self.SmallProcessed and self.getSmallFrame:
                 time.sleep(0.00001)
             self.grabbed_small = False
-            return self.cameraImageSurf
+            return self.cameraImageSmallSurf
         else:
             self.grabbed_small = False
             return self.TestImageSmall
@@ -254,7 +255,7 @@ class CameraShotmachine:
             while not self.grabbed_full and not self.getSmallFrame:
                 time.sleep(0.0001)
             self.grabbed_full = False
-            return self.frame_full
+            return self.cameraImagefullSurf
         else:
             self.grabbed_full = False
             return self.TestImageFull
