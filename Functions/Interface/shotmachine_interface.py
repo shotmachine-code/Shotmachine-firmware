@@ -182,12 +182,12 @@ class Shotmachine_Interface():
         self.screen.fill(self.WHITE)
         pygame.display.update()
         #image = self.camera.getimage() #CSI
-        image = self.camera.read_full() #USB
-        PictureSurface = pygame.surfarray.make_surface(image)
-        PictureRect = PictureSurface.get_rect()
+        Picture = self.camera.read_full() #USB
+        #PictureSurface = pygame.surfarray.make_surface(image)
+        PictureRect = Picture.get_rect()
         PictureRect.center = (self.screeninfo.current_w / 2, self.screeninfo.current_h / 2)
 
-        self.screen.blit(PictureSurface, PictureRect)
+        self.screen.blit(Picture, PictureRect)
         FullScreenRect = pygame.Rect(0, 0, self.screeninfo.current_w, self.screeninfo.current_h)
         pygame.display.update(FullScreenRect)
         self.start_showtime = time.time()

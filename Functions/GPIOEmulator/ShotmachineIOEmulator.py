@@ -9,7 +9,7 @@ from array import array
 dictionaryPins = {}
 dictionaryPinsTkinter = {}
 
-GPIONames=["27","21","16","23","24","4","17","13","21","12","25","MCP0","MCP1","MCP2","MCP3","MCP4", "SPISendBuffer", "shotdetector"]
+GPIONames=["27","21","16","23","24","4","17","13","21","12","25","6","MCP0","MCP1","MCP2","MCP3","MCP4", "SPISendBuffer", "shotdetector"]
 
 BarcodeBuffer = ""
     
@@ -98,6 +98,13 @@ class App(threading.Thread):
                           activeforeground="blue")
         pin33btn.grid(row=2, column=3, padx=(10, 10))
         dictionaryPinsTkinter["13"] = pin33btn
+
+        # Slave Select SPI to Arduino (GPIO06)
+        pin31btn = Button(text="SS SPI\nEnabled", command="6", padx="1px", pady="1px", bd="0px", fg="blue",
+                          relief="sunken",
+                          activeforeground="blue")
+        pin31btn.grid(row=3, column=3, padx=(10, 10))
+        dictionaryPinsTkinter["6"] = pin31btn
 
 
         # Pump 0 (MCP230xx 0)

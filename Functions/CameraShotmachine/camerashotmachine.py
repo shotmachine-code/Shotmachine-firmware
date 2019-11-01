@@ -5,7 +5,6 @@ import numpy as np
 import time
 import datetime
 from PIL import Image
-
 import os
 import logging
 import platform
@@ -34,12 +33,6 @@ class CameraShotmachine:
         self.stop = False
         self.running = False
         self.onRaspberry = self.HandleShotmachine["Settings"]["OnRaspberry"]
-        
-        #if (currentOS == 'Linux' and currentArch[0] != '64bit'):
-        #    self.onRaspberry = True
-        #else:
-        #    self.onRaspberry = False
-        #self.onRaspberry = False
 
         self.useCamera = "USB" #, "CSI"
 
@@ -93,26 +86,15 @@ class CameraShotmachine:
             self.grabbed_full = False
             self.getSmallFrame = True
             self.grabFullFrame = False
-
-        else:
-            # Create a black frame
-            #picture = pygame.image.load('Functions/CameraShotmachine/testimage.png')
-            img = Image.open('Functions/CameraShotmachine/testimage.png')
-            img.load()
-            img.resize((540, 960))
-            picture_raw = np.asarray(img, dtype="int32")
+        else:  # In simulation mode, use stationary test image
+            TestImage = pygame.image.load('Functions/CameraShotmachine/testimage.png')
+            self.TestImageSmall = pygame.transform.scale(TestImage, (640, 480))
+            self.TestImageFull = pygame.transform.scale(TestImage, (1920, 1080))
             self.save_image_name = "Test mode, no picture taken"
-            picture = np.rot90(picture_raw)
-            #picture = pygame.transform.scale(picture, (1440, 1080))
-            #self.boundbox = picture.get_rect()
-            self.image = picture
-        
-        #Thread(target=self.run, args=()).start()
+
         self.logger.info('Class started')
         
     def run(self): # CSI
-        
-        
         while not self.stop:
             self.elapsed_time = time.time() - self.start_time
             # print(self.elapsed_time)
@@ -124,17 +106,13 @@ class CameraShotmachine:
                     self.captured_image = cv2.flip(self.captured_image, 1)
                     self.image = cv2.cvtColor(self.captured_image, cv2.COLOR_BGR2RGB)
                     self.image = np.rot90(self.image)
-                    # self.image = cv2.flip(self.image, 1)
-
                     datetimestring = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
                     self.save_image_name = os.path.join(self.storagepath, datetimestring + '.png')
                     self.captured_image = cv2.flip(self.captured_image, 1)
                     cv2.imwrite(self.save_image_name,self.captured_image)
                     self.logger.info('Image saved in: ' + self.save_image_name)
                 self.running = False
-
             time.sleep(0.1)
-
         if self.onRaspberry:
             self.camera.close()
         self.logger.info('Camera module stopped')
@@ -151,11 +129,8 @@ class CameraShotmachine:
             self.logger.info("Start taking picture withh CSI camera")
         if self.onRaspberry and self.useCamera == "USB":
             Thread(target=self.update, args=()).start()
-            return self
-
-
             self.logger.info("Start taking picture with USB")
-
+            return self
 
 
     def getprogress(self):
@@ -191,23 +166,10 @@ class CameraShotmachine:
         self.stopped = False
         self.success_save = False
         self.SmallProcessed = False
-        self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-        self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
-        #self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
-        #self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
-        if not self.onRaspberry:
-            #picture = pygame.image.load('Functions/CameraShotmachine/testimage.png')
-            img = Image.open('Functions/CameraShotmachine/testimage.png')
-            img.load()
-            img.resize(((540, 960)))
-            picture_raw = np.asarray(img, dtype="int32")
-            picture = np.rot90(picture_raw)
-            self.save_image_name = "Test mode, no picture taken"
-            #picture = pygame.transform.scale(picture, (960, 540))
-            # self.boundbox = picture.get_rect()
-            self.TestImage = picture
 
         if self.onRaspberry:
+            self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+            self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
             Thread(target=self.update_USB, args=()).start()
             Thread(target=self.Process_small, args=()).start()
         return self
@@ -263,7 +225,6 @@ class CameraShotmachine:
                 if self.grabbed_small:
                     frameIn = self.grabbedSmallFrame
                     self.grabbed_small = False
-                    #frameFlip = frameIn[:,::-1,::-1] # flip Up/down with second operator, flip colors from BGR to RGB with last operator
                     frameFlip = frameIn[:,::-1,::-1] # flip Up/down with second operator, flip colors from BGR to RGB with last operator
                     frameRot = frameFlip.swapaxes(0,1) # Rotate image so it is now mirrored instead of flipped up/down
                     pygame.pixelcopy.array_to_surface(self.cameraImageSurf, frameRot)
@@ -279,7 +240,7 @@ class CameraShotmachine:
             return self.cameraImageSurf
         else:
             self.grabbed_small = False
-            return self.TestImage
+            return self.TestImageSmall
             
 
     def Switch_to_full(self):
@@ -296,7 +257,7 @@ class CameraShotmachine:
             return self.frame_full
         else:
             self.grabbed_full = False
-            return self.TestImage
+            return self.TestImageFull
 
 
     def getimagename_USB(self):
