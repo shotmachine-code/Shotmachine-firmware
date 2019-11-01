@@ -198,15 +198,17 @@ class Shotmachine_Interface():
             self.From_interface.put('Taken Image:' + imagename)
         self.logger.info('Taken picture screen')
 
-
+ 
     def Update_camera(self):
         #self.screen.fill(self.WHITE)
         self.imageSurf = self.camera.read_small()
+        #image = self.camera.read_small()
         #cameraImageSurf = pygame.surfarray.make_surface(image)
         ##cameraImageSurf = pygame.Surface(image, pygame.HWSURFACE)
         #pygame.surfarray.blit_array(self.cameraImageSurf, image)
         #pygame.pixelcopy.array_to_surface(self.cameraImageSurf, image)
         #self.screen.blit(self.cameraImageSurf, self.cameraImageRect)
+        #pygame.pixelcopy.array_to_surface(self.cameraImageSurf, frameRot)
         self.screen.blit(self.imageSurf, self.cameraImageRect)
         
         self.updatelist.append(self.cameraImageRect)
@@ -214,28 +216,21 @@ class Shotmachine_Interface():
         CameraTimeToGo = round(self.cameraLiveTime - (time.time() - self.CameraStartTime) +0.5)
         if CameraTimeToGo != self.CameraTimeToGoPrev:
             textsurface = self.CountdownFont.render(str(CameraTimeToGo), False, self.BLACK, self.WHITE)
-            textRect = textsurface.get_rect()
-            textRect.center = (200, self.screeninfo.current_h / 2)
-            self.screen.blit(textsurface, textRect)
-            self.updatelist.append(textRect)
-
-            textsurface = self.CountdownFont.render(str(round(CameraTimeToGo)), False, self.BLACK, self.WHITE)
-            textRect = textsurface.get_rect()
-            textRect.center = (1720, self.screeninfo.current_h / 2)
-            self.screen.blit(textsurface, textRect)
-            self.updatelist.append(textRect)
+            textRectL = textsurface.get_rect()
+            textRectR = textsurface.get_rect()
+            textRectL.center = (200, self.screeninfo.current_h / 2)
+            textRectR.center = (1720, self.screeninfo.current_h / 2)
+            self.screen.blit(textsurface, textRectL)
+            self.screen.blit(textsurface, textRectR)
+            self.updatelist.append(textRectL)
+            self.updatelist.append(textRectR)
+            self.CameraTimeToGoPrev = CameraTimeToGo       
         
-        self.CameraTimeToGoPrev = CameraTimeToGo
         
     def Prepare_camera_photo(self):
-        self.screen.fill(self.WHITE)
         self.camera.Switch_to_full()
-        #cameraImageSurf = pygame.surfarray.make_surface(image)
-        ##cameraImageSurf = pygame.Surface(image, pygame.HWSURFACE)
-        #pygame.surfarray.blit_array(self.cameraImageSurf, image)
-        #pygame.pixelcopy.array_to_surface(self.cameraImageSurf, image)
-        #self.screen.blit(self.cameraImageSurf, self.cameraImageRect)
-        #self.screen.blit(self.imageSurf, self.cameraImageRect)
+        self.screen.fill(self.WHITE)
+        
         screenRect = self.screen.get_rect()
         self.updatelist.append(screenRect)
  
@@ -359,7 +354,6 @@ class Shotmachine_Interface():
                 self.screen.blit(self.text, self.textRect)
                 self.updatelist.append(self.textRect)
             self.ShotglassSimbol()
-
             self.CameraSimbol()
         self.From_interface.put('NoUser')
 
@@ -378,7 +372,7 @@ class Shotmachine_Interface():
         self.screen.blit(self.text, self.textRect)
         self.updatelist.append(self.textRect)
 
-        timer_missingShotglass = Timer(20, self.ResetMissingShotglass)
+        timer_missingShotglass = Timer(10, self.ResetMissingShotglass)
         timer_missingShotglass.start()
 
 
@@ -592,7 +586,7 @@ class Shotmachine_Interface():
                 
             # Limit to 60 frames per second
             clock.tick(60)
-            print(clock.get_fps())
+            #print(clock.get_fps())
 
             # Update the screen with what has changed.
             pygame.display.update(self.updatelist)

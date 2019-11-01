@@ -122,6 +122,7 @@ class Shotmachine_controller():
                     logger.warning("Shot requeested, but no shotglass present")
                     self.ToIOQueue.put("ShotLeds:3") 
                     self.ToIOQueue.put("Ready")
+                    self.ToInterfQueue.put("Missing_Shotglass")
                     ShotLedBlinkTimer = threading.Timer(5, self.ToIOQueue.put, ["ShotLeds:" + str(int(self.Shotglass)+1)])
                     ShotLedBlinkTimer.start()
                 else:

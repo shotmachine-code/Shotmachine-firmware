@@ -60,6 +60,8 @@ class CameraShotmachine:
             self.stream.open(0, apiPreference=cv2.CAP_V4L2)
             self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
             self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+            #self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+            #self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
             #self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, self.size[0])  # 800 960
             #self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, self.size[1])  # 600 540
             self.stream.set(cv2.CAP_PROP_FPS, 30.0)
@@ -70,6 +72,7 @@ class CameraShotmachine:
             #smallFrameRaw = cv2.resize(frame_raw, dsize=self.size, interpolation=cv2.INTER_NEAREST) 
             #RGB_frame = cv2.cvtColor(frame_raw, cv2.COLOR_BGR2RGB)
             frame_raw = frame_raw[:,:,::-1]
+            #frame_raw = frame_raw[:,::-1,::-1]
             #RGB_frame = cv2.cvtColor(smallFrameRaw, cv2.COLOR_BGR2RGB)
             #frame = np.rot90(RGB_frame)
             frame = np.rot90(frame_raw)
@@ -190,6 +193,8 @@ class CameraShotmachine:
         self.SmallProcessed = False
         self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
         self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+        #self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+        #self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
         if not self.onRaspberry:
             #picture = pygame.image.load('Functions/CameraShotmachine/testimage.png')
             img = Image.open('Functions/CameraShotmachine/testimage.png')
@@ -209,50 +214,27 @@ class CameraShotmachine:
 
 
     def update_USB(self): # USB camera
-
         while not self.stopped:
             if self.getSmallFrame:
                 try:
                     success_grab = False
                     while not success_grab:
                         (success_grab, self.grabbedSmallFrame) = self.stream.read()
-                        #self.grabbedSmallFrame = frame
-                        ##smallFrameRaw = cv2.resize(frame_raw, dsize=self.size, interpolation=cv2.INTER_NEAREST) 
-                        ##RGB_frame = cv2.cvtColor(frame_raw, cv2.COLOR_BGR2RGB)
-                        #frame = frame[:,:,::-1]
-                        ##RGB_frame = cv2.cvtColor(smallFrameRaw, cv2.COLOR_BGR2RGB)
-                        ##frame = np.rot90(RGB_frame)
-                        ##frame = np.rot90(frame_raw)
-                        
-                        #frame = frame[:, ::-1]
-                        #frame = frame.swapaxes(0,1)
-                        ##self.ImageSmallArray = frame
-                        #pygame.pixelcopy.array_to_surface(self.cameraImageSurf, frame)
+                        #print("Frame")
                         self.grabbed_small = success_grab
-                        #print("New frame grabbed")
-                        #self.frame_small = frame
-                    
                 except:
                     continue
             else:
-                
                 self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 3840)
                 self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 2160)
-                #self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-                #self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
                 success_grab = False
                 while not success_grab:
                     (success_grab, frame) = self.stream.read()
                 while not self.grabFullFrame:
                     time.sleep(0.0001)
-                    #print("Waiting for grab")
                 (success_grab, frame) = self.stream.read()
-                #(success_grab, frame) = self.stream.retrieve()
-                ScreenFrame = cv2.resize(frame, dsize=(1920, 1080), interpolation=cv2.INTER_NEAREST) #cv2.INTER_CUBIC)
-                RGBScreenFrame = cv2.cvtColor(ScreenFrame, cv2.COLOR_BGR2RGB)
-                #RGBScreenFrame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                self.frame_full = np.rot90(RGBScreenFrame)
-                #self.frame_full = RGBScreenFrame.swapaxes(0,1)
+                ScreenFrame = frame[::2,::-2,::-1] # scale image by 0.5 by removing every second row and column, swap BGR to RGB, flip Up/down
+                self.frame_full = ScreenFrame.swapaxes(0,1) # rotate image by flipping axis
                 self.stopped = True
                 self.grabbed_full = success_grab
                 self.grabFullFrame = False
@@ -262,74 +244,55 @@ class CameraShotmachine:
                 self.stream.open(0, apiPreference=cv2.CAP_V4L2)
                 self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
                 self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
-                #self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, self.size[0])  # 800 960
-                #self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, self.size[1])  # 600 540
                 self.stream.set(cv2.CAP_PROP_FPS, 30.0)
                 self.stream.set(cv2.CAP_PROP_BUFFERSIZE, 3)
                 self.stream.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
-                
-                #self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)  # 800 self.size[0]
-                #self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)  # 600 self.size[1]
 
                 datetimestring = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
-                self.save_image_name = os.path.join(self.storagepath, datetimestring + '.png')
+                self.save_image_name = os.path.join(self.storagepath, datetimestring + '.jpg')
                 FrameToSave = np.fliplr(frame)
                 cv2.imwrite(self.save_image_name, FrameToSave)
                 self.logger.info('Image saved in: ' + self.save_image_name)
                 
                 self.success_save = True
     
+    
     def Process_small(self):
         while not self.stopped:
             if self.getSmallFrame:
                 if self.grabbed_small:
+                    frameIn = self.grabbedSmallFrame
                     self.grabbed_small = False
-                    frame = self.grabbedSmallFrame
-                    frame = frame[:,:,::-1]  
-                    frame = frame[:, ::-1]
-                    frame = frame.swapaxes(0,1)
-                    pygame.pixelcopy.array_to_surface(self.cameraImageSurf, frame)
+                    #frameFlip = frameIn[:,::-1,::-1] # flip Up/down with second operator, flip colors from BGR to RGB with last operator
+                    frameFlip = frameIn[:,::-1,::-1] # flip Up/down with second operator, flip colors from BGR to RGB with last operator
+                    frameRot = frameFlip.swapaxes(0,1) # Rotate image so it is now mirrored instead of flipped up/down
+                    pygame.pixelcopy.array_to_surface(self.cameraImageSurf, frameRot)
                     self.SmallProcessed = True
-                    #print("New frame processed")
-                    #except:
-                    #    continue
-                     
-        
         
 
     def read_small(self): # USB camera
         # return the frame most recently read
         if self.onRaspberry:
             while not self.SmallProcessed and self.getSmallFrame:
-                time.sleep(0.0001)
+                time.sleep(0.00001)
             self.grabbed_small = False
-            #return self.frame_small
             return self.cameraImageSurf
         else:
             self.grabbed_small = False
             return self.TestImage
+            
 
     def Switch_to_full(self):
         self.grabFullFrame = True
         self.getSmallFrame = False
-        #print("Switch")
+        
 
     def read_full(self): # USB camera
-        
-        #self.getSmallFrame = False
-        #self.full_grabbed = True
+        # return scaled full frame to display picture
         if self.onRaspberry:
-            self.grabFullFrame == True
-            #while True:
-            #    print("try to grab")
-            #    self.full_grabbed = self.stream.grab()
-            #    if self.full_grabbed == True:
-            #        break
             while not self.grabbed_full and not self.getSmallFrame:
-                #print("Waiting for frame")
                 time.sleep(0.0001)
             self.grabbed_full = False
-            print("Frame ready")
             return self.frame_full
         else:
             self.grabbed_full = False
