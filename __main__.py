@@ -16,7 +16,7 @@ import sys
 
 
 #TODO
-party_id = 3
+party_id = 6
 
 
 currentOS = platform.system()

@@ -95,7 +95,7 @@ class DatabaseSync:
                 # full sync from online to local
                 self.logger.info("Perform full sync from online DB to local DB")
                 answer = os.popen(self.FullSyncFromOnline).read()
-                print(answer)
+                #print(answer)
 
                 while self.run:
                     # update time of update in db
@@ -110,21 +110,21 @@ class DatabaseSync:
                     # sync from local to online
                     self.logger.info("Perform update sync from local DB to online DB")
                     answer = os.popen(self.LastSyncToOnline).read()
-                    print(answer)
+                    #print(answer)
                     if not self.run:
                         break
                         
                     # sync from online to local
                     self.logger.info("Perform update sync from online DB to local DB")
                     answer = os.popen(self.LastSyncFromOnline.format(self.party_id)).read()
-                    print(answer)
+                    #print(answer)
                     if not self.run:
                         break
                         
                     # update synctime in online db
                     self.logger.info("Sync last synctime to online DB")
                     answer = os.popen(self.LastSyncTimeToOnline.format(self.machine_id)).read()
-                    print(answer)
+                    #print(answer)
                     time.sleep(1)
 
             finally:

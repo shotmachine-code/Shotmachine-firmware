@@ -68,7 +68,7 @@ class InputsOutputs:
         self.shotnumber = 0
 
         self.shotglass = False
-        self.CheckShotglass = False
+        self.CheckShotglass = True
 
         self.ShotHendelState = False
         self.ShotHendelSend = False
@@ -219,15 +219,15 @@ class InputsOutputs:
                     #self.shotnumber = 4
                     self.MCP.output(self.shotnumber, 0)
                     if self.shotnumber == 0:
-                        time.sleep(8)  # 8
+                        time.sleep(2)  # 8
                     elif self.shotnumber == 1:
-                        time.sleep(4)  # 4
+                        time.sleep(2)  # 4
                     elif self.shotnumber == 2:
-                        time.sleep(5)  # 5
+                        time.sleep(2)  # 5
                     elif self.shotnumber == 3:
-                        time.sleep(5)  # 5
+                        time.sleep(2)  # 5
                     elif self.shotnumber == 4:
-                        time.sleep(4)  # 4
+                        time.sleep(2)  # 4
                     self.MCP.output(self.shotnumber, 1)
                 self.makeshot = False
                 time.sleep(1)
@@ -416,22 +416,23 @@ class InputsOutputs:
             self.FotoKnopSend = False
 
     def checkshotglas(self):
-        self.shotglass = True
-        self.CheckShotglass = True
+        #self.shotglass = False
+        #self.CheckShotglass = True
         while self.run:
             
             if self.EnableI2COutput:
                 try:
                     self.bus.write_byte_data(self.shotdetectorAddress, 0, 0x51)
-                    time.sleep(0.7)
+                    time.sleep(0.3)
                     msb = self.bus.read_byte_data(self.shotdetectorAddress, 2)
                     lsb = self.bus.read_byte_data(self.shotdetectorAddress, 3)
                     measuredRange = (msb << 8) + lsb
                 except:
+                    print("error in i2c")
                     measuredRange = 23
                 if (measuredRange != 7) or (measuredRange != 110):
                     #print(measuredRange)
-                    if measuredRange < 30: #25:
+                    if measuredRange < 29: #25:
                         self.CheckShotglass = True
                     else:
                         self.CheckShotglass = False

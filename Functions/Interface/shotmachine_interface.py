@@ -449,7 +449,7 @@ class Shotmachine_Interface():
         clock = pygame.time.Clock()
         background_file = os.listdir(Background_image_dir)
         background_path = os.path.join(Background_image_dir, background_file[0])
-        self.background_image = pygame.image.load(background_path).convert()
+        self.background_image = pygame.transform.smoothscale(pygame.image.load(background_path).convert(), self.screensize)
 
         # Init camera
         self.camera = camerashotmachine.CameraShotmachine(_windowPosSize = (270,0,1440, 1080), waittime=3, HandleShotmachine = self.HandleShotmachine)
