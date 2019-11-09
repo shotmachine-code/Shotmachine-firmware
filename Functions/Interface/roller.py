@@ -28,7 +28,7 @@ class Roller:
             try:
                 imagepath = os.path.join(_roll_images_dir, filelist[i])
                 image = pygame.image.load(imagepath).convert()
-                self.Roll_images.append(pygame.transform.scale(image, (_roller_width, _roller_width)))
+                self.Roll_images.append(pygame.transform.smoothscale(image, (_roller_width, _roller_width)))
             except:
                 continue
         if len(filelist) < 4:
