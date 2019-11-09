@@ -71,7 +71,7 @@ class InputsOutputs:
         #interface = 0
 
         #Temp variable/setting
-        party_id = 3
+        party_id = 7
 
 
         # init GPIO

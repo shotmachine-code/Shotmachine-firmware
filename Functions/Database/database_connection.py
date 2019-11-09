@@ -9,7 +9,7 @@ import xml.etree.ElementTree as ET
 class database_connection():
     def __init__(self):
         self.logger = logging.getLogger("Database_connection")
-        self.party_id = 6
+        self.party_id = 7
         try:
             xml_file_path = os.path.join(os.getcwd(), 'settings.xml')
             tree = ET.parse(xml_file_path)

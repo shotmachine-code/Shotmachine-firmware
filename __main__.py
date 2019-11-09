@@ -16,7 +16,7 @@ import sys
 
 
 #TODO
-party_id = 6
+party_id = 7
 
 
 currentOS = platform.system()
@@ -46,9 +46,9 @@ HandleShotmachine = {
     "Settings": {
         "OnRaspberry": onRaspberry,
         "EnableSPI": True,
-        "EnableI2C": False,
-        "EnableDBSync":False,
-        "EnableBarcodeScanner": False,
+        "EnableI2C": True,
+        "EnableDBSync": True,
+        "EnableBarcodeScanner": True,
         "EnablePhotoUploader": True
     },
     "Hardware": {
@@ -126,7 +126,8 @@ class Shotmachine_controller():
                     ShotLedBlinkTimer = threading.Timer(5, self.ToIOQueue.put, ["ShotLeds:" + str(int(self.Shotglass)+1)])
                     ShotLedBlinkTimer.start()
                 else:
-                    logger.warning("Shot requeested, but no user scanned and barcode is enabled")
+                    #logger.warning("Shot requeested, but no user scanned and barcode is enabled")
+                    self.ToInterfQueue.put('Start_roll')
                     self.ToIOQueue.put("Ready")
 
             if self.MakeShot:

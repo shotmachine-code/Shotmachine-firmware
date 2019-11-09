@@ -31,6 +31,10 @@ class Shotmachine_Interface():
         self.showLastImage = False
         self.FileList = []
 
+        self.NoUserTextFlash = False
+        self.NoUserTextBlack = False
+        self.NoUserTextFlashCounter = 0
+
         #self.OperationMode = "PhotoBooth"
         self.OperationMode = "Shotmachine"
 
@@ -330,8 +334,55 @@ class Shotmachine_Interface():
             textboxRect = pygame.Rect(275, self.screeninfo.current_h - 250, self.screeninfo.current_w-550, 250)
             textboxSurf = pygame.draw.rect(self.screen, (0, 0, 0, 0), textboxRect)
             self.updatelist.append(textboxRect)
+
             if self.EnableBarcodeScanner:
-                self.currentTextMessage = 'Scan je bandje'
+
+                if self.NoUserTextFlash == True:
+                    self.NoUserTextFlashCounter = self.NoUserTextFlashCounter+1
+                    #print(self.NoUserTextFlashCounter)
+                    if self.NoUserTextFlashCounter < 10:
+
+                        if self.NoUserTextBlack:
+                            self.text = self.textfont.render('Scan eerst je bandje', True, self.WHITE, self.BLACK)
+                            self.NoUserTextBlack = False
+                        else:
+                            self.text = self.textfont.render('Scan eerst je bandje', True, self.BLACK, self.BLACK)
+                            self.NoUserTextBlack = True
+                        self.NoUserTextTimer.cancel()
+                        self.NoUserTextTimer = Timer(0.5, self.NoUserText)
+                        self.NoUserTextTimer.start()
+                    else:
+                        self.NoUserTextTimer.cancel()
+                        self.NoUserTextFlash = False
+                        self.text = self.textfont.render('Scan eerst je bandje', True, self.WHITE, self.BLACK)
+                        self.NoUserTextBlack = False
+                elif self.currentTextMessage == 'Scan eerst je bandje':
+                    self.NoUserTextFlash = True
+                    self.NoUserTextBlack = False
+                    self.NoUserTextFlashCounter = 0
+                    #self.NoUserTextTimer.cancel()
+                    self.NoUserTextTimer = Timer(0.5, self.NoUserText)
+                    self.NoUserTextTimer.start()
+
+                else:
+                    self.text = self.textfont.render('Scan eerst je bandje', True, self.WHITE, self.BLACK)
+                    self.NoUserTextBlack = False
+                    self.currentTextMessage = 'Scan eerst je bandje'
+                self.textRect = self.text.get_rect()
+                self.textRect.center = (self.screeninfo.current_w // 2, self.screeninfo.current_h - 200)
+                self.screen.blit(self.text, self.textRect)
+                self.updatelist.append(self.textRect)
+            self.ShotglassSimbol()
+            self.CameraSimbol()
+        self.From_interface.put('NoUser')
+
+    def FlashNoUserText(self):
+        if self.OperationMode == "Shotmachine":
+            textboxRect = pygame.Rect(275, self.screeninfo.current_h - 250, self.screeninfo.current_w-550, 250)
+            textboxSurf = pygame.draw.rect(self.screen, (0, 0, 0, 0), textboxRect)
+            self.updatelist.append(textboxRect)
+            if self.EnableBarcodeScanner and self.currentTextMessage == 'Scan je bandje':
+
                 self.text = self.textfont.render('Scan je bandje', True, self.WHITE, self.BLACK)
                 self.textRect = self.text.get_rect()
                 self.textRect.center = (self.screeninfo.current_w // 2, self.screeninfo.current_h - 200)
@@ -468,6 +519,7 @@ class Shotmachine_Interface():
                         current_screen = 'livecamera'
                     else:
                         self.NoUserText()
+                        self.logger.warning("Photo requested, but no user scanned and barcode is enabled")
                 elif self.recievebuffer == 'Start_roll' and current_screen == 'main':
                     if ((self.EnableBarcodeScanner and not (self.currentUser == "")) or not self.EnableBarcodeScanner):
                         if self.shotglassStatus:
@@ -477,8 +529,10 @@ class Shotmachine_Interface():
                             timer_resetuser.start()
                         else:
                             self.DisplayMissingShotglass()
+                            self.logger.warning("Shot requested, but no shotglass is detected")
                     else:
                         self.NoUserText()
+                        self.logger.warning("Shot requested, but no user scanned and barcode is enabled")
                 elif "New_User:" in self.recievebuffer:
                     self.currentUser = self.recievebuffer.split(':')[1]
                     if self.EnableBarcodeScanner:
