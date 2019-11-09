@@ -116,9 +116,11 @@ class Shotmachine_controller():
 
             if self.Shothendel:
                 self.Shothendel = False
+                self.ToInterfQueue.put('Start_roll')
                 if self.Shotglass and ((self.username != "") or not self.EnableBarcodeScanner) :
-                    self.ToInterfQueue.put('Start_roll')
-                if not self.Shotglass and ((self.username != "") or not self.EnableBarcodeScanner) :
+                    #self.ToInterfQueue.put('Start_roll')
+                    logger.info("start roller")
+                elif not self.Shotglass and ((self.username != "") or not self.EnableBarcodeScanner) :
                     logger.warning("Shot requeested, but no shotglass present")
                     self.ToIOQueue.put("ShotLeds:3") 
                     self.ToIOQueue.put("Ready")
@@ -127,7 +129,7 @@ class Shotmachine_controller():
                     ShotLedBlinkTimer.start()
                 else:
                     #logger.warning("Shot requeested, but no user scanned and barcode is enabled")
-                    self.ToInterfQueue.put('Start_roll')
+                    #self.ToInterfQueue.put('Start_roll')
                     self.ToIOQueue.put("Ready")
 
             if self.MakeShot:
@@ -170,6 +172,7 @@ class Shotmachine_controller():
                     self.ToIOQueue.put("ShotLeds:" + str(int(self.Shotglass)+1)) 
                 elif s == "Shothendel":
                     self.Shothendel = True
+                    logger.info("shothendel in main")
                 elif s == "RollsStopped":
                     self.MakeShot = True
                 elif s == "Done with shot":

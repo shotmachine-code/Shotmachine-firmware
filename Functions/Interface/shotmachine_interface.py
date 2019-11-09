@@ -523,7 +523,7 @@ class Shotmachine_Interface():
                 elif self.recievebuffer == 'Start_roll' and current_screen == 'main':
                     if ((self.EnableBarcodeScanner and not (self.currentUser == "")) or not self.EnableBarcodeScanner):
                         if self.shotglassStatus:
-                            #print('roll')
+                            self.logger.info('Start roll')
                             self.run_rollers()
                             timer_resetuser = Timer(10, self.stop_timeoutBarcode)
                             timer_resetuser.start()

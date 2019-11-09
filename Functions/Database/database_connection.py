@@ -76,6 +76,7 @@ class database_connection():
             db.commit()
             cursor.close()
             db.close()
+            self.logger.info("succesfull written shot to database")
         except:
             self.logger.warning("Unexpected error:", sys.exc_info()[0])
             try:
@@ -154,7 +155,7 @@ class database_connection():
             db.commit()
             cursor.close()
             db.close()
-            self.logger.info("finished writing to db")
+            self.logger.info("finished writing photo to db")
         except:
             self.logger.warning("Unexpected error:", sys.exc_info()[0])
             try:

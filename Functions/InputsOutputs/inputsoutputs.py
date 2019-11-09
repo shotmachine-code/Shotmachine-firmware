@@ -194,15 +194,15 @@ class InputsOutputs:
                     #self.shotnumber = 4
                     self.MCP.output(self.shotnumber, 0)
                     if self.shotnumber == 0:
-                        time.sleep(2)  # 8
+                        time.sleep(5)  # 8
                     elif self.shotnumber == 1:
-                        time.sleep(2)  # 4
+                        time.sleep(6)  # 4
                     elif self.shotnumber == 2:
-                        time.sleep(2)  # 5
+                        time.sleep(6)  # 5
                     elif self.shotnumber == 3:
-                        time.sleep(2)  # 5
+                        time.sleep(5)  # 5
                     elif self.shotnumber == 4:
-                        time.sleep(2)  # 4
+                        time.sleep(6)  # 4
                     self.MCP.output(self.shotnumber, 1)
                 self.makeshot = False
                 time.sleep(1)
@@ -407,7 +407,7 @@ class InputsOutputs:
                     measuredRange = 23
                 if (measuredRange != 7) or (measuredRange != 110):
                     #print(measuredRange)
-                    if measuredRange < 29: #25:
+                    if measuredRange < 25: #25:
                         self.CheckShotglass = True
                     else:
                         self.CheckShotglass = False
