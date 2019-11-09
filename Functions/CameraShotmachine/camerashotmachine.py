@@ -4,7 +4,7 @@ from threading import Thread
 import numpy as np
 import time
 import datetime
-from PIL import Image
+#from PIL import Image
 import os
 import logging
 import platform
@@ -46,40 +46,19 @@ class CameraShotmachine:
             self.camera.rotation = 270
             self.camera.hflip = True
         if self.onRaspberry and self.useCamera == "USB":
-            #self.size = (960, 540)
             self.size = (640, 480)
-            #self.size = (1025, 577)
             self.stream = cv2.VideoCapture()
             self.stream.open(0, apiPreference=cv2.CAP_V4L2)
             self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
             self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
-            #self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
-            #self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
-            #self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, self.size[0])  # 800 960
-            #self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, self.size[1])  # 600 540
             self.stream.set(cv2.CAP_PROP_FPS, 30.0)
             self.stream.set(cv2.CAP_PROP_BUFFERSIZE, 3)
             self.stream.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
             
             (success_grab, frame_raw) = self.stream.read()
-            #smallFrameRaw = cv2.resize(frame_raw, dsize=self.size, interpolation=cv2.INTER_NEAREST) 
-            #RGB_frame = cv2.cvtColor(frame_raw, cv2.COLOR_BGR2RGB)
             frame_raw = frame_raw[:,::-1,::-1]
-            #frame_raw = frame_raw[:,::-1,::-1]
-            #RGB_frame = cv2.cvtColor(smallFrameRaw, cv2.COLOR_BGR2RGB)
-            #frame = np.rot90(RGB_frame)
-            #frame = np.rot90(frame_raw)
             frame = frame_raw.swapaxes(0,1)
             self.cameraImageSmallSurf = pygame.surfarray.make_surface(frame)
-            #self.ImageSmallArray = pygame.surfarray.pixels3d(self.cameraImageSurf)
-            
-            #(self.grabbed, self.frame) = self.stream.read()
-            #center_small = (self.size[0] /2, self.size[1] / 2)
-            #center_full = (3840 / 2, 2160 / 2)
-            
-            #self.rotationMatrix_small = cv2.getRotationMatrix2D(center_small, 90, 1)
-            #self.rotationMatrix_full = cv2.getRotationMatrix2D(center_full, 90, 1)
-
 
             self.stopped = False
             self.grabbed_small = False

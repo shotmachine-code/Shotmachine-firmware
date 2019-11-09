@@ -5,31 +5,6 @@ import time
 from collections import namedtuple
 
 
-#HandleShotmachine = {
-#    "Settings": {
-#        "OnRaspberry": onRaspberry,
-#        "EnableSPI": False,
-#        "EnableI2C": False,
-#        "EnableDBSync": False,
-#        "EnableBarcodeScanner": False
-#    },
-#    "Hardware": {
-#        "OnOffSwitch": 27,
-#        "ConfigSwitch": 21,
-#        "SpoelSwitch": 16,
-#        "HendelSwitch": 23,
-#        "FotoSwitch": 24,
-#        "EnableI2COutput": 4,
-#        "OnOffLed": 17,
-#        "ResetArduino": 13,
-#        "LedConfig": 21,
-#        "LedSpoel": 12,
-#        "LedSignal": 25
-#    },
-#    "Logger": logger
-#}
-
-
 class InputsOutputs:
     def __init__(self, _HandleShotmachine, _ToMainQueue, _ToIOQueue):
 

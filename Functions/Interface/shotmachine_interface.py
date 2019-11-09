@@ -166,13 +166,9 @@ class Shotmachine_Interface():
         self.CameraStartTime = time.time()
         pygame.display.update()
         self.logger.info('Live camera screen')
-        #image = self.camera.read_small()
         self.imageSurf = self.camera.read_small()
-        #self.cameraImageSurf = pygame.surfarray.make_surface(image)
-        #self.cameraImageRect = self.cameraImageSurf.get_rect()
         self.cameraImageRect = self.imageSurf.get_rect()
         self.cameraImageRect.center = (self.screeninfo.current_w /2 , self.screeninfo.current_h /2)
-        #self.screen.blit(self.cameraImageSurf, self.cameraImageRect)
         self.screen.blit(self.imageSurf, self.cameraImageRect)
         self.CameraTimeToGoPrev = 0
         self.updatelist.append(self.cameraImageRect)
@@ -183,7 +179,6 @@ class Shotmachine_Interface():
         pygame.display.update()
         #image = self.camera.getimage() #CSI
         Picture = self.camera.read_full() #USB
-        #PictureSurface = pygame.surfarray.make_surface(image)
         PictureRect = Picture.get_rect()
         PictureRect.center = (self.screeninfo.current_w / 2, self.screeninfo.current_h / 2)
 
@@ -200,19 +195,10 @@ class Shotmachine_Interface():
 
  
     def Update_camera(self):
-        #self.screen.fill(self.WHITE)
         self.imageSurf = self.camera.read_small()
-        #image = self.camera.read_small()
-        #cameraImageSurf = pygame.surfarray.make_surface(image)
-        ##cameraImageSurf = pygame.Surface(image, pygame.HWSURFACE)
-        #pygame.surfarray.blit_array(self.cameraImageSurf, image)
-        #pygame.pixelcopy.array_to_surface(self.cameraImageSurf, image)
-        #self.screen.blit(self.cameraImageSurf, self.cameraImageRect)
-        #pygame.pixelcopy.array_to_surface(self.cameraImageSurf, frameRot)
         self.screen.blit(self.imageSurf, self.cameraImageRect)
-        
         self.updatelist.append(self.cameraImageRect)
-        
+
         CameraTimeToGo = round(self.cameraLiveTime - (time.time() - self.CameraStartTime) +0.5)
         if CameraTimeToGo != self.CameraTimeToGoPrev:
             textsurface = self.CountdownFont.render(str(CameraTimeToGo), False, self.BLACK, self.WHITE)
@@ -230,10 +216,8 @@ class Shotmachine_Interface():
     def Prepare_camera_photo(self):
         self.camera.Switch_to_full()
         self.screen.fill(self.WHITE)
-        
         screenRect = self.screen.get_rect()
         self.updatelist.append(screenRect)
- 
  
 
     def load_config_screen(self):
