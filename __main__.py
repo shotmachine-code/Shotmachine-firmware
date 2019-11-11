@@ -48,7 +48,7 @@ HandleShotmachine = {
         "EnableSPI": True,
         "EnableI2C": True,
         "EnableDBSync": True,
-        "EnableBarcodeScanner": True,
+        "EnableBarcodeScanner": False,
         "EnablePhotoUploader": True
     },
     "Hardware": {
