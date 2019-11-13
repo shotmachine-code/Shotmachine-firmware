@@ -17,13 +17,15 @@ import shutil
 #Create_new_album = False
 
 class PhotoUploader():
-    def __init__(self, _partyid, _ToPhotoUploaderQueue):
+    def __init__(self, _ToPhotoUploaderQueue, _HandleShotmachine):
 
         self.ToDoQueue = _ToPhotoUploaderQueue
-        self.party_id = str(_partyid)
+        self.HandleShotmachine = _HandleShotmachine
+
+        self.party_id = str(self.HandleShotmachine["Settings"]["PartyId"])
         
         self.logger = logging.getLogger(__name__)
-        self.db_conn = database_connection.database_connection()
+        self.db_conn = database_connection.database_connection(self.HandleShotmachine)
         
         MainUploadedFolder = 'TakenImages/Uploaded'
         if not (os.path.isdir(MainUploadedFolder)):
@@ -128,7 +130,7 @@ class PhotoUploader():
                             remoteFilePath = '/root/Photos/'+ self.party_id + '/' + photoname
                             sftp.put(Filename, remoteFilePath)
                             self.logger.info("upload success")
-                            self.db_conn.SetPhotoToUser(self.party_id, Barcode, photoname, timestamp)
+                            self.db_conn.SetPhotoToUser(Barcode, photoname, timestamp)
                             self.logger.info("photo written to db")
                             shutil.move(Filename, (self.UploadedFolder + "/" + photoname))
                             self.logger.info("photo moved to uploaded folder under: " + (self.UploadedFolder + "/" + photoname))

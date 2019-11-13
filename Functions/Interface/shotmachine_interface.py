@@ -40,7 +40,7 @@ class Shotmachine_Interface():
 
         self.TakenPhotosDir = 'TakenImages/NotUploaded'
 
-        self.db_conn = database_connection.database_connection()
+        self.db_conn = database_connection.database_connection(self.HandleShotmachine)
 
         self.EnableBarcodeScanner = self.HandleShotmachine["Settings"]["EnableBarcodeScanner"]
 

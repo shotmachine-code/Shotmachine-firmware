@@ -27,6 +27,7 @@ class InputsOutputs:
         self.ConfigSwitchPin = self.HandleShotmachine["Hardware"]["ConfigSwitch"]
         self.ResetArduinoPin = self.HandleShotmachine["Hardware"]["ResetArduino"]
         self.SPISSPin = self.HandleShotmachine["Hardware"]["SPISSPin"]
+        #self.party_id = self.HandleShotmachine["Settings"]["PartyId"]
 
         # import required libraries depending on the current platform
         if self.HandleShotmachine["Settings"]["OnRaspberry"]:
@@ -68,8 +69,6 @@ class InputsOutputs:
         self.barcode_vencor_id = 0xac90
         self.barcode_product_id = 0x3003
 
-        #Temp variable/setting
-        party_id = 7
 
         # init GPIO
         GPIO.setmode(GPIO.BCM)

@@ -15,10 +15,6 @@ import os
 import sys
 
 
-#TODO
-party_id = 7
-
-
 currentOS = platform.system()
 currentArch = platform.architecture()
 if (currentOS == 'Linux' and currentArch[0] != '64bit'):
@@ -48,8 +44,10 @@ HandleShotmachine = {
         "EnableSPI": True,
         "EnableI2C": True,
         "EnableDBSync": True,
-        "EnableBarcodeScanner": False,
-        "EnablePhotoUploader": True
+        "EnableBarcodeScanner": True,
+        "EnablePhotoUploader": True,
+        "PartyId": 7,
+        "MachineId": 1
     },
     "Hardware": {
         "OnOffSwitch": 27,
@@ -95,7 +93,7 @@ class Shotmachine_controller():
 
         self.EnableBarcodeScanner = HandleShotmachine["Settings"]["EnableBarcodeScanner"]
 
-        self.db_conn = database_connection.database_connection()
+        self.db_conn = database_connection.database_connection(HandleShotmachine)
 
         self.thread = threading.Thread(target=self.run, name=_name)
         self.thread.start()
@@ -219,7 +217,7 @@ shotmachine_interface.Shotmachine_Interface("Interface_main",
                                             HandleShotmachine)
 
 if HandleShotmachine["Settings"]["EnableDBSync"]:
-    db_syncer = databasesync.DatabaseSync(ToDBSyncQueue, ToMainQueue)
+    db_syncer = databasesync.DatabaseSync(ToDBSyncQueue, ToMainQueue, HandleShotmachine)
 
 
 
@@ -235,7 +233,7 @@ inputsoutputs.InputsOutputs(HandleShotmachine,
                             ToIOQueue)
 
 if HandleShotmachine["Settings"]["EnablePhotoUploader"]:
-    PhotoUploader_program = PhotoUploader(party_id, ToPhotoUploaderQueue)
+    PhotoUploader_program = PhotoUploader(ToPhotoUploaderQueue, HandleShotmachine)
 
 controller_alive = True
 while controller_alive:

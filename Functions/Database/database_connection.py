@@ -7,9 +7,12 @@ import xml.etree.ElementTree as ET
 
 
 class database_connection():
-    def __init__(self):
+    def __init__(self, _HandleShotmachine):
+        self.HandleShotmachine = _HandleShotmachine
+
         self.logger = logging.getLogger("Database_connection")
-        self.party_id = 7
+        self.party_id = self.HandleShotmachine["Settings"]["PartyId"]
+
         try:
             xml_file_path = os.path.join(os.getcwd(), 'settings.xml')
             tree = ET.parse(xml_file_path)
@@ -108,35 +111,35 @@ class database_connection():
             return "Error"
 
 
-    def GetGoogleAlbumId(self, partyId):            ### Old uploader, can probably be removed
-        sql_get_google_album_id = "SELECT google_photoalbum_id FROM parties WHERE id={};"
-        db = pymysql.connect(self.localMysqlIP, self.localMysqlUser, self.localMysqlPass, "shotmachine")
+    #def GetGoogleAlbumId(self, partyId):            ### Old uploader, can probably be removed
+    #    sql_get_google_album_id = "SELECT google_photoalbum_id FROM parties WHERE id={};"
+    #    db = pymysql.connect(self.localMysqlIP, self.localMysqlUser, self.localMysqlPass, "shotmachine")
 
-        cursor = db.cursor(pymysql.cursors.Cursor)
-        cursor.execute(sql_get_google_album_id.format(str(partyId)))
-        answer = cursor.fetchone()
-        albumId = str(answer[0])
-        cursor.close()
-        db.close()
-        return albumId
+    #    cursor = db.cursor(pymysql.cursors.Cursor)
+    #    cursor.execute(sql_get_google_album_id.format(str(partyId)))
+    #    answer = cursor.fetchone()
+    #    albumId = str(answer[0])
+    #    cursor.close()
+    #    db.close()
+    #    return albumId
 
-    def SetGoogleAlbumId(self, partyID, Album_Id, albumurl):     ### Old uploader, can probably be removed
-        sql_write_Google_album_data = "INSERT INTO parties (google_photoalbum_id, google_photoshareable_url) VALUES (%s, %s) WHERE id=%s;"
-        try:
-            db = pymysql.connect(self.localMysqlIP, self.localMysqlUser, self.localMysqlPass, "shotmachine")
-            cursor.execute(sql_write_Google_album_data, (Album_Id, albumurl, partyID))
-            db.commit()
-            cursor.close()
-            db.close()
-        except:
-            self.logger.warning("Unexpected error:", sys.exc_info()[0])
-            try:
-                db.rollback()
-                db.close()
-            except:
-                pass
+    #def SetGoogleAlbumId(self, partyID, Album_Id, albumurl):     ### Old uploader, can probably be removed
+    #    sql_write_Google_album_data = "INSERT INTO parties (google_photoalbum_id, google_photoshareable_url) VALUES (%s, %s) WHERE id=%s;"
+    #    try:
+    #        db = pymysql.connect(self.localMysqlIP, self.localMysqlUser, self.localMysqlPass, "shotmachine")
+    #        cursor.execute(sql_write_Google_album_data, (Album_Id, albumurl, partyID))
+    #        db.commit()
+    #        cursor.close()
+    #        db.close()
+    #    except:
+    #        self.logger.warning("Unexpected error:", sys.exc_info()[0])
+    #        try:
+    #            db.rollback()
+    #            db.close()
+    #        except:
+    #            pass
 
-    def SetPhotoToUser(self, party_id, barcode, imagename, timestamp):
+    def SetPhotoToUser(self, barcode, imagename, timestamp): #partyid
         self.logger.info("start writing photo to db")
         sql_get_user_id = "SELECT id FROM users WHERE (barcode = {} AND party_id = {});"
         sql_get_organiser_barcode = "SELECT barcode FROM users WHERE party_id = {};"
@@ -148,10 +151,10 @@ class database_connection():
                 cursor.execute(sql_get_organiser_barcode.format(self.party_id))
                 barcode = str(cursor.fetchone()[0])
                 self.logger.info("No barcode scanned, using organizer barcode: " + barcode)
-            cursor.execute(sql_get_user_id.format(barcode, party_id))
+            cursor.execute(sql_get_user_id.format(barcode, self.party_id))
             user_id = str(cursor.fetchone()[0])
             self.logger.info("User_id: " + user_id)
-            cursor.execute(sql_write_picture, (timestamp, user_id, party_id, imagename, timestamp, timestamp))
+            cursor.execute(sql_write_picture, (timestamp, user_id, self.party_id, imagename, timestamp, timestamp))
             db.commit()
             cursor.close()
             db.close()
