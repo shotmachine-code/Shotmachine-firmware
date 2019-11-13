@@ -181,7 +181,7 @@ class Shotmachine_controller():
                     self.barcode = s.split(':')[1]
                     self.username = self.db_conn.getUserName(self.barcode)
                     logger.info("barcode scanned in main: " + str(self.barcode) + " User: " + self.username)
-                    self.ToInterfQueue.put('New_User:'+self.username)
+                    self.ToInterfQueue.put('New_User:'+ ':' + str(self.barcode) + ':' + self.username)
                 elif "Flush" in s:
                     self.ToIOQueue.put(s)
                 elif 'NoUser' in s:

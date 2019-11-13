@@ -88,6 +88,25 @@ class database_connection():
             except:
                 pass
 
+    def getOnlineLogin(self, barcode):
+        sql_get_user_changed_name = "SELECT has_changed_name FROM users WHERE (barcode = {} AND party_id = {});"
+        try:
+            db = pymysql.connect(self.localMysqlIP, self.localMysqlUser, self.localMysqlPass, "shotmachine")
+            cursor = db.cursor(pymysql.cursors.Cursor)
+            cursor.execute(sql_get_user_changed_name.format(barcode, self.party_id))
+            ChangedName = int(cursor.fetchone()[0])
+            cursor.close()
+            db.close()
+            self.logger.info("Succesfull obtained if user has changed name from database")
+            return ChangedName
+        except:
+            self.logger.warning("Unexpected error:", sys.exc_info()[0])
+            try:
+                db.rollback()
+                db.close()
+                return 1
+            except:
+                pass
 
     def getLastSyncTime(self):
         try:

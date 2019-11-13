@@ -505,7 +505,7 @@ class SMBus():
             if slidervalue == "1":
                 self.value = (22).to_bytes(2, byteorder="big")
             if slidervalue == "0":
-                self.value = (23).to_bytes(2, byteorder="big")
+                self.value = (30).to_bytes(2, byteorder="big")
 
 
     def read_byte_data(self, adress, int):

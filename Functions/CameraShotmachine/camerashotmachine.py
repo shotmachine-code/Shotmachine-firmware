@@ -52,7 +52,7 @@ class CameraShotmachine:
             self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
             self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
             self.stream.set(cv2.CAP_PROP_FPS, 30.0)
-            self.stream.set(cv2.CAP_PROP_BUFFERSIZE, 3)
+            self.stream.set(cv2.CAP_PROP_BUFFERSIZE, 4)
             self.stream.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
             
             (success_grab, frame_raw) = self.stream.read()
@@ -187,7 +187,7 @@ class CameraShotmachine:
                 self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
                 self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
                 self.stream.set(cv2.CAP_PROP_FPS, 30.0)
-                self.stream.set(cv2.CAP_PROP_BUFFERSIZE, 3)
+                self.stream.set(cv2.CAP_PROP_BUFFERSIZE, 4)
                 self.stream.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
 
                 datetimestring = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')

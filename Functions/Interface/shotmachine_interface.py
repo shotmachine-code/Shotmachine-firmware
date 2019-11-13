@@ -288,7 +288,7 @@ class Shotmachine_Interface():
 
     def update_timeoutBarcode(self):
         curr_time = time.time()
-        progress = 1-((curr_time - self.timeout_start)/self.timeout_value)
+        progress = 1-((curr_time - self.timeout_start)/self.CurrentTimeoutValue)
         progressbarRect_back = pygame.Rect(0, self.screeninfo.current_h - 300, self.screeninfo.current_w, 50)
         progressbarSurf_back = pygame.draw.rect(self.screen, (0, 0, 0, 0), progressbarRect_back)
         if progress >= 0:
@@ -301,27 +301,56 @@ class Shotmachine_Interface():
 
     def reset_timeoutBarcode(self):
         self.timeout_start = time.time()
+        self.CurrentTimeoutValue = self.timeoutValue
+
+
+    def reset_timeoutBarcodeAfterPhoto(self):
+        self.timeout_start = time.time()
+        self.CurrentTimeoutValue = self.timeoutValuePhoto
 
 
     def stop_timeoutBarcode(self):
-        self.timeout_start = time.time() - self.timeout_value
+        self.timeout_start = time.time() - self.timeoutValue
 
 
     def newUserScanned(self):
+        ChangedName = self.db_conn.getOnlineLogin(self.currentBarcode)
+
         textboxRect = pygame.Rect(275, self.screeninfo.current_h - 250, self.screeninfo.current_w-550, 250)
         textboxSurf = pygame.draw.rect(self.screen, (0, 0, 0, 0), textboxRect)
         self.updatelist.append(textboxRect)
+
         self.currentTextMessage = 'Hallo ' + self.currentUser
         maintext = self.textfont.render('Hallo ' + self.currentUser, True, self.WHITE, self.BLACK)
         maintextRect = maintext.get_rect()
-        maintextRect.center = (self.screeninfo.current_w // 2, self.screeninfo.current_h - 200)
-        self.screen.blit(maintext, maintextRect)
-        self.updatelist.append(maintextRect)
+
+        if (ChangedName == 0):
+            maintextRect.center = (self.screeninfo.current_w // 2, self.screeninfo.current_h - 200)
+            self.screen.blit(maintext, maintextRect)
+            self.updatelist.append(maintextRect)
+
+            ChangeNameTextMessage = "Verander je naam en bekijk je shots + foto's op:"
+            ChangeNameText = self.smalltextfont.render(ChangeNameTextMessage, True, self.WHITE, self.BLACK)
+            ChangeNameTextRect = ChangeNameText.get_rect()
+            ChangeNameTextRect.center = (self.screeninfo.current_w // 2, self.screeninfo.current_h - 130)
+            self.screen.blit(ChangeNameText, ChangeNameTextRect)
+            self.updatelist.append(ChangeNameTextRect)
+
+            WebsiteTextMessage = "shotmachine.nl"
+            WebsiteText = self.textfont.render(WebsiteTextMessage, True, self.WHITE, self.BLACK)
+            WebsiteTextRect = WebsiteText.get_rect()
+            WebsiteTextRect.center = (self.screeninfo.current_w // 2, self.screeninfo.current_h - 80)
+            self.screen.blit(WebsiteText, WebsiteTextRect)
+            self.updatelist.append(WebsiteTextRect)
+        else:
+            maintextRect.center = (self.screeninfo.current_w // 2, self.screeninfo.current_h - 150)
+            self.screen.blit(maintext, maintextRect)
+            self.updatelist.append(maintextRect)
         
         self.CameraSimbol()
         self.ShotglassSimbol()
         
-        self.reset_timeoutBarcode()
+        #self.reset_timeoutBarcode()
 
 
     def UserTimeout(self):
@@ -415,6 +444,7 @@ class Shotmachine_Interface():
         if self.currentTextMessage == "Zet eerst een shotglaasje neer":
             if self.currentUser != "":
                 self.newUserScanned()
+                self.reset_timeoutBarcode()
             else:
                 self.NoUserText()
 
@@ -447,19 +477,23 @@ class Shotmachine_Interface():
         # Define some general variables
         screensize = [1920, 1080]
         self.textfont = pygame.font.Font('freesansbold.ttf', 60)
+        self.smalltextfont = pygame.font.Font('freesansbold.ttf', 30)
         Roll_Images_dir = 'Functions/Interface/Images/Roll_images'
         Background_image_dir = 'Functions/Interface/Images/background_image'
         Appname = "Shotmachine Interface"
-        self.rollerspeed = 50  # defines how fast the rollers move before stopped
-        self.cameraLiveTime = 5 # duration in seocnds before picture is taken
-        self.cameraPictureTime = 5 # amount of seconds the picture is shown
-        self.timeout_value = 20 # amount of seconds before the user is kicked out
+        self.rollerspeed = 50           # defines how fast the rollers move before stopped
+        self.cameraLiveTime = 5         # duration in seocnds before picture is taken
+        self.cameraPictureTime = 5      # amount of seconds the picture is shown
+        self.timeoutValue = 20          # amount of seconds before the user is kicked out
+        self.timeoutValuePhoto = 5      # amount of seconds before the user is kicked out after a photo
 
         # Init some system variables, do not change those
         self.shotglassStatus = False
         self.cameraScreenStarted = False
         self.timeout_start = time.time()
+        self.CurrentTimeoutValue = self.timeoutValue
         self.currentUser = ""
+        self.currentBarcode = ""
         self.currentTextMessage = ""
         self.updatelist = []
 
@@ -534,9 +568,11 @@ class Shotmachine_Interface():
                         self.NoUserText()
                         self.logger.warning("Shot requested, but no user scanned and barcode is enabled")
                 elif "New_User:" in self.recievebuffer:
-                    self.currentUser = self.recievebuffer.split(':')[1]
+                    self.currentBarcode = self.recievebuffer.split(':')[2]
+                    self.currentUser = self.recievebuffer.split(':')[3]
                     if self.EnableBarcodeScanner:
                         self.newUserScanned()
+                        self.reset_timeoutBarcode()
                 elif "Shotglass:" in self.recievebuffer:
                     self.shotglassStatus = bool(int(self.recievebuffer[-1:]))
                     self.ShotglassSimbol()
@@ -619,8 +655,8 @@ class Shotmachine_Interface():
                         self.NoUserText()
                         self.stop_timeoutBarcode()
                     else:
-                        self.reset_timeoutBarcode()
                         self.newUserScanned()
+                        self.reset_timeoutBarcodeAfterPhoto()
                 
             # Limit to 60 frames per second
             clock.tick(60)
