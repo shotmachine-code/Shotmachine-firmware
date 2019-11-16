@@ -46,7 +46,7 @@ HandleShotmachine = {
         "EnableDBSync": True,
         "EnableBarcodeScanner": True,
         "EnablePhotoUploader": True,
-        "PartyId": 7,
+        "PartyId": 6,
         "MachineId": 1
     },
     "Hardware": {

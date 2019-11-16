@@ -100,7 +100,7 @@ class database_connection():
             self.logger.info("Succesfull obtained if user has changed name from database")
             return ChangedName
         except:
-            self.logger.warning("Unexpected error:", sys.exc_info()[0])
+            self.logger.warning("Unexpected error:" + str(sys.exc_info()[0]))
             try:
                 db.rollback()
                 db.close()
