@@ -12,8 +12,6 @@ import pygame
 currentOS = platform.system()
 currentArch = platform.architecture()
 if (currentOS == 'Linux' and currentArch[0] != '64bit'):
-    #from picamera.array import PiRGBArray
-    #from picamera import PiCamera
     import cv2
 
 class CameraShotmachine:
@@ -27,7 +25,7 @@ class CameraShotmachine:
         # Prepare variables
         self.logger = logging.getLogger(__name__)
         self.onRaspberry = self.HandleShotmachine["Settings"]["OnRaspberry"]
-        self.smallFrameSize = (1024, 768)
+        self.smallFrameSize = (1280, 720)
         self.fullFrameSize = (3840, 2160)
         
         # check if folder for saving pictures is there, or create it
