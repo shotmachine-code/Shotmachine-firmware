@@ -25,6 +25,10 @@ else:
 
 
 Logdate = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+
+if not (os.path.isdir("Logs/")):
+    os.mkdir("Logs/")
+
 Logname = "Logs/" + Logdate + ".log"
 logging.basicConfig(format='%(asctime)s %(levelname)s: %(name)s: %(message)s',
                     level=logging.INFO,
@@ -41,11 +45,11 @@ logger.info("Start")
 HandleShotmachine = {
     "Settings": {
         "OnRaspberry": onRaspberry,
-        "EnableSPI": True,
-        "EnableI2C": True,
-        "EnableDBSync": True,
-        "EnableBarcodeScanner": True,
-        "EnablePhotoUploader": True,
+        "EnableSPI": False,
+        "EnableI2C": False,
+        "EnableDBSync": False,
+        "EnableBarcodeScanner": False,
+        "EnablePhotoUploader": False,
         "PartyId": 6,
         "MachineId": 1
     },

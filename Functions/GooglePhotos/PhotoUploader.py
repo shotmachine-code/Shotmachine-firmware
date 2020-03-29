@@ -5,7 +5,7 @@ import queue
 import glob
 import time
 import datetime
-from Functions.GooglePhotos.google_photos_functions import googlePhotoUploader
+#from Functions.GooglePhotos.google_photos_functions import googlePhotoUploader
 from Functions.Database import database_connection
 import logging
 import pysftp

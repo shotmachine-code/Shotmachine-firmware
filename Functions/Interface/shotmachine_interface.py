@@ -165,8 +165,7 @@ class Shotmachine_Interface():
         except:
             pass
         self.screen.fill(self.WHITE)
-        #self.camera.start_CSI()
-        self.camera.start_USB()
+        self.camera.start()
         self.CameraStartTime = time.time()
         pygame.display.update()
         self.logger.info('Live camera screen')
@@ -190,7 +189,7 @@ class Shotmachine_Interface():
         FullScreenRect = pygame.Rect(0, 0, self.screeninfo.current_w, self.screeninfo.current_h)
         pygame.display.update(FullScreenRect)
         self.start_showtime = time.time()
-        imagename = self.camera.getimagename_USB()
+        imagename = self.camera.get_imagename()
         if self.OperationMode == "PhotoBooth":
             self.showLastImage = True
         if imagename != "No Image":
@@ -532,7 +531,7 @@ class Shotmachine_Interface():
         self.background_image = pygame.transform.smoothscale(pygame.image.load(background_path).convert(), self.screensize)
 
         # Init camera
-        self.camera = camerashotmachine.CameraShotmachine(_windowPosSize = (270,0,1440, 1080), waittime=3, HandleShotmachine = self.HandleShotmachine)
+        self.camera = camerashotmachine.CameraShotmachine(storagepath = self.TakenPhotosDir, HandleShotmachine = self.HandleShotmachine)
         self.cameraSwitchedToPhoto = False
         
         # Init rollers
@@ -639,10 +638,10 @@ class Shotmachine_Interface():
             if self.current_screen == 'livecamera':
                 self.CameraRunTime = time.time() - self.CameraStartTime
                 
-                if self.CameraRunTime > self.cameraLiveTime:
+                if self.CameraRunTime + 0.5 > self.cameraLiveTime:
                     self.current_screen = 'picture'
                     self.load_picture_screen()
-                elif self.CameraRunTime+0.5 > self.cameraLiveTime:
+                elif self.CameraRunTime+0.8 > self.cameraLiveTime:
                     if not self.cameraSwitchedToPhoto:
                         self.cameraSwitchedToPhoto = True
                         self.Prepare_camera_photo()

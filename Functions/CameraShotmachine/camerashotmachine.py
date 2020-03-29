@@ -4,7 +4,6 @@ from threading import Thread
 import numpy as np
 import time
 import datetime
-#from PIL import Image
 import os
 import logging
 import platform
@@ -13,193 +12,140 @@ import pygame
 currentOS = platform.system()
 currentArch = platform.architecture()
 if (currentOS == 'Linux' and currentArch[0] != '64bit'):
-    from picamera.array import PiRGBArray
-    from picamera import PiCamera
+    #from picamera.array import PiRGBArray
+    #from picamera import PiCamera
     import cv2
 
 class CameraShotmachine:
-    def __init__(self, _windowPosSize=(200,0,900, 1200), waittime=3, _storagepath = '', HandleShotmachine = []):
-        if _storagepath == '':
-            self.storagepath = 'TakenImages/NotUploaded'
-        else:
-            self.storagepath = _storagepath
+    def __init__(self, storagepath = 'TakenImages/NotUploaded', HandleShotmachine = []):
+        # function to use usb camera for live preview and taking pictures
+        
+        # Store inputs
         self.HandleShotmachine = HandleShotmachine
+        self.storagepath = storagepath
+        
+        # check if folder for saving pictures t=is there, or create it
+        folderDirList = self.storagepath.split("/")
+        appPath = ""
+        for i in range(0, len(folderDirList)):
+            appPath = appPath + folderDirList[i] + "/"
+            print(appPath)
+            if not (os.path.isdir(appPath)):
+                os.mkdir(appPath)
+        
+        # Prepare variables
         self.logger = logging.getLogger(__name__)
-        self.wait_time = waittime
-        self.start_time = time.time()
-        self.elapsed_time = 0
-        self.window = _windowPosSize
-        self.image = None
-        self.stop = False
-        self.running = False
         self.onRaspberry = self.HandleShotmachine["Settings"]["OnRaspberry"]
+        self.smallFrameSize = (1024, 768)
+        self.fullFrameSize = (3840, 2160)
 
-        self.useCamera = "USB" #, "CSI"
-
-        if self.onRaspberry and self.useCamera == "CSI":
-            # initialize the camera and stream
-            self.camera = PiCamera(sensor_mode = 4, resolution = (1632,1232))
-            # self.captured_image = PiRGBArray(camera)
-            self.camera.exposure_mode = 'nightpreview'
-            # camera.resolution = (1640,1232)
-            self.camera.image_denoise = True
-            self.camera.rotation = 270
-            self.camera.hflip = True
-        if self.onRaspberry and self.useCamera == "USB":
-            self.size = (640, 480)
-            self.stream = cv2.VideoCapture()
+        if self.onRaspberry:
+            # Open and prepare camera
+            self.stream = cv2.VideoCapture(0)
             self.stream.open(0, apiPreference=cv2.CAP_V4L2)
-            self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-            self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+            self.stream.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
+            self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, self.smallFrameSize[0])
+            self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, self.smallFrameSize[1])
             self.stream.set(cv2.CAP_PROP_FPS, 30.0)
             self.stream.set(cv2.CAP_PROP_BUFFERSIZE, 4)
-            self.stream.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
             
+            # Take one frame from camera to ensure it's working correctly
             (success_grab, frame_raw) = self.stream.read()
             frame_raw = frame_raw[:,::-1,::-1]
-            frame = frame_raw.swapaxes(0,1)
-            self.cameraImageSmallSurf = pygame.surfarray.make_surface(frame)
-
-            self.stopped = False
-            self.grabbed_small = False
-            self.grabbed_full = False
-            self.getSmallFrame = True
-            self.grabFullFrame = False
-        else:  # In simulation mode, use stationary test image
+            frame_init = frame_raw.swapaxes(0,1)
+            self.cameraImageSmallSurf = pygame.surfarray.make_surface(frame_init)
+            
+        else:  
+            # In simulation mode, use stationary test image
             TestImage = pygame.image.load('Functions/CameraShotmachine/testimage.png')
-            self.TestImageSmall = pygame.transform.scale(TestImage, (640, 480))
+            self.TestImageSmall = pygame.transform.scale(TestImage, (self.smallFrameSize[0], self.smallFrameSize[1]))
             self.TestImageFull = pygame.transform.scale(TestImage, (1920, 1080))
             self.save_image_name = "Test mode, no picture taken"
 
         self.logger.info('Class started')
+
+
+    def start(self):
+        # Start the thread to read frames from the video stream
         
-    def run(self): # CSI
-        while not self.stop:
-            self.elapsed_time = time.time() - self.start_time
-            # print(self.elapsed_time)
-            if (self.elapsed_time > self.wait_time) and self.running:
-                if self.onRaspberry:
-                    self.camera.capture(self.captured_image, format = 'bgr', use_video_port=True)
-                    self.camera.stop_preview()
-                    self.captured_image = self.captured_image.array
-                    self.captured_image = cv2.flip(self.captured_image, 1)
-                    self.image = cv2.cvtColor(self.captured_image, cv2.COLOR_BGR2RGB)
-                    self.image = np.rot90(self.image)
-                    datetimestring = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
-                    self.save_image_name = os.path.join(self.storagepath, datetimestring + '.png')
-                    self.captured_image = cv2.flip(self.captured_image, 1)
-                    cv2.imwrite(self.save_image_name,self.captured_image)
-                    self.logger.info('Image saved in: ' + self.save_image_name)
-                self.running = False
-            time.sleep(0.1)
-        if self.onRaspberry:
-            self.camera.close()
-        self.logger.info('Camera module stopped')
-        
-
-    def start_CSI(self):
-        # start the thread to read frames from the video stream
-        if self.onRaspberry and self.useCamera == "CSI":
-            self.camera.start_preview(fullscreen = False, window = self.window, resolution = (1632,1232))
-            self.start_time = time.time()
-            self.captured_image = PiRGBArray(self.camera)
-            self.elapsed_time = 0
-            self.running = True
-            self.logger.info("Start taking picture withh CSI camera")
-        if self.onRaspberry and self.useCamera == "USB":
-            Thread(target=self.update, args=()).start()
-            self.logger.info("Start taking picture with USB")
-            return self
-
-
-    def getprogress(self):
-        # returns a number between 0 and 1 indicating how much percent 
-        # of the waittime is elapsed
-        progress_percent = (self.elapsed_time/self.wait_time)
-        progress_percent = min(progress_percent,1)
-        return progress_percent
-
-
-    def getimage(self):
-        # return the frame most recently taken
-        while self.running:
-            time.sleep(0.001)
-        return self.image
-
-
-    def requeststop(self):
-        # indicate that the thread should be stopped
-        self.stop = True
-
-    def getimagename(self):
-        return self.save_image_name
-
-
-################## USB camera ########################
-
-    def start_USB(self):
-        # start the thread to read frames from the video stream
-        self.grabbed_small = False
-        self.grabbed_full = False
-        self.getSmallFrame = True
+        # Prepare some variables for the capturing process
         self.stopped = False
+        self.getSmallFrame = True
+        self.grabbed_small = False
+        self.grabFullFrame = False
+        self.grabbed_full = False
         self.success_save = False
         self.SmallProcessed = False
 
+        # Start threads that take and process the camera frames
         if self.onRaspberry:
-            self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-            self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
-            Thread(target=self.update_USB, args=()).start()
+            Thread(target=self.update, args=()).start()
             Thread(target=self.Process_small, args=()).start()
+        
         return self
 
 
-    def update_USB(self): # USB camera
+    def update(self): 
+        # Function (thread) to get frames from usb camera
+        
         while not self.stopped:
+            # In live (preview) mode, take low-res images from camera, it's much faster
             if self.getSmallFrame:
+                success_grab = False
                 try:
-                    success_grab = False
                     while not success_grab:
                         (success_grab, self.grabbedSmallFrame) = self.stream.read()
-                        #print("Frame")
                         self.grabbed_small = success_grab
                 except:
                     continue
+            
+            # Take full-res (4K) image from camera for picture
             else:
-                self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 3840)
-                self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 2160)
+                # First switch camera to high-res mode, takes some time
+                self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, self.fullFrameSize[0])
+                self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, self.fullFrameSize[1])
+                
+                # Wait until command to take picture, controlled from other process to ensure correct timing
+                while not self.grabFullFrame:
+                    time.sleep(0.0001)
+                    
+                # Take high-res picture, single frame
                 success_grab = False
                 while not success_grab:
                     (success_grab, frame) = self.stream.read()
-                while not self.grabFullFrame:
-                    time.sleep(0.0001)
-                (success_grab, frame) = self.stream.read()
+                    
+                # Process frame
                 ScreenFrame = frame[::2,::-2,::-1] # scale image by 0.5 by removing every second row and column, swap BGR to RGB, flip Up/down
                 frame_full = ScreenFrame.swapaxes(0,1) # rotate image by flipping axis
                 self.cameraImagefullSurf = pygame.surfarray.make_surface(frame_full)
+                
+                # Indicate that picture is ready and can be shown to user
                 self.stopped = True
                 self.grabbed_full = success_grab
-                self.grabFullFrame = False
                 
+                # Switch camera back to low-res mode for live camera
                 self.stream.release()
-                self.stream = cv2.VideoCapture()
+                self.stream = cv2.VideoCapture(0)
                 self.stream.open(0, apiPreference=cv2.CAP_V4L2)
-                self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-                self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+                self.stream.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
+                self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, self.smallFrameSize[0])
+                self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, self.smallFrameSize[1])
                 self.stream.set(cv2.CAP_PROP_FPS, 30.0)
                 self.stream.set(cv2.CAP_PROP_BUFFERSIZE, 4)
-                self.stream.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
-
+                
+                # Save image to disk, use raw high-res frame from camera because saving process is bit different
                 datetimestring = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
                 self.save_image_name = os.path.join(self.storagepath, datetimestring + '.jpg')
                 FrameToSave = np.fliplr(frame)
                 cv2.imwrite(self.save_image_name, FrameToSave)
                 self.logger.info('Image saved in: ' + self.save_image_name)
-                
                 self.success_save = True
     
     
     def Process_small(self):
+        # Function (thread) to process low-res images to correct format
+        # put in separate thread so camputing from camera is continued
+        
         while not self.stopped:
             if self.getSmallFrame:
                 if self.grabbed_small:
@@ -211,8 +157,8 @@ class CameraShotmachine:
                     self.SmallProcessed = True
         
 
-    def read_small(self): # USB camera
-        # return the frame most recently read
+    def read_small(self):
+        # Return the most recent low-res frame
         if self.onRaspberry:
             while not self.SmallProcessed and self.getSmallFrame:
                 time.sleep(0.00001)
@@ -224,23 +170,30 @@ class CameraShotmachine:
             
 
     def Switch_to_full(self):
-        self.grabFullFrame = True
+        # Function to indicate that camera must be switched to high-res mode
+        self.grabFullFrame = False
         self.getSmallFrame = False
         
 
-    def read_full(self): # USB camera
-        # return scaled full frame to display picture
+    def read_full(self): 
+        # Take high-res picture and return scaled frame to display
         if self.onRaspberry:
+            # Indicate to take picture
+            self.grabFullFrame = True
+            
+            # wait untill picture is taken and ready to be shown
             while not self.grabbed_full and not self.getSmallFrame:
                 time.sleep(0.0001)
             self.grabbed_full = False
             return self.cameraImagefullSurf
+            
         else:
             self.grabbed_full = False
             return self.TestImageFull
 
 
-    def getimagename_USB(self):
+    def get_imagename(self):
+        # Fucntion that returns the filename of the most recent picture, for uploading
         if self.onRaspberry:
             while not self.success_save:
                 time.sleep(0.0001)

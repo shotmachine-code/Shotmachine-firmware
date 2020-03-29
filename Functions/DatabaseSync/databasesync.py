@@ -48,10 +48,11 @@ class DatabaseSync:
                                    '-t machines ' + \
                                    'h=' + self.localMysqlIP + ', -u ' + self.localMysqlUser + ', -p' + self.localMysqlPass + \
                                    ', h=' + self.onlineMysqlIP + ', -u ' + self.onlineMysqlUser +', -p' + self.onlineMysqlPass
-            self.LastSyncFromOnline = 'pt-table-sync --execute --verbose --set-vars wait_timeout=60 --where "party_id = {}" ' + \
-                                 '-t users ' + \
+            self.LastSyncFromOnline = 'pt-table-sync --execute --verbose --set-vars wait_timeout=60 ' + \
+                                 '-t users,party_has_shots,shots ' + \
                                  'h=' + self.onlineMysqlIP + ', -u ' + self.onlineMysqlUser +', -p' + self.onlineMysqlPass + \
                                  ', h=' + self.localMysqlIP + ', -u ' + self.localMysqlUser + ', -p' + self.localMysqlPass
+            #'pt-table-sync --execute --verbose --set-vars wait_timeout=60 --where "party_id = {}" ' + \
             self.UpdateLastSyncTime = "UPDATE machines SET last_sync = NOW() WHERE machine_name = 'Prototype 1'"
 
             # extract essential settings from setting struct
