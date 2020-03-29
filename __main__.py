@@ -6,7 +6,8 @@ from Functions.Interface import shotmachine_interface
 from Functions.DatabaseSync import databasesync
 from Functions.InputsOutputs import inputsoutputs
 from Functions.Database import database_connection
-from Functions.GooglePhotos.PhotoUploader import PhotoUploader
+#from Functions.PhotoUploader.PhotoUploader import PhotoUploader
+from Functions.PhotoUploader import photo_uploader
 
 import platform
 import random
@@ -47,9 +48,9 @@ HandleShotmachine = {
         "OnRaspberry": onRaspberry,
         "EnableSPI": False,
         "EnableI2C": False,
-        "EnableDBSync": False,
+        "EnableDBSync": True,
         "EnableBarcodeScanner": False,
-        "EnablePhotoUploader": False,
+        "EnablePhotoUploader": True,
         "PartyId": 6,
         "MachineId": 1
     },
@@ -237,7 +238,7 @@ inputsoutputs.InputsOutputs(HandleShotmachine,
                             ToIOQueue)
 
 if HandleShotmachine["Settings"]["EnablePhotoUploader"]:
-    PhotoUploader_program = PhotoUploader(ToPhotoUploaderQueue, HandleShotmachine)
+    PhotoUploader_program = photo_uploader.photo_uploader(ToPhotoUploaderQueue, HandleShotmachine)
 
 controller_alive = True
 while controller_alive:

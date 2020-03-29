@@ -24,20 +24,20 @@ class CameraShotmachine:
         self.HandleShotmachine = HandleShotmachine
         self.storagepath = storagepath
         
-        # check if folder for saving pictures t=is there, or create it
-        folderDirList = self.storagepath.split("/")
-        appPath = ""
-        for i in range(0, len(folderDirList)):
-            appPath = appPath + folderDirList[i] + "/"
-            print(appPath)
-            if not (os.path.isdir(appPath)):
-                os.mkdir(appPath)
-        
         # Prepare variables
         self.logger = logging.getLogger(__name__)
         self.onRaspberry = self.HandleShotmachine["Settings"]["OnRaspberry"]
         self.smallFrameSize = (1024, 768)
         self.fullFrameSize = (3840, 2160)
+        
+        # check if folder for saving pictures is there, or create it
+        folderDirList = self.storagepath.split("/")
+        appPath = ""
+        for i in range(0, len(folderDirList)):
+            appPath = appPath + folderDirList[i] + "/"
+            if not (os.path.isdir(appPath)):
+                os.mkdir(appPath)
+                self.logger.info("Created new folder: " + appPath)
 
         if self.onRaspberry:
             # Open and prepare camera
@@ -62,7 +62,7 @@ class CameraShotmachine:
             self.TestImageFull = pygame.transform.scale(TestImage, (1920, 1080))
             self.save_image_name = "Test mode, no picture taken"
 
-        self.logger.info('Class started')
+        self.logger.info('Camera class started')
 
 
     def start(self):

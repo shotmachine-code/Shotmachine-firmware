@@ -16,7 +16,7 @@ import shutil
 #album_name = 'Housewarming Lisa 2'
 #Create_new_album = False
 
-class PhotoUploader():
+class photo_uploader():
     def __init__(self, _ToPhotoUploaderQueue, _HandleShotmachine):
 
         self.ToDoQueue = _ToPhotoUploaderQueue
