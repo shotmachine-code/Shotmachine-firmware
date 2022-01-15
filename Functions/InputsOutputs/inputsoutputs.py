@@ -195,7 +195,7 @@ class InputsOutputs:
                 self.logger.info('Spoelen van pomp: ' + str(self.flushnumber))
                 if self.EnableI2COutput:
                     self.MCP.output(self.flushnumber, 0)
-                    time.sleep(1)
+                    time.sleep(10)
                     #TODO add possibility to stop on command
                     self.MCP.output(self.flushnumber, 1)
                 self.FlushPump = False
@@ -372,7 +372,7 @@ class InputsOutputs:
                     lsb = self.bus.read_byte_data(self.shotdetectorAddress, 3)
                     measuredRange = (msb << 8) + lsb
                 except:
-                    print("error in i2c")
+                    # print("error in i2c")
                     measuredRange = 23
                 if (measuredRange != 7) or (measuredRange != 110):
                     #print(measuredRange)
