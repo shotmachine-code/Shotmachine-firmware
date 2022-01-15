@@ -46,13 +46,18 @@ logger.info("Start")
 HandleShotmachine = {
     "Settings": {
         "OnRaspberry": onRaspberry,
-        "EnableSPI": False,
-        "EnableI2C": False,
-        "EnableDBSync": True,
-        "EnableBarcodeScanner": False,
-        "EnablePhotoUploader": True,
-        "PartyId": 6,
-        "MachineId": 1
+        "EnableSPI": True, # for leds
+        "EnableI2C": True, # for shotdetector & pumps
+        "EnableDBSync": True, # database synchronisatie
+        "EnableBarcodeScanner": False, #duh
+        "EnablePhotoUploader": False, # tja, wat zou dit nou zijn..
+        "PartyId": 6, # feest ID, per feest instelbaar
+        "MachineId": 1, # niet aanpassen!
+        "EnableShot0": False, # False als pomp 0 niet aan mag, True als deze wel mag
+        "EnableShot1": False, # enz...
+        "EnableShot2": True,
+        "EnableShot3": True,
+        "EnableShot4": True
     },
     "Hardware": {
         "OnOffSwitch": 27,
@@ -91,6 +96,16 @@ class Shotmachine_controller():
         self.Shotglass = False
         self.Shothendel = False
         self.possibleShots = list(range(0, 5))
+        if not HandleShotmachine["Settings"]["EnableShot4"]:
+            self.possibleShots.remove(4)
+        if not HandleShotmachine["Settings"]["EnableShot3"]:
+            self.possibleShots.remove(3)
+        if not HandleShotmachine["Settings"]["EnableShot2"]:
+            self.possibleShots.remove(2)
+        if not HandleShotmachine["Settings"]["EnableShot1"]:
+            self.possibleShots.remove(1)
+        if not HandleShotmachine["Settings"]["EnableShot0"]:
+            self.possibleShots.remove(0)
         self.MakeShot = False
         self.DoneWithShot = False
 
@@ -139,6 +154,17 @@ class Shotmachine_controller():
                 self.MakeShot = False
                 if len(self.possibleShots) == 0:
                     self.possibleShots = list(range(0, 5))
+                    if not HandleShotmachine["Settings"]["EnableShot4"]:
+                        self.possibleShots.remove(4)
+                    if not HandleShotmachine["Settings"]["EnableShot3"]:
+                        self.possibleShots.remove(3)
+                    if not HandleShotmachine["Settings"]["EnableShot2"]:
+                        self.possibleShots.remove(2)
+                    if not HandleShotmachine["Settings"]["EnableShot1"]:
+                        self.possibleShots.remove(1)
+                    if not HandleShotmachine["Settings"]["EnableShot0"]:
+                        self.possibleShots.remove(0)
+                    print("self.possibleShots")
                 index = random.randint(0, len(self.possibleShots)-1)
                 i = self.possibleShots[index]
                 self.possibleShots.remove(i)
@@ -233,12 +259,14 @@ main_controller = Shotmachine_controller('Main_controller',
                                          ToIOQueue,
                                          ToPhotoUploaderQueue)
 
+if HandleShotmachine["Settings"]["EnablePhotoUploader"]:
+    logger.info("start uploader")
+    PhotoUploader_program = photo_uploader.photo_uploader(ToPhotoUploaderQueue, HandleShotmachine)
+
 inputsoutputs.InputsOutputs(HandleShotmachine,
                             ToMainQueue,
                             ToIOQueue)
 
-if HandleShotmachine["Settings"]["EnablePhotoUploader"]:
-    PhotoUploader_program = photo_uploader.photo_uploader(ToPhotoUploaderQueue, HandleShotmachine)
 
 controller_alive = True
 while controller_alive:
