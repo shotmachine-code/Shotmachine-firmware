@@ -46,11 +46,11 @@ logger.info("Start")
 HandleShotmachine = {
     "Settings": {
         "OnRaspberry": onRaspberry,
-        "EnableSPI": False,
-        "EnableI2C": False,
-        "EnableDBSync": True,
+        "EnableSPI": True,
+        "EnableI2C": True,
+        "EnableDBSync": False,
         "EnableBarcodeScanner": False,
-        "EnablePhotoUploader": True,
+        "EnablePhotoUploader": False,
         "PartyId": 6,
         "MachineId": 1
     },
@@ -124,7 +124,7 @@ class Shotmachine_controller():
                     #self.ToInterfQueue.put('Start_roll')
                     logger.info("start roller")
                 elif not self.Shotglass and ((self.username != "") or not self.EnableBarcodeScanner) :
-                    logger.warning("Shot requeested, but no shotglass present")
+                    logger.warning("Shot requested, but no shotglass present")
                     self.ToIOQueue.put("ShotLeds:3") 
                     self.ToIOQueue.put("Ready")
                     self.ToInterfQueue.put("Missing_Shotglass")
@@ -179,6 +179,9 @@ class Shotmachine_controller():
                 elif s == "RollsStopped":
                     self.MakeShot = True
                 elif s == "Done with shot":
+                    self.DoneWithShot = True
+                elif s == "Cant_make_shot":
+                    logger.info("shotmachine nog bezig, shot request geweigerd")
                     self.DoneWithShot = True
                 elif s == "Fotoknop":
                     self.fotoknop = True

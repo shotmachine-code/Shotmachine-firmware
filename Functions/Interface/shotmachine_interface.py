@@ -520,8 +520,8 @@ class Shotmachine_Interface():
         pygame.init()
         self.screeninfo = pygame.display.Info()
         self.screensize = [self.screeninfo.current_w, self.screeninfo.current_h]
-        #self.screen = pygame.display.set_mode(self.screensize, (pygame.DOUBLEBUF|pygame.HWSURFACE))
-        self.screen = pygame.display.set_mode((0,0), (pygame.FULLSCREEN|pygame.DOUBLEBUF|pygame.HWSURFACE)) 
+        self.screen = pygame.display.set_mode(self.screensize, (pygame.DOUBLEBUF|pygame.HWSURFACE))
+        #self.screen = pygame.display.set_mode((0,0), (pygame.FULLSCREEN|pygame.DOUBLEBUF|pygame.HWSURFACE))
         
         self.logger.info("Set screensize to: " + str(self.screensize[0]) + "x" + str(self.screensize[1]))
         pygame.display.set_caption(Appname)
@@ -591,7 +591,8 @@ class Shotmachine_Interface():
                 elif 'Missing_Shotglass' in self.recievebuffer:
                     self.DisplayMissingShotglass()
                 else:
-                    self.logger.info("Unknown commamd from interface" + self.recievebuffer)
+                    self.logger.info("Unknown command from interface " + self.recievebuffer)
+                    self.From_interface.put('Cant_make_shot')
                 self.recievebuffer = ''
 
             for event in pygame.event.get():
