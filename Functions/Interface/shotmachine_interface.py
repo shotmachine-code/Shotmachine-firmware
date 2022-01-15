@@ -225,10 +225,10 @@ class Shotmachine_Interface():
 
     def load_config_screen(self):
         self.screen.fill(self.GRAY)
-        CPUtemp_raw = psutil.sensors_temperatures()
         try:
+            CPUtemp_raw = psutil.sensors_temperatures()
             cputemp = str(CPUtemp_raw['cpu-thermal'][0].current).encode("utf-8").decode("utf-8")
-        except KeyError:
+        except (KeyError, AttributeError):
             try:
                 cputemp = str(CPUtemp_raw['coretemp'][0].current).encode("utf-8").decode("utf-8")
             except:
