@@ -48,7 +48,7 @@ HandleShotmachine = {
         "OnRaspberry": onRaspberry,
         "EnableSPI": True, # for leds
         "EnableI2C": True, # for shotdetector & pumps
-        "EnableDBSync": True, # database synchronisatie
+        "EnableDBSync": False, # database synchronisatie
         "EnableBarcodeScanner": False, #duh
         "EnablePhotoUploader": False, # tja, wat zou dit nou zijn..
         "PartyId": 6, # feest ID, per feest instelbaar
@@ -139,7 +139,7 @@ class Shotmachine_controller():
                     #self.ToInterfQueue.put('Start_roll')
                     logger.info("start roller")
                 elif not self.Shotglass and ((self.username != "") or not self.EnableBarcodeScanner) :
-                    logger.warning("Shot requeested, but no shotglass present")
+                    logger.warning("Shot requested, but no shotglass present")
                     self.ToIOQueue.put("ShotLeds:3") 
                     self.ToIOQueue.put("Ready")
                     self.ToInterfQueue.put("Missing_Shotglass")
@@ -205,6 +205,9 @@ class Shotmachine_controller():
                 elif s == "RollsStopped":
                     self.MakeShot = True
                 elif s == "Done with shot":
+                    self.DoneWithShot = True
+                elif s == "Cant_make_shot":
+                    logger.info("shotmachine nog bezig, shot request geweigerd")
                     self.DoneWithShot = True
                 elif s == "Fotoknop":
                     self.fotoknop = True
