@@ -181,7 +181,7 @@ class Shotmachine_Interface():
         self.screen.fill(self.WHITE)
         pygame.display.update()
         #image = self.camera.getimage() #CSI
-        Picture = self.camera.read_full() #USB
+        Picture = self.camera.read_full()
         PictureRect = Picture.get_rect()
         PictureRect.center = (self.screeninfo.current_w / 2, self.screeninfo.current_h / 2)
 

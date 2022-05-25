@@ -100,6 +100,7 @@ class CameraShotmachine:
             self.captured_image = PiRGBArray(self.camera)
             self.elapsed_time = 0
             self.running = True
+            self.success_save = False
             self.logger.info("Start taking picture with CSI2 camera")
 
 
@@ -235,6 +236,7 @@ class CameraShotmachine:
             self.captured_image = cv2.flip(self.captured_image, 1)
             cv2.imwrite(self.save_image_name, self.captured_image)
             self.logger.info('Image saved in: ' + self.save_image_name)
+            self.success_save = True
 
             return self.cameraImagefullSurf
 
