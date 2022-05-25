@@ -217,7 +217,7 @@ class Shotmachine_Interface():
         
         
     def Prepare_camera_photo(self):
-        self.camera.Switch_to_full()
+        self.camera.switch_to_full()
         self.screen.fill(self.WHITE)
         screenRect = self.screen.get_rect()
         self.updatelist.append(screenRect)
