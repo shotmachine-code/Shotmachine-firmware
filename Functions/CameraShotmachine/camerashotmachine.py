@@ -56,7 +56,7 @@ class CameraShotmachine:
 
         if self.onRaspberry and self.useCamera == "CSI2":  # CSI2 camera
             # initialize the camera and stream
-            self.camera = PiCamera(resolution=(2028, 1520))
+            self.camera = PiCamera(resolution=(2048, 1520))
             # self.captured_image = PiRGBArray(camera)
             # self.camera.exposure_mode = 'nightpreview'
             # camera.resolution = (1640,1232)
@@ -231,7 +231,7 @@ class CameraShotmachine:
 
             # Save image to file
             datetimestring = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
-            self.save_image_name = os.path.join(self.storagepath, datetimestring + '.jpg')
+            self.save_image_name = os.path.join(self.StoragePath, datetimestring + '.jpg')
             self.captured_image = cv2.flip(self.captured_image, 1)
             cv2.imwrite(self.save_image_name, self.captured_image)
             self.logger.info('Image saved in: ' + self.save_image_name)
