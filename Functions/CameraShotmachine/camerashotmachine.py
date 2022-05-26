@@ -226,8 +226,9 @@ class CameraShotmachine:
             # Process image to return to interface for displaying
             self.captured_image = self.captured_image.array
             self.captured_image = cv2.flip(self.captured_image, 1)
-            self.image = cv2.cvtColor(self.captured_image, cv2.COLOR_BGR2RGB)
-            # self.image = np.rot90(self.image)
+            # self.image = cv2.cvtColor(self.captured_image, cv2.COLOR_BGR2RGB)
+            #self.image = np.rot90(self.image)
+            self.image = np.rot90(self.captured_image)
             self.cameraImagefullSurf = pygame.surfarray.make_surface(self.image)
 
             # Save image to file
