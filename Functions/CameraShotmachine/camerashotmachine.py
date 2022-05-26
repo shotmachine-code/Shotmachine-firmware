@@ -56,7 +56,8 @@ class CameraShotmachine:
 
         if self.onRaspberry and self.useCamera == "CSI2":  # CSI2 camera
             # initialize the camera and stream
-            self.camera = PiCamera(resolution=(2048, 1520))
+            # self.camera = PiCamera(resolution=(2048, 1520))
+            self.camera = PiCamera()
             # self.captured_image = PiRGBArray(camera)
             # self.camera.exposure_mode = 'nightpreview'
             # camera.resolution = (1640,1232)
