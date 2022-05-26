@@ -236,6 +236,7 @@ class CameraShotmachine:
             # Save image to file
             datetimestring = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
             self.save_image_name = os.path.join(self.StoragePath, datetimestring + '.jpg')
+            self.captured_image = cv2.cvtColor(self.captured_image, cv2.COLOR_BGR2RGB)
             self.captured_image = cv2.flip(self.captured_image, 1)
             cv2.imwrite(self.save_image_name, self.captured_image)
             self.logger.info('Image saved in: ' + self.save_image_name)
