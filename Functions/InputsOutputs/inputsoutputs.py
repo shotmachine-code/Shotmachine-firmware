@@ -246,7 +246,7 @@ class InputsOutputs:
         while self.run:
             if not self.MCPConnected:
 
-                try:
+                #try:
                     i2cAddress = 0x20
                     self.MCP = MCP230XX('MCP23017', i2cAddress, '16bit')
                     self.MCP.set_mode(0, 'output')
@@ -265,12 +265,12 @@ class InputsOutputs:
                     self.MCP.output(4, 1)
                     self.MCP.set_mode(5, 'input')
                     self.MCPConnected = True
-                except OSError:
-                    self.MCPConnected = False
+                #except:
+                    #self.MCPConnected = False
             if self.MCPConnected:
                 try:
                     value = self.MCP.input(5)
-                except OSError:
+                except:
                     self.logger.warning('No communication with pump module (MCP IO extender)')
                     self.MCPConnected = False
 
