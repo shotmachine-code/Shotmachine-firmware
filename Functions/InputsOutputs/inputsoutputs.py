@@ -238,6 +238,7 @@ class InputsOutputs:
         self.GPIO.cleanup()
 
     def MCPCommunication(self):
+        from contextlib import suppress
         if self.OnRaspberry:
             from Functions.MCP230XX.MCP230XX import MCP230XX
         else:
@@ -246,7 +247,8 @@ class InputsOutputs:
         while self.run:
             if not self.MCPConnected:
 
-                try:
+                #try:
+                with suppress(OSError):
                     i2cAddress = 0x20
                     self.MCP = MCP230XX('MCP23017', i2cAddress, '16bit')
                     self.MCP.set_mode(0, 'output')
@@ -265,9 +267,9 @@ class InputsOutputs:
                     self.MCP.output(4, 1)
                     self.MCP.set_mode(5, 'input')
                     self.MCPConnected = True
-                except OSError as e:
-                    self.MCPConnected = False
-                    self.logger.warning('Failed to get communication back with MCP)')
+                #except OSError as e:
+                    #self.MCPConnected = False
+                    #self.logger.warning('Failed to get communication back with MCP)')
             if self.MCPConnected:
                 try:
                     value = self.MCP.input(5)
