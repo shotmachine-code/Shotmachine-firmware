@@ -271,7 +271,7 @@ class InputsOutputs:
             if self.MCPConnected:
                 try:
                     value = self.MCP.input(5)
-                except:
+                except OSError as e:
                     self.logger.warning('No communication with pump module (MCP IO extender)')
                     self.MCPConnected = False
 
