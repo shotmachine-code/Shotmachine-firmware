@@ -206,7 +206,7 @@ class InputsOutputs:
             # Flush pump
             if self.FlushPump:
                 self.logger.info('Spoelen van pomp: ' + str(self.flushnumber))
-                if self.EnableI2COutput:
+                if self.EnableI2COutput and self.MCPConnected:
                     self.MCP.output(self.flushnumber, 0)
                     time.sleep(10)
                     #TODO add possibility to stop on command
