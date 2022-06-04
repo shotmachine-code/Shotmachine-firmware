@@ -9,7 +9,7 @@ from array import array
 dictionaryPins = {}
 dictionaryPinsTkinter = {}
 
-GPIONames=["27","21","16","23","24","4","17","13","21","12","25","6","MCP0","MCP1","MCP2","MCP3","MCP4", "SPISendBuffer", "shotdetector"]
+GPIONames=["27","21","16","23","24","4","17","13","21","12","25","6","MCP0","MCP1","MCP2","MCP3","MCP4","MCP5","SPISendBuffer", "shotdetector"]
 
 BarcodeBuffer = ""
     
@@ -141,6 +141,12 @@ class App(threading.Thread):
                              activeforeground="blue")
         mcp230xx4btn.grid(row=4, column=2, padx=(10, 10))
         dictionaryPinsTkinter["MCP4"] = mcp230xx4btn
+        # Input to check communication with MCP (MCP230xx 5)
+        mcp230xx4btn = Button(text="CommMCP", command="5", padx="1px", pady="1px", bd="0px", fg="blue",
+                              relief="sunken",
+                              activeforeground="blue")
+        mcp230xx4btn.grid(row=5, column=2, padx=(10, 10))
+        dictionaryPinsTkinter["MCP5"] = mcp230xx4btn
 
         # flits licht foto
         flashlightbtn = Button(text="Flits\nlicht", command="4", padx="1px", pady="1px", bd="0px", fg="blue",
@@ -403,7 +409,8 @@ class MCP230XX:
             dictionaryPins[pinname] = objTemp
             drawGPIOOut(pinname)
 
-        elif (state == GPIO.IN):
+        #elif (state == GPIO.IN):
+        elif (state == "input"):
             # set input
             objTemp = PIN("IN")
             if (pull_up_down == -1):
@@ -442,7 +449,7 @@ class MCP230XX:
         drawGPIOOut(channel)
 
 
-    def input(channel):
+    def input(self, channel):
         global dictionaryPins
         channel = str(channel)
 

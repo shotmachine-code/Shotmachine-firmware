@@ -38,7 +38,7 @@ class InputsOutputs:
             self.OnRaspberry = True
         else:
             from Functions.GPIOEmulator.ShotmachineIOEmulator import GPIO
-            from Functions.GPIOEmulator.ShotmachineIOEmulator import MCP230XX
+            #from Functions.GPIOEmulator.ShotmachineIOEmulator import MCP230XX
             from Functions.GPIOEmulator.ShotmachineIOEmulator import SpiDev
             from Functions.GPIOEmulator.ShotmachineIOEmulator import SMBus
             from Functions.GPIOEmulator.ShotmachineIOEmulator import usb_core_emu
@@ -89,22 +89,28 @@ class InputsOutputs:
 
         # init MCP IO extender
         if self.EnableI2COutput:
-            i2cAddress = 0x20
-            self.MCP = MCP230XX('MCP23017', i2cAddress, '16bit')
-            self.MCP.set_mode(0, 'output')
-            self.MCP.output(0, 1)
-            time.sleep(0.1)
-            self.MCP.set_mode(1, 'output')
-            self.MCP.output(1, 1)
-            time.sleep(0.1)
-            self.MCP.set_mode(2, 'output')
-            self.MCP.output(2, 1)
-            time.sleep(0.1)
-            self.MCP.set_mode(3, 'output')
-            self.MCP.output(3, 1)
-            time.sleep(0.1)
-            self.MCP.set_mode(4, 'output')
-            self.MCP.output(4, 1)
+            self.MCPConnected = False
+            self.queueThread = threading.Thread(target=self.MCPCommunication, name='MCPCommunication_thread')
+            self.queueThread.start()
+
+            #i2cAddress = 0x20
+            #self.MCP = MCP230XX('MCP23017', i2cAddress, '16bit')
+            #self.MCP.set_mode(0, 'output')
+            #self.MCP.output(0, 1)
+            #time.sleep(0.1)
+            #self.MCP.set_mode(1, 'output')
+            #self.MCP.output(1, 1)
+            #time.sleep(0.1)
+            #self.MCP.set_mode(2, 'output')
+            #self.MCP.output(2, 1)
+            #time.sleep(0.1)
+            #self.MCP.set_mode(3, 'output')
+            #self.MCP.output(3, 1)
+            #time.sleep(0.1)
+            #self.MCP.set_mode(4, 'output')
+            #self.MCP.output(4, 1)
+            #self.MCP.set_mode(5, 'input')
+            #self.MCP.output(4, 1)
 
         # init I2C bus
         if self.EnableI2COutput:
@@ -173,8 +179,11 @@ class InputsOutputs:
             # Make shot
             if self.makeshot:
                 self.logger.info('Making shot: ' + str(self.shotnumber))
-                if self.EnableI2COutput:
-                    self.MCP.output(self.shotnumber, 0)
+                if self.EnableI2COutput and self.MCPConnected:
+                    try:
+                        self.MCP.output(self.shotnumber, 0)
+                    except OSError:
+                        self.MCPConnected = False
                     if self.shotnumber == 0:
                         time.sleep(5)  # 8
                     elif self.shotnumber == 1:
@@ -185,7 +194,11 @@ class InputsOutputs:
                         time.sleep(5)  # 5
                     elif self.shotnumber == 4:
                         time.sleep(6)  # 4
-                    self.MCP.output(self.shotnumber, 1)
+                    try:
+                        self.MCP.output(self.shotnumber, 1)
+                    except OSError:
+                        self.MCPConnected = False
+
                 self.makeshot = False
                 time.sleep(1)
                 self.ToMainQueue.put("Done with shot")
@@ -223,6 +236,47 @@ class InputsOutputs:
             del self.MCP
             time.sleep(1)
         self.GPIO.cleanup()
+
+    def MCPCommunication(self):
+        if self.OnRaspberry:
+            from Functions.MCP230XX.MCP230XX import MCP230XX
+        else:
+            from Functions.GPIOEmulator.ShotmachineIOEmulator import MCP230XX
+
+        while self.run:
+            if not self.MCPConnected:
+
+                try:
+                    i2cAddress = 0x20
+                    self.MCP = MCP230XX('MCP23017', i2cAddress, '16bit')
+                    self.MCP.set_mode(0, 'output')
+                    self.MCP.output(0, 1)
+                    time.sleep(0.1)
+                    self.MCP.set_mode(1, 'output')
+                    self.MCP.output(1, 1)
+                    time.sleep(0.1)
+                    self.MCP.set_mode(2, 'output')
+                    self.MCP.output(2, 1)
+                    time.sleep(0.1)
+                    self.MCP.set_mode(3, 'output')
+                    self.MCP.output(3, 1)
+                    time.sleep(0.1)
+                    self.MCP.set_mode(4, 'output')
+                    self.MCP.output(4, 1)
+                    self.MCP.set_mode(5, 'input')
+                    self.MCPConnected = True
+                except OSError:
+                    self.MCPConnected = False
+            if self.MCPConnected:
+                try:
+                    value = self.MCP.input(5)
+                except OSError:
+                    self.logger.warning('No communication with pump module (MCP IO extender)')
+                    self.MCPConnected = False
+
+                time.sleep(1)
+
+
 
 
     def barcodeReaderThreat(self):
