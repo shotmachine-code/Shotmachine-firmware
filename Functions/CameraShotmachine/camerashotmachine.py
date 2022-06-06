@@ -225,7 +225,7 @@ class CameraShotmachine:
             self.camera.stop_preview()
 
             # take image using still port (high res, low noise)
-            time.sleep(0.5)
+            time.sleep(0.2)
             # self.camera.capture(self.captured_image, format='bgr', use_video_port=True)
             self.camera.capture(self.captured_image, format='rgb')
 
