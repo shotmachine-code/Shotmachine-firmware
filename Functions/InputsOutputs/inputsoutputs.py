@@ -448,9 +448,13 @@ class InputsOutputs:
         # if self.EnableSPI:
            # self.spi.xfer(string_to_bytes)
         # self.GPIO.output(self.SPISSPin, 0)
+        if state == 2:
+            flashlight_state = 0
+        else:
+            flashlight_state = 1
         if self.EnableI2COutput and self.MCPConnected:
             try:
-                self.MCP.output(5, state)
+                self.MCP.output(5, flashlight_state)
             except OSError as e:
                 self.logger.warning('No communication with flashlight module (MCP IO extender)')
                 self.MCPConnected = False
