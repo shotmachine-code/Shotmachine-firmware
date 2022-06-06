@@ -53,10 +53,10 @@ HandleShotmachine = {
         "EnablePhotoUploader": False, # tja, wat zou dit nou zijn..
         "PartyId": 6, # feest ID, per feest instelbaar
         "MachineId": 1, # niet aanpassen!
-        "EnableShot0": True, # False als pomp 0 niet aan mag, True als deze wel mag
-        "EnableShot1": True, # enz...
-        "EnableShot2": True,
-        "EnableShot3": True,
+        "EnableShot0": False, # False als pomp 0 niet aan mag, True als deze wel mag
+        "EnableShot1": False, # enz...
+        "EnableShot2": False,
+        "EnableShot3": False,
         "EnableShot4": True
     },
     "Hardware": {
