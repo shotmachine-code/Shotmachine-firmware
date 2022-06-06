@@ -16,7 +16,7 @@ class InputsOutputs:
         self.HandleShotmachine = _HandleShotmachine
         self.ToMainQueue = _ToMainQueue
         self.ToIOQueue = _ToIOQueue
-        
+
         # Get needed settings from settings struct
         self.HendelSwitch = self.HandleShotmachine["Hardware"]["HendelSwitch"]
         self.FotoSwitch = self.HandleShotmachine["Hardware"]["FotoSwitch"]
@@ -27,7 +27,7 @@ class InputsOutputs:
         self.ConfigSwitchPin = self.HandleShotmachine["Hardware"]["ConfigSwitch"]
         self.ResetArduinoPin = self.HandleShotmachine["Hardware"]["ResetArduino"]
         self.SPISSPin = self.HandleShotmachine["Hardware"]["SPISSPin"]
-        #self.party_id = self.HandleShotmachine["Settings"]["PartyId"]
+        # self.party_id = self.HandleShotmachine["Settings"]["PartyId"]
 
         # import required libraries depending on the current platform
         if self.HandleShotmachine["Settings"]["OnRaspberry"]:
@@ -38,12 +38,12 @@ class InputsOutputs:
             self.OnRaspberry = True
         else:
             from Functions.GPIOEmulator.ShotmachineIOEmulator import GPIO
-            #from Functions.GPIOEmulator.ShotmachineIOEmulator import MCP230XX
+            # from Functions.GPIOEmulator.ShotmachineIOEmulator import MCP230XX
             from Functions.GPIOEmulator.ShotmachineIOEmulator import SpiDev
             from Functions.GPIOEmulator.ShotmachineIOEmulator import SMBus
             from Functions.GPIOEmulator.ShotmachineIOEmulator import usb_core_emu
             self.OnRaspberry = False
-            
+
         # prepare general variables
         self.makeshot = False
         self.shotnumber = 0
@@ -65,10 +65,9 @@ class InputsOutputs:
         self.run = True
         self.recievebuffer = ''
 
-        #Barcode scanner settings
+        # Barcode scanner settings
         self.barcode_vencor_id = 0xac90
         self.barcode_product_id = 0x3003
-
 
         # init GPIO
         GPIO.setmode(GPIO.BCM)
@@ -80,7 +79,7 @@ class InputsOutputs:
         self.GPIO.setup(self.HendelSwitch, GPIO.IN)
         self.GPIO.setup(self.FotoSwitch, GPIO.IN)
         self.GPIO.setup(self.ConfigSwitchPin, GPIO.IN)
-        
+
         # set GPIO pins
         self.GPIO.output(self.EnableI2COutputPin, 0)
         self.GPIO.output(self.ResetArduinoPin, 0)
@@ -93,24 +92,24 @@ class InputsOutputs:
             self.queueThread = threading.Thread(target=self.MCPCommunication, name='MCPCommunication_thread')
             self.queueThread.start()
 
-            #i2cAddress = 0x20
-            #self.MCP = MCP230XX('MCP23017', i2cAddress, '16bit')
-            #self.MCP.set_mode(0, 'output')
-            #self.MCP.output(0, 1)
-            #time.sleep(0.1)
-            #self.MCP.set_mode(1, 'output')
-            #self.MCP.output(1, 1)
-            #time.sleep(0.1)
-            #self.MCP.set_mode(2, 'output')
-            #self.MCP.output(2, 1)
-            #time.sleep(0.1)
-            #self.MCP.set_mode(3, 'output')
-            #self.MCP.output(3, 1)
-            #time.sleep(0.1)
-            #self.MCP.set_mode(4, 'output')
-            #self.MCP.output(4, 1)
-            #self.MCP.set_mode(5, 'input')
-            #self.MCP.output(4, 1)
+            # i2cAddress = 0x20
+            # self.MCP = MCP230XX('MCP23017', i2cAddress, '16bit')
+            # self.MCP.set_mode(0, 'output')
+            # self.MCP.output(0, 1)
+            # time.sleep(0.1)
+            # self.MCP.set_mode(1, 'output')
+            # self.MCP.output(1, 1)
+            # time.sleep(0.1)
+            # self.MCP.set_mode(2, 'output')
+            # self.MCP.output(2, 1)
+            # time.sleep(0.1)
+            # self.MCP.set_mode(3, 'output')
+            # self.MCP.output(3, 1)
+            # time.sleep(0.1)
+            # self.MCP.set_mode(4, 'output')
+            # self.MCP.output(4, 1)
+            # self.MCP.set_mode(5, 'input')
+            # self.MCP.output(4, 1)
 
         # init I2C bus
         if self.EnableI2COutput:
@@ -126,8 +125,8 @@ class InputsOutputs:
         # start threads
         self.mainThread = threading.Thread(target=self.main_IO_interface, name='IO_main')
         self.mainThread.start()
-        #self.queueThread = threading.Thread(target=self.queue_watcher, name='IO_watcher')
-        #self.queueThread.start()
+        # self.queueThread = threading.Thread(target=self.queue_watcher, name='IO_watcher')
+        # self.queueThread.start()
         self.queueThread = threading.Thread(target=self.checkshotglas, name='Shotglass_watcher')
         self.queueThread.start()
 
@@ -138,44 +137,42 @@ class InputsOutputs:
         # wrap up init
         self.logger.info('Input Output program started')
 
-
     def queue_watcher(self):
         # Watch queue from interface and process commands
-        #self.run = True
-        #while self.run:
-            #if self.recievebuffer == '':
-                try:
-                    self.recievebuffer = self.ToIOQueue.get(block=True, timeout=0.1)
-                    if self.recievebuffer == "Quit":
-                        self.run = False
-                        self.logger.info("IO quit")
-                    elif "MakeShot" in self.recievebuffer:
-                        self.shotnumber = int(self.recievebuffer[-1:])
-                        self.makeshot = True
-                    elif "ShotLeds" in self.recievebuffer:
-                        self.shotLedsState = int(self.recievebuffer[-1:])
-                        self.SetShotLeds = True
-                    elif "Flush" in self.recievebuffer:
-                        self.flushnumber = int(self.recievebuffer[-1:])
-                        self.FlushPump = True
-                    elif "Flashlight" in self.recievebuffer:
-                        self.flashlightState = int(self.recievebuffer[-1:])
-                        self.setflashlight = True
-                    elif "Ready" in self.recievebuffer:
-                        self.busy = False
-                        self.logger.info('Machine ready, checking inputs')
-                    self.recievebuffer = ''
-                except queue.Empty:
-                    pass
-            #time.sleep(0.1)
-
+        # self.run = True
+        # while self.run:
+        # if self.recievebuffer == '':
+        try:
+            self.recievebuffer = self.ToIOQueue.get(block=True, timeout=0.1)
+            if self.recievebuffer == "Quit":
+                self.run = False
+                self.logger.info("IO quit")
+            elif "MakeShot" in self.recievebuffer:
+                self.shotnumber = int(self.recievebuffer[-1:])
+                self.makeshot = True
+            elif "ShotLeds" in self.recievebuffer:
+                self.shotLedsState = int(self.recievebuffer[-1:])
+                self.SetShotLeds = True
+            elif "Flush" in self.recievebuffer:
+                self.flushnumber = int(self.recievebuffer[-1:])
+                self.FlushPump = True
+            elif "Flashlight" in self.recievebuffer:
+                self.flashlightState = int(self.recievebuffer[-1:])
+                self.setflashlight = True
+            elif "Ready" in self.recievebuffer:
+                self.busy = False
+                self.logger.info('Machine ready, checking inputs')
+            self.recievebuffer = ''
+        except queue.Empty:
+            pass
+        # time.sleep(0.1)
 
     def main_IO_interface(self):
         # Main loop that executes the commands
         while self.run:
             # Check queue from main program
             self.queue_watcher()
-            
+
             # Make shot
             if self.makeshot:
                 self.logger.info('Making shot: ' + str(self.shotnumber))
@@ -209,7 +206,7 @@ class InputsOutputs:
                 if self.EnableI2COutput and self.MCPConnected:
                     self.MCP.output(self.flushnumber, 0)
                     time.sleep(10)
-                    #TODO add possibility to stop on command
+                    # TODO add possibility to stop on command
                     self.MCP.output(self.flushnumber, 1)
                 self.FlushPump = False
                 time.sleep(1)
@@ -219,7 +216,7 @@ class InputsOutputs:
             if self.setflashlight:
                 self.setflashlightfunc(self.flashlightState)
                 self.setflashlight = False
-                
+
             # Change shot leds state
             if self.SetShotLeds:
                 self.setShotLedsfunc(self.shotLedsState)
@@ -229,8 +226,8 @@ class InputsOutputs:
             if not self.busy:
                 self.checkshothandle()
                 self.checkfotoknop()
-                #self.checkArduinoReset()
-        
+                # self.checkArduinoReset()
+
         # cleanup GPIO and pumps and close program 
         if self.EnableI2COutput:
             del self.MCP
@@ -246,8 +243,7 @@ class InputsOutputs:
 
         while self.run:
             if not self.MCPConnected:
-
-                #try:
+                # try:
                 with suppress(OSError):
                     i2cAddress = 0x20
                     self.MCP = MCP230XX('MCP23017', i2cAddress, '16bit')
@@ -265,22 +261,21 @@ class InputsOutputs:
                     time.sleep(0.1)
                     self.MCP.set_mode(4, 'output')
                     self.MCP.output(4, 1)
-                    self.MCP.set_mode(5, 'input')
+                    self.MCP.set_mode(5, 'output')
+                    self.MCP.output(5, 1)
+                    self.MCP.set_mode(6, 'input')
                     self.MCPConnected = True
-                #except OSError as e:
-                    #self.MCPConnected = False
-                    #self.logger.warning('Failed to get communication back with MCP)')
+                # except OSError as e:
+                # self.MCPConnected = False
+                # self.logger.warning('Failed to get communication back with MCP)')
             if self.MCPConnected:
                 try:
-                    value = self.MCP.input(5)
+                    value = self.MCP.input(6)
                 except OSError as e:
                     self.logger.warning('No communication with pump module (MCP IO extender)')
                     self.MCPConnected = False
 
             time.sleep(1)
-
-
-
 
     def barcodeReaderThreat(self):
         # import required libraries for barcode scanner
@@ -292,7 +287,7 @@ class InputsOutputs:
             usb_core = usb_core_emu()
 
         # make usb connection to scanner
-        #if self.EnableBarcodeScanner:
+        # if self.EnableBarcodeScanner:
         self.device = usb_core.find(idVendor=self.barcode_vencor_id, idProduct=self.barcode_product_id)
         self.usbEndpointEmu = namedtuple("usbEndpointEmu", "bEndpointAddress wMaxPacketSize")
 
@@ -322,7 +317,7 @@ class InputsOutputs:
                     # Barcode scanner in emulator mode
                     self.logger.info("Barcode scanner in emulation mode")
                     connected = True
-                    endpoint = self.usbEndpointEmu(bEndpointAddress = None, wMaxPacketSize=None)
+                    endpoint = self.usbEndpointEmu(bEndpointAddress=None, wMaxPacketSize=None)
 
                 while self.run and connected and self.OnRaspberry:
                     # check usb connection for messages and convert to barcode
@@ -333,14 +328,14 @@ class InputsOutputs:
                             read_number = int(read_string)
                         except:
                             read_number = None
-                        if read_number != None:
+                        if read_number is not None:
                             self.logger.info("Barcode scanned: " + str(read_number))
                             self.ToMainQueue.put("Barcode:" + str(read_number))
 
                     except usb_core.USBError as e:
                         # error in checking messsages from scanner
                         data = None
-                        if e.errno == 110: 
+                        if e.errno == 110:
                             # timeout, just keep checking
                             continue
                         if e.errno == 19:
@@ -348,7 +343,7 @@ class InputsOutputs:
                             self.logger.warning("Connection to barode scanner lost, closed connection if software")
                             connected = False
                             break
-                            
+
                 while self.run and connected and not self.OnRaspberry:
                     # Emulator barcode scanner
                     try:
@@ -358,7 +353,7 @@ class InputsOutputs:
                             read_number = int(read_string)
                         except:
                             read_number = None
-                        if read_number != None:
+                        if read_number is not None:
                             self.logger.info("Barcode scanned: " + str(read_number))
                             self.ToMainQueue.put("Barcode:" + str(read_number))
                     except Exception as e:
@@ -373,7 +368,6 @@ class InputsOutputs:
                 usb_util.release_interface(self.device, 0)
             self.logger.info("Closed barcode scanner reader")
 
-
     def checkshothandle(self):
         # Controleer de sensor van de hendel
         self.ShotHendelState = self.GPIO.input(self.HendelSwitch)
@@ -384,7 +378,6 @@ class InputsOutputs:
             self.busy = True
         if not self.ShotHendelState:
             self.ShotHendelSend = False
-
 
     def checkArduinoReset(self):
         # reset function fro arduino, work in progress
@@ -401,7 +394,6 @@ class InputsOutputs:
             if not self.ConfigSwitchState:
                 self.ConfigSwitchStateSend = False
 
-
     def checkfotoknop(self):
         # Controleer fotoknop
         if self.HandleShotmachine["Settings"]["OnRaspberry"]:
@@ -417,7 +409,6 @@ class InputsOutputs:
         if not self.FotoKnopState:
             self.FotoKnopSend = False
 
-
     def checkshotglas(self):
         # check Ultrasonic sensor for shotglass detector, takes some time therefore in a separate thread
         while self.run:
@@ -432,8 +423,8 @@ class InputsOutputs:
                     # print("error in i2c")
                     measuredRange = 23
                 if (measuredRange != 7) or (measuredRange != 110):
-                    #print(measuredRange)
-                    if measuredRange < 26: #25:
+                    # print(measuredRange)
+                    if measuredRange < 26:  # 25:
                         self.CheckShotglass = True
                     else:
                         self.CheckShotglass = False
@@ -446,24 +437,28 @@ class InputsOutputs:
                     self.logger.info('shotglas status changed to: ' + str(int(self.CheckShotglass)))
                     self.ToMainQueue.put("ShotglassState " + str(int(self.CheckShotglass)))
                     self.shotglass = self.CheckShotglass
-                    
 
     def setflashlightfunc(self, state):
         # change flashlight mode by sending mode to arduino that controls the leds
         self.logger.info('changing flashlight state to: ' + str(state))
-        string_to_send = "state;"+ str(state) + "\n"
-        string_to_bytes = str.encode(string_to_send)
-        self.GPIO.output(self.SPISSPin, 1)
-        time.sleep(0.03)
-        if self.EnableSPI:
-            self.spi.xfer(string_to_bytes)
-        self.GPIO.output(self.SPISSPin, 0)
-        
-        
+        # string_to_send = "state;" + str(state) + "\n"
+        # string_to_bytes = str.encode(string_to_send)
+        # self.GPIO.output(self.SPISSPin, 1)
+        # time.sleep(0.03)
+        # if self.EnableSPI:
+           # self.spi.xfer(string_to_bytes)
+        # self.GPIO.output(self.SPISSPin, 0)
+        if self.EnableI2COutput and self.MCPConnected:
+            try:
+                self.MCP.output(5, state)
+            except OSError as e:
+                self.logger.warning('No communication with flashlight module (MCP IO extender)')
+                self.MCPConnected = False
+
     def setShotLedsfunc(self, state):
         # change leds in shothok by sensing mode to arduino that controls the leds
         self.logger.info('changing shot leds state to: ' + str(state))
-        string_to_send = "shot;"+ str(state) + "\n"
+        string_to_send = "shot;" + str(state) + "\n"
         string_to_bytes = str.encode(string_to_send)
         self.GPIO.output(self.SPISSPin, 1)
         time.sleep(0.03)

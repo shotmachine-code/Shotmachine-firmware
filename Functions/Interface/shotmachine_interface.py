@@ -1,4 +1,3 @@
-
 import pygame
 import os
 import threading
@@ -14,7 +13,7 @@ from Functions.CameraShotmachine import camerashotmachine
 from Functions.Database import database_connection
 
 
-class Shotmachine_Interface():
+class ShotmachineInterface:
 
     def __init__(self, name, to_interface_queue, from_interface_queue, HandleShotmachine):
         self.name = name
@@ -22,8 +21,8 @@ class Shotmachine_Interface():
         self.From_interface = from_interface_queue
         self.HandleShotmachine = HandleShotmachine
         self.state = 'Boot'
-        self.recievebuffer = ''
-        self.sendbuffer = ''
+        self.ReceiveBuffer = ''
+        self.SendBuffer = ''
         self.run = True
         pygame.font.init()
         self.myfont = pygame.font.SysFont('freesansbold.ttf', 30)
@@ -35,7 +34,7 @@ class Shotmachine_Interface():
         self.NoUserTextBlack = False
         self.NoUserTextFlashCounter = 0
 
-        #self.OperationMode = "PhotoBooth"
+        # self.OperationMode = "PhotoBooth"
         self.OperationMode = "Shotmachine"
 
         self.TakenPhotosDir = 'TakenImages/NotUploaded'
@@ -44,32 +43,30 @@ class Shotmachine_Interface():
 
         self.EnableBarcodeScanner = self.HandleShotmachine["Settings"]["EnableBarcodeScanner"]
 
-        self.thread = threading.Thread(target=self.queue_watcher,name='Interface_queue_watcher')
+        self.thread = threading.Thread(target=self.queue_watcher, name='Interface_queue_watcher')
         self.thread.start()
 
         self.thread = threading.Thread(target=self.interfaceMain, name=self.name)
         self.thread.start()
 
-
     def queue_watcher(self):
         while self.run:
-            if self.recievebuffer == '':
+            if self.ReceiveBuffer == '':
                 try:
-                    self.recievebuffer = self.To_interface.get(block=True, timeout=0.1)
+                    self.ReceiveBuffer = self.To_interface.get(block=True, timeout=0.1)
                 except queue.Empty:
                     pass
             time.sleep(0.1)
-
 
     def button(self, msg, x, y, w, h, ic, ac, action=None, PumpNumber=-1):
         mouse = pygame.mouse.get_pos()
         click = pygame.mouse.get_pressed()
         if x + w > mouse[0] > x and y + h > mouse[1] > y:
             buttoncolor = ac
-            if click[0] == 1 and action != None and PumpNumber == -1: # Wifi config
+            if click[0] == 1 and action is not None and PumpNumber == -1:  # Wifi config
                 action()
                 time.sleep(2)
-            if click[0] == 1 and action != None and PumpNumber != -1: # een van de spoelknoppen
+            if click[0] == 1 and action is not None and PumpNumber != -1:  # een van de spoelknoppen
                 action(PumpNumber)
                 time.sleep(2)
         else:
@@ -80,14 +77,13 @@ class Shotmachine_Interface():
         self.screen.blit(textSurf, textRect)
         return textRect
 
-    def FlushPump(self, number):
-        self.From_interface.put('Flush:'+str(number))
-
+    def flush_pump(self, number):
+        self.From_interface.put('Flush:' + str(number))
 
     def load_main_screen(self):
         self.screen.fill(self.BLACK)
         self.screen.blit(self.background_image, [0, 0])
-        FullScreenRect = pygame.Rect(0, 0, self.screeninfo.current_w , self.screeninfo.current_h)
+        FullScreenRect = pygame.Rect(0, 0, self.screeninfo.current_w, self.screeninfo.current_h)
         pygame.display.update(FullScreenRect)
         boundingboxes = []
         number = randint(1, 100)
@@ -103,41 +99,41 @@ class Shotmachine_Interface():
     def load_photobooth_screen(self):
         self.screen.fill(self.BLACK)
         self.screen.blit(self.background_image, [0, 0])
-        FullScreenRect = pygame.Rect(0, 0, self.screeninfo.current_w , self.screeninfo.current_h)
+        FullScreenRect = pygame.Rect(0, 0, self.screeninfo.current_w, self.screeninfo.current_h)
         pygame.display.update(FullScreenRect)
 
-        self.update_photoBoothPicture(1, True, True)
+        self.update_photobooth_picture(1, True, True)
 
-        #self.update_photoBoothPicture(2, False)
-        #self.timer_PhotoBoothPhotoRefresh_2 = Timer(6.3, self.update_photoBoothPicture, [2, True])
-        #self.timer_PhotoBoothPhotoRefresh_2.start()
+        # self.update_photoBoothPicture(2, False)
+        # self.timer_PhotoBoothPhotoRefresh_2 = Timer(6.3, self.update_photoBoothPicture, [2, True])
+        # self.timer_PhotoBoothPhotoRefresh_2.start()
 
-        #self.timer_PhotoBoothPhoto1Refresh.cancel()
+        # self.timer_PhotoBoothPhoto1Refresh.cancel()
 
         self.logger.info('Photobooth screen loaded')
 
-    def update_photoBoothPicture(self, Position, _StartTimer, _ReloadFilelist):
+    def update_photobooth_picture(self, Position, _StartTimer, _ReloadFilelist):
         if _ReloadFilelist or len(self.FileList) == 0:
-            #print("Reload filelist")
+            # print("Reload file list")
             self.FileList = sorted(os.listdir(self.TakenPhotosDir))
         if len(self.FileList) != 0:
             if not self.showLastImage:
-                PhotoNumber = randint(0, len(self.FileList)-1)
+                PhotoNumber = randint(0, len(self.FileList) - 1)
             else:
                 PhotoNumber = len(self.FileList) - 1
                 self.showLastImage = False
-        
+
             PhotoPath = os.path.join(self.TakenPhotosDir, self.FileList[PhotoNumber])
             PhotoSurface = pygame.image.load(PhotoPath).convert()
-            PictureSize = (1280, 720) #(845, 475)
+            PictureSize = (1280, 720)  # (845, 475)
             PhotoSurfaceScaled = pygame.transform.scale(PhotoSurface, PictureSize)
             PhotoRect = PhotoSurfaceScaled.get_rect()
             if Position == 1:
-                PhotoRect.center = (700, 400) #(500, 250)
+                PhotoRect.center = (700, 400)  # (500, 250)
             elif Position == 2:
-                PhotoRect.center = (1420, 280) #(1420, 280)
+                PhotoRect.center = (1420, 280)  # (1420, 280)
             elif Position == 3:
-                PhotoRect.center = (960, 780) #(960, 780)
+                PhotoRect.center = (960, 780)  # (960, 780)
             else:
                 PhotoRect.center = (0, 0)
 
@@ -146,15 +142,14 @@ class Shotmachine_Interface():
 
         if _StartTimer:
             if Position == 1:
-                self.timer_PhotoBoothPhotoRefresh_1 = Timer(8, self.update_photoBoothPicture, [1, True, False]) #20
+                self.timer_PhotoBoothPhotoRefresh_1 = Timer(8, self.update_photobooth_picture, [1, True, False])  # 20
                 self.timer_PhotoBoothPhotoRefresh_1.start()
             elif Position == 2:
-                self.timer_PhotoBoothPhotoRefresh_2 = Timer(20, self.update_photoBoothPicture, [2, True, False])
+                self.timer_PhotoBoothPhotoRefresh_2 = Timer(20, self.update_photobooth_picture, [2, True, False])
                 self.timer_PhotoBoothPhotoRefresh_2.start()
             elif Position == 3:
-                self.timer_PhotoBoothPhotoRefresh_3 = Timer(20, self.update_photoBoothPicture, [3, True, False])
+                self.timer_PhotoBoothPhotoRefresh_3 = Timer(20, self.update_photobooth_picture, [3, True, False])
                 self.timer_PhotoBoothPhotoRefresh_3.start()
-
 
     def load_live_camera_screen(self):
         # stop photoboot function if needed
@@ -171,16 +166,15 @@ class Shotmachine_Interface():
         self.logger.info('Live camera screen')
         self.imageSurf = self.camera.read_small()
         self.cameraImageRect = self.imageSurf.get_rect()
-        self.cameraImageRect.center = (self.screeninfo.current_w /2 , self.screeninfo.current_h /2)
+        self.cameraImageRect.center = (self.screeninfo.current_w / 2, self.screeninfo.current_h / 2)
         self.screen.blit(self.imageSurf, self.cameraImageRect)
         self.CameraTimeToGoPrev = 0
         self.updatelist.append(self.cameraImageRect)
 
-
     def load_picture_screen(self):
         self.screen.fill(self.WHITE)
         pygame.display.update()
-        #image = self.camera.getimage() #CSI
+        # image = self.camera.getimage() #CSI
         Picture = self.camera.read_full()
         PictureRect = Picture.get_rect()
         PictureRect.center = (self.screeninfo.current_w / 2, self.screeninfo.current_h / 2)
@@ -196,13 +190,12 @@ class Shotmachine_Interface():
             self.From_interface.put('Taken Image:' + imagename)
         self.logger.info('Taken picture screen')
 
- 
     def Update_camera(self):
         self.imageSurf = self.camera.read_small()
         self.screen.blit(self.imageSurf, self.cameraImageRect)
         self.updatelist.append(self.cameraImageRect)
 
-        CameraTimeToGo = round(self.cameraLiveTime - (time.time() - self.CameraStartTime) +0.5)
+        CameraTimeToGo = round(self.cameraLiveTime - (time.time() - self.CameraStartTime) + 0.5)
         if CameraTimeToGo != self.CameraTimeToGoPrev:
             textsurface = self.CountdownFont.render(str(CameraTimeToGo), False, self.BLACK, self.WHITE)
             textRectL = textsurface.get_rect()
@@ -213,45 +206,44 @@ class Shotmachine_Interface():
             self.screen.blit(textsurface, textRectR)
             self.updatelist.append(textRectL)
             self.updatelist.append(textRectR)
-            self.CameraTimeToGoPrev = CameraTimeToGo       
-        
-        
+            self.CameraTimeToGoPrev = CameraTimeToGo
+
     def Prepare_camera_photo(self):
         self.camera.switch_to_full()
         self.screen.fill(self.WHITE)
         screenRect = self.screen.get_rect()
         self.updatelist.append(screenRect)
- 
 
     def load_config_screen(self):
         self.screen.fill(self.GRAY)
         try:
             CPUtemp_raw = psutil.sensors_temperatures()
-            cputemp = str(CPUtemp_raw['cpu-thermal'][0].current).encode("utf-8").decode("utf-8")
-        except (KeyError, AttributeError):
             try:
+                cputemp = str(CPUtemp_raw['cpu-thermal'][0].current).encode("utf-8").decode("utf-8")
+            except (KeyError, AttributeError):
                 cputemp = str(CPUtemp_raw['coretemp'][0].current).encode("utf-8").decode("utf-8")
-            except:
-                cputemp = "error"
+        except (KeyError, AttributeError):
+            cputemp = "error"
+
+
+
         cputemp_surface = self.myfont.render(cputemp, False, (0, 0, 0))
-        self.screen.blit(cputemp_surface,(100,100))
+        self.screen.blit(cputemp_surface, (100, 100))
 
         last_sync = self.db_conn.getLastSyncTime()
         lastSyncMessage_surf = self.myfont.render("last db sync: " + str(last_sync), False, (0, 0, 0))
         self.screen.blit(lastSyncMessage_surf, (100, 200))
-        
+
         quitmessage_surf = self.myfont.render('press q to quit', False, (0, 0, 0))
-        self.screen.blit(quitmessage_surf,(300,100))
+        self.screen.blit(quitmessage_surf, (300, 100))
 
         backmessage_surf = self.myfont.render('press b to go back to normal screen', False, (0, 0, 0))
         self.screen.blit(backmessage_surf, (300, 130))
-        
-        pygame.display.update()
 
+        pygame.display.update()
 
     def start_WIFI_config(self):
         subprocess.Popen("wicd-client")
-
 
     def ShotglassSimbol(self):
         if self.current_screen == 'main':
@@ -270,7 +262,6 @@ class Shotmachine_Interface():
                 shotImagesurfRect.center = (self.screeninfo.current_w - 200, self.screeninfo.current_h - 150)
                 self.screen.blit(shotImagesurf, shotImagesurfRect)
                 self.updatelist.append(shotImagesurfRect)
-            
 
     def CameraSimbol(self):
         if self.current_screen == 'main':
@@ -286,33 +277,29 @@ class Shotmachine_Interface():
                 self.screen.blit(shotImagesurf, shotImagesurfRect)
                 self.updatelist.append(shotImagesurfRect)
 
-
     def update_timeoutBarcode(self):
         curr_time = time.time()
-        progress = 1-((curr_time - self.timeout_start)/self.CurrentTimeoutValue)
+        progress = 1 - ((curr_time - self.timeout_start) / self.CurrentTimeoutValue)
         progressbarRect_back = pygame.Rect(0, self.screeninfo.current_h - 300, self.screeninfo.current_w, 50)
         progressbarSurf_back = pygame.draw.rect(self.screen, (0, 0, 0, 0), progressbarRect_back)
         if progress >= 0:
-            progressbarRect = pygame.Rect(0, self.screeninfo.current_h - 300, round(self.screeninfo.current_w*progress), 50)
+            progressbarRect = pygame.Rect(0, self.screeninfo.current_h - 300,
+                                          round(self.screeninfo.current_w * progress), 50)
             progressbarSurf = pygame.draw.rect(self.screen, self.WHITE, progressbarRect)
         elif (progress < 0) and not (self.currentUser == ""):
             self.UserTimeout()
         return progressbarRect_back
 
-
     def reset_timeoutBarcode(self):
         self.timeout_start = time.time()
         self.CurrentTimeoutValue = self.timeoutValue
-
 
     def reset_timeoutBarcodeAfterPhoto(self):
         self.timeout_start = time.time()
         self.CurrentTimeoutValue = self.timeoutValuePhoto
 
-
     def stop_timeoutBarcode(self):
         self.timeout_start = time.time() - self.timeoutValue
-
 
     def newUserScanned(self):
         # cancel flashing text if needed
@@ -323,7 +310,7 @@ class Shotmachine_Interface():
 
         ChangedName = self.db_conn.getOnlineLogin(self.currentBarcode)
 
-        textboxRect = pygame.Rect(275, self.screeninfo.current_h - 250, self.screeninfo.current_w-550, 250)
+        textboxRect = pygame.Rect(275, self.screeninfo.current_h - 250, self.screeninfo.current_w - 550, 250)
         textboxSurf = pygame.draw.rect(self.screen, (0, 0, 0, 0), textboxRect)
         self.updatelist.append(textboxRect)
 
@@ -353,29 +340,27 @@ class Shotmachine_Interface():
             maintextRect.center = (self.screeninfo.current_w // 2, self.screeninfo.current_h - 150)
             self.screen.blit(maintext, maintextRect)
             self.updatelist.append(maintextRect)
-        
+
         self.CameraSimbol()
         self.ShotglassSimbol()
-        
-        #self.reset_timeoutBarcode()
 
+        # self.reset_timeoutBarcode()
 
     def UserTimeout(self):
         self.currentUser = ""
         self.NoUserText()
 
-
     def NoUserText(self):
         if self.OperationMode == "Shotmachine" and self.current_screen == 'main':
-            textboxRect = pygame.Rect(275, self.screeninfo.current_h - 250, self.screeninfo.current_w-550, 250)
+            textboxRect = pygame.Rect(275, self.screeninfo.current_h - 250, self.screeninfo.current_w - 550, 250)
             textboxSurf = pygame.draw.rect(self.screen, (0, 0, 0, 0), textboxRect)
             self.updatelist.append(textboxRect)
 
             if self.EnableBarcodeScanner:
 
                 if self.NoUserTextFlash == True:
-                    self.NoUserTextFlashCounter = self.NoUserTextFlashCounter+1
-                    #print(self.NoUserTextFlashCounter)
+                    self.NoUserTextFlashCounter = self.NoUserTextFlashCounter + 1
+                    # print(self.NoUserTextFlashCounter)
                     if self.NoUserTextFlashCounter < 10:
 
                         if self.NoUserTextBlack:
@@ -396,7 +381,7 @@ class Shotmachine_Interface():
                     self.NoUserTextFlash = True
                     self.NoUserTextBlack = False
                     self.NoUserTextFlashCounter = 0
-                    #self.NoUserTextTimer.cancel()
+                    # self.NoUserTextTimer.cancel()
                     self.NoUserTextTimer = Timer(0.5, self.NoUserText)
                     self.NoUserTextTimer.start()
 
@@ -416,11 +401,10 @@ class Shotmachine_Interface():
 
     def FlashNoUserText(self):
         if self.OperationMode == "Shotmachine" and self.current_screen == 'main':
-            textboxRect = pygame.Rect(275, self.screeninfo.current_h - 250, self.screeninfo.current_w-550, 250)
+            textboxRect = pygame.Rect(275, self.screeninfo.current_h - 250, self.screeninfo.current_w - 550, 250)
             textboxSurf = pygame.draw.rect(self.screen, (0, 0, 0, 0), textboxRect)
             self.updatelist.append(textboxRect)
             if self.EnableBarcodeScanner and self.currentTextMessage == 'Scan je bandje':
-
                 self.text = self.textfont.render('Scan je bandje', True, self.WHITE, self.BLACK)
                 self.textRect = self.text.get_rect()
                 self.textRect.center = (self.screeninfo.current_w // 2, self.screeninfo.current_h - 200)
@@ -429,7 +413,6 @@ class Shotmachine_Interface():
             self.ShotglassSimbol()
             self.CameraSimbol()
         self.From_interface.put('NoUser')
-
 
     def DisplayMissingShotglass(self):
         if self.current_screen == 'main':
@@ -449,7 +432,6 @@ class Shotmachine_Interface():
             timer_missingShotglass = Timer(10, self.ResetMissingShotglass)
             timer_missingShotglass.start()
 
-
     def ResetMissingShotglass(self):
         if self.currentTextMessage == "Zet eerst een shotglaasje neer":
             if self.currentUser != "":
@@ -457,7 +439,6 @@ class Shotmachine_Interface():
                 self.reset_timeoutBarcode()
             else:
                 self.NoUserText()
-
 
     def run_rollers(self):
         self.roller1.start_roller(self.rollerspeed)
@@ -475,11 +456,10 @@ class Shotmachine_Interface():
 
         self.logger.info('Starting rollers')
 
-
     def interfaceMain(self):
         # Define some colors
         self.BLACK = (0, 0, 0)
-        self.GRAY = (100,100,100)
+        self.GRAY = (100, 100, 100)
         self.WHITE = (255, 255, 255)
         self.GREEN = (0, 255, 0)
         self.RED = (255, 0, 0)
@@ -491,11 +471,11 @@ class Shotmachine_Interface():
         Roll_Images_dir = 'Functions/Interface/Images/Roll_images'
         Background_image_dir = 'Functions/Interface/Images/background_image'
         Appname = "Shotmachine Interface"
-        self.rollerspeed = 50           # defines how fast the rollers move before stopped
-        self.cameraLiveTime = 5         # duration in seocnds before picture is taken
-        self.cameraPictureTime = 5      # amount of seconds the picture is shown
-        self.timeoutValue = 20          # amount of seconds before the user is kicked out
-        self.timeoutValuePhoto = 5      # amount of seconds before the user is kicked out after a photo
+        self.rollerspeed = 50  # defines how fast the rollers move before stopped
+        self.cameraLiveTime = 5  # duration in seocnds before picture is taken
+        self.cameraPictureTime = 5  # amount of seconds the picture is shown
+        self.timeoutValue = 20  # amount of seconds before the user is kicked out
+        self.timeoutValuePhoto = 5  # amount of seconds before the user is kicked out after a photo
 
         # Init some system variables, do not change those
         self.shotglassStatus = False
@@ -520,20 +500,22 @@ class Shotmachine_Interface():
         pygame.init()
         self.screeninfo = pygame.display.Info()
         self.screensize = [self.screeninfo.current_w, self.screeninfo.current_h]
-        self.screen = pygame.display.set_mode(self.screensize, (pygame.DOUBLEBUF|pygame.HWSURFACE))
-        #self.screen = pygame.display.set_mode((0,0), (pygame.FULLSCREEN|pygame.DOUBLEBUF|pygame.HWSURFACE))
-        
+        self.screen = pygame.display.set_mode(self.screensize, (pygame.DOUBLEBUF | pygame.HWSURFACE))
+        # self.screen = pygame.display.set_mode((0,0), (pygame.FULLSCREEN|pygame.DOUBLEBUF|pygame.HWSURFACE))
+
         self.logger.info("Set screensize to: " + str(self.screensize[0]) + "x" + str(self.screensize[1]))
         pygame.display.set_caption(Appname)
         clock = pygame.time.Clock()
         background_file = os.listdir(Background_image_dir)
         background_path = os.path.join(Background_image_dir, background_file[0])
-        self.background_image = pygame.transform.smoothscale(pygame.image.load(background_path).convert(), self.screensize)
+        self.background_image = pygame.transform.smoothscale(pygame.image.load(background_path).convert(),
+                                                             self.screensize)
 
         # Init camera
-        self.camera = camerashotmachine.CameraShotmachine(storagepath = self.TakenPhotosDir, HandleShotmachine = self.HandleShotmachine)
+        self.camera = camerashotmachine.CameraShotmachine(storagepath=self.TakenPhotosDir,
+                                                          HandleShotmachine=self.HandleShotmachine)
         self.cameraSwitchedToPhoto = False
-        
+
         # Init rollers
         self.roller1 = Roller(Roll_1_posx, Roll_posy, Roll_height, Roll_width, Roll_Images_dir)
         self.roller2 = Roller(Roll_2_posx, Roll_posy, Roll_height, Roll_width, Roll_Images_dir)
@@ -556,15 +538,15 @@ class Shotmachine_Interface():
 
         # -------- Main Program Loop -----------
         while self.run:
-            if not self.recievebuffer == '' and not self.current_screen == 'config':
-                if self.recievebuffer == 'Take_picture':
+            if not self.ReceiveBuffer == '' and not self.current_screen == 'config':
+                if self.ReceiveBuffer == 'Take_picture':
                     if ((self.EnableBarcodeScanner and not (self.currentUser == "")) or not self.EnableBarcodeScanner):
                         self.load_live_camera_screen()
                         self.current_screen = 'livecamera'
                     else:
                         self.NoUserText()
                         self.logger.warning("Photo requested, but no user scanned and barcode is enabled")
-                elif self.recievebuffer == 'Start_roll' and self.current_screen == 'main':
+                elif self.ReceiveBuffer == 'Start_roll' and self.current_screen == 'main':
                     if ((self.EnableBarcodeScanner and not (self.currentUser == "")) or not self.EnableBarcodeScanner):
                         if self.shotglassStatus:
                             self.logger.info('Start roll')
@@ -577,23 +559,23 @@ class Shotmachine_Interface():
                     else:
                         self.NoUserText()
                         self.logger.warning("Shot requested, but no user scanned and barcode is enabled")
-                elif "New_User:" in self.recievebuffer:
-                    self.currentBarcode = self.recievebuffer.split(':')[2]
-                    self.currentUser = self.recievebuffer.split(':')[3]
+                elif "New_User:" in self.ReceiveBuffer:
+                    self.currentBarcode = self.ReceiveBuffer.split(':')[2]
+                    self.currentUser = self.ReceiveBuffer.split(':')[3]
                     if self.EnableBarcodeScanner:
                         self.newUserScanned()
                         self.reset_timeoutBarcode()
-                elif "Shotglass:" in self.recievebuffer:
-                    self.shotglassStatus = bool(int(self.recievebuffer[-1:]))
+                elif "Shotglass:" in self.ReceiveBuffer:
+                    self.shotglassStatus = bool(int(self.ReceiveBuffer[-1:]))
                     self.ShotglassSimbol()
                     if self.shotglassStatus:
                         self.ResetMissingShotglass()
-                elif 'Missing_Shotglass' in self.recievebuffer:
+                elif 'Missing_Shotglass' in self.ReceiveBuffer:
                     self.DisplayMissingShotglass()
                 else:
-                    self.logger.info("Unknown command from interface " + self.recievebuffer)
+                    self.logger.info("Unknown command from interface " + self.ReceiveBuffer)
                     self.From_interface.put('Cant_make_shot')
-                self.recievebuffer = ''
+                self.ReceiveBuffer = ''
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -604,9 +586,9 @@ class Shotmachine_Interface():
                     if event.key == 32:  # Space
                         self.load_config_screen()
                         self.current_screen = 'config'
-                    if event.key == 115: # s
-                        self.From_interface.put("Shothendel") 
-                    if event.key == 102: # f
+                    if event.key == 115:  # s
+                        self.From_interface.put("Shothendel")
+                    if event.key == 102:  # f
                         self.From_interface.put("Fotoknop")
                     if event.key == 113 and self.current_screen == 'config':  # q
                         self.From_interface.put('Quit')
@@ -629,20 +611,26 @@ class Shotmachine_Interface():
                 self.updatelist.append(self.update_timeoutBarcode())
 
             if self.current_screen == 'config':
-                self.updatelist.append(self.button("Wifi settings", 150, 250, 150, 50, self.RED, self.GREEN, self.start_WIFI_config))
-                self.updatelist.append(self.button("Spoel pomp 0", 400, 250, 150, 50, self.RED, self.GREEN, self.FlushPump, 0))
-                self.updatelist.append(self.button("Spoel pomp 1", 400, 300, 150, 50, self.RED, self.GREEN, self.FlushPump, 1))
-                self.updatelist.append(self.button("Spoel pomp 2", 400, 350, 150, 50, self.RED, self.GREEN, self.FlushPump, 2))
-                self.updatelist.append(self.button("Spoel pomp 3", 400, 400, 150, 50, self.RED, self.GREEN, self.FlushPump, 3))
-                self.updatelist.append(self.button("Spoel pomp 4", 400, 450, 150, 50, self.RED, self.GREEN, self.FlushPump, 4))
-                
+                self.updatelist.append(
+                    self.button("Wifi settings", 150, 250, 150, 50, self.RED, self.GREEN, self.start_WIFI_config))
+                self.updatelist.append(
+                    self.button("Spoel pomp 0", 400, 250, 150, 50, self.RED, self.GREEN, self.flush_pump, 0))
+                self.updatelist.append(
+                    self.button("Spoel pomp 1", 400, 300, 150, 50, self.RED, self.GREEN, self.flush_pump, 1))
+                self.updatelist.append(
+                    self.button("Spoel pomp 2", 400, 350, 150, 50, self.RED, self.GREEN, self.flush_pump, 2))
+                self.updatelist.append(
+                    self.button("Spoel pomp 3", 400, 400, 150, 50, self.RED, self.GREEN, self.flush_pump, 3))
+                self.updatelist.append(
+                    self.button("Spoel pomp 4", 400, 450, 150, 50, self.RED, self.GREEN, self.flush_pump, 4))
+
             if self.current_screen == 'livecamera':
                 self.CameraRunTime = time.time() - self.CameraStartTime
-                
+
                 if self.CameraRunTime + 0.5 > self.cameraLiveTime:
                     self.current_screen = 'picture'
                     self.load_picture_screen()
-                elif self.CameraRunTime+0.8 > self.cameraLiveTime:
+                elif self.CameraRunTime + 0.8 > self.cameraLiveTime:
                     if not self.cameraSwitchedToPhoto:
                         self.cameraSwitchedToPhoto = True
                         self.Prepare_camera_photo()
@@ -653,25 +641,25 @@ class Shotmachine_Interface():
             if self.current_screen == 'picture':
                 showtime_elapsed = time.time() - self.start_showtime
                 if showtime_elapsed > self.cameraPictureTime:
-                    #self.load_main_screen()
-                    #self.current_screen = 'main'
+                    # self.load_main_screen()
+                    # self.current_screen = 'main'
                     if self.OperationMode == "Shotmachine":
                         self.load_main_screen()
                         self.current_screen = 'main'
                     elif self.OperationMode == "PhotoBooth":
                         self.load_photobooth_screen()
                         self.current_screen = 'PhotoBooth'
-                    
+
                     if not self.EnableBarcodeScanner:
                         self.NoUserText()
                         self.stop_timeoutBarcode()
                     else:
                         self.newUserScanned()
                         self.reset_timeoutBarcodeAfterPhoto()
-                
+
             # Limit to 60 frames per second
             clock.tick(60)
-            #print(clock.get_fps())
+            # Print(clock.get_fps())
 
             # Update the screen with what has changed.
             pygame.display.update(self.updatelist)
