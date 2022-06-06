@@ -630,7 +630,7 @@ class ShotmachineInterface:
                 if self.CameraRunTime + 0.5 > self.cameraLiveTime:
                     self.current_screen = 'picture'
                     self.load_picture_screen()
-                elif self.CameraRunTime + 0.3 > self.cameraLiveTime:
+                elif self.CameraRunTime + 0.8 > self.cameraLiveTime:
                     if not self.cameraSwitchedToPhoto:
                         self.cameraSwitchedToPhoto = True
                         self.Prepare_camera_photo()

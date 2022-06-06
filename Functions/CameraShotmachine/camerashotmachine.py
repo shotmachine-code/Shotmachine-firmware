@@ -218,11 +218,16 @@ class CameraShotmachine:
         # Take still image using CSI2 camera
         if self.onRaspberry and self.useCamera == "CSI2":
             # take image using still port (high res, low noise)
-            # self.camera.capture(self.captured_image, format='bgr', use_video_port=True)
-            self.camera.capture(self.captured_image, format='rgb')
+
+
 
             # stop preview
             self.camera.stop_preview()
+
+            # take image using still port (high res, low noise)
+            time.sleep(0.5)
+            # self.camera.capture(self.captured_image, format='bgr', use_video_port=True)
+            self.camera.capture(self.captured_image, format='rgb')
 
             # Process image to return to interface for displaying
             self.captured_image = self.captured_image.array
