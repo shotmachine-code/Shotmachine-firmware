@@ -454,6 +454,7 @@ class InputsOutputs:
             flashlight_state = 1
         if self.EnableI2COutput and self.MCPConnected:
             try:
+                self.logger.info('changing flashlight output: ' + str(flashlight_state))
                 self.MCP.output(5, flashlight_state)
             except OSError as e:
                 self.logger.warning('No communication with flashlight module (MCP IO extender)')
