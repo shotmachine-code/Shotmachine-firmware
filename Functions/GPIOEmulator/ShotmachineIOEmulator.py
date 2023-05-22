@@ -105,6 +105,10 @@ class App(threading.Thread):
                           activeforeground="blue")
         pin31btn.grid(row=3, column=3, padx=(10, 10))
         dictionaryPinsTkinter["6"] = pin31btn
+        # objTemp1 = PIN("OUT")
+        # objTemp1.Out = "1"
+        # dictionaryPins["6"] = objTemp1
+        # drawGPIOOut("6")
 
 
         # Pump 0 (MCP230xx 0)
@@ -154,9 +158,9 @@ class App(threading.Thread):
                               activeforeground="blue")
         flashlightbtn.grid(row=0, column=3, padx=(10, 10))
         dictionaryPinsTkinter["SPISendBuffer"] = flashlightbtn
-        objTemp = PIN("OUT")
-        objTemp.Out = "1"
-        dictionaryPins["SPISendBuffer"] = objTemp
+        objTemp2 = PIN("OUT")
+        objTemp2.Out = "1"
+        dictionaryPins["SPISendBuffer"] = objTemp2
         drawGPIOOut("SPISendBuffer")
 
         # shotglas detector
