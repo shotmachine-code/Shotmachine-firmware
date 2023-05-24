@@ -243,8 +243,8 @@ class InputsOutputs:
 
         while self.run:
             if not self.MCPConnected:
-                # try:
-                with suppress(OSError):
+                try:
+                # with suppress(OSError):
                     i2cAddress = 0x20
                     self.MCP = MCP230XX('MCP23017', i2cAddress, '16bit')
                     self.MCP.set_mode(0, 'output')
@@ -265,9 +265,9 @@ class InputsOutputs:
                     self.MCP.output(5, 1)
                     self.MCP.set_mode(6, 'input')
                     self.MCPConnected = True
-                # except OSError as e:
+                except OSError as e:
                 # self.MCPConnected = False
-                # self.logger.warning('Failed to get communication back with MCP)')
+                    self.logger.warning('Failed to get communication back with MCP)')
             if self.MCPConnected:
                 try:
                     value = self.MCP.input(6)
