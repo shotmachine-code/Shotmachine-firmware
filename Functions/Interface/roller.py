@@ -27,7 +27,8 @@ class Roller:
         for i in range(len(filelist)):
             try:
                 imagepath = os.path.join(_roll_images_dir, filelist[i])
-                image = pygame.image.load(imagepath).convert()
+                # image = pygame.image.load(imagepath).convert()
+                image = pygame.image.load(imagepath).convert_alpha()
                 self.Roll_images.append(pygame.transform.smoothscale(image, (_roller_width, _roller_width)))
             except:
                 continue
@@ -163,6 +164,7 @@ class Roller:
                        [self.Roll_posx_left - 15,
                         self.Roll_posy_top + self.roller_height - self.fade_image_height + 10])
         pygame.draw.rect(screenref, (0, 0, 0), self.roll_boundingbox, 5)
+        #screenref.fill((0, 0, 0, 10), self.roll_boundingbox, pygame.BLEND_RGBA_ADD)
 
         # Return bounding box of roller in case something has changed, otherwise return nothing
         if discrete_dy == 0:
