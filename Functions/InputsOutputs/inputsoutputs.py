@@ -265,8 +265,8 @@ class InputsOutputs:
                     self.MCP.output(5, 1)
                     self.MCP.set_mode(6, 'input')
                     self.MCPConnected = True
-                except OSError:
-                    # self.MCPConnected = False
+                except OSError as e:
+                # self.MCPConnected = False
                     self.logger.warning('Failed to get communication back with MCP)')
             if self.MCPConnected:
                 try:

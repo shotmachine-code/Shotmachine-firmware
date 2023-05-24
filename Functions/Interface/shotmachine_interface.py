@@ -500,8 +500,8 @@ class ShotmachineInterface:
         pygame.init()
         self.screeninfo = pygame.display.Info()
         self.screensize = [self.screeninfo.current_w, self.screeninfo.current_h]
-        self.screen = pygame.display.set_mode(self.screensize, (pygame.DOUBLEBUF | pygame.HWSURFACE))
-        # self.screen = pygame.display.set_mode((0,0), (pygame.FULLSCREEN|pygame.DOUBLEBUF|pygame.HWSURFACE))
+        # self.screen = pygame.display.set_mode(self.screensize, (pygame.DOUBLEBUF | pygame.HWSURFACE))
+        self.screen = pygame.display.set_mode((0,0), (pygame.FULLSCREEN|pygame.DOUBLEBUF|pygame.HWSURFACE))
 
         self.logger.info("Set screensize to: " + str(self.screensize[0]) + "x" + str(self.screensize[1]))
         pygame.display.set_caption(Appname)
@@ -604,6 +604,7 @@ class ShotmachineInterface:
 
             # Update the rollers if needed
             if self.current_screen == 'main':
+                # self.screen.blit(self.background_image, [0, 0])
                 self.updatelist.append(self.roller1.update_roller())
                 self.updatelist.append(self.roller2.update_roller())
                 self.updatelist.append(self.roller3.update_roller())
@@ -663,6 +664,7 @@ class ShotmachineInterface:
 
             # Update the screen with what has changed.
             pygame.display.update(self.updatelist)
+            # pygame.display.update()
             self.updatelist = []
 
         # Close everything down
