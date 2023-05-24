@@ -341,8 +341,8 @@ class ShotmachineInterface:
             self.screen.blit(maintext, maintextRect)
             self.updatelist.append(maintextRect)
 
-        self.CameraSimbol()
-        self.ShotglassSimbol()
+        # self.CameraSimbol()
+        # self.ShotglassSimbol()
 
         # self.reset_timeoutBarcode()
 
@@ -352,9 +352,9 @@ class ShotmachineInterface:
 
     def NoUserText(self):
         if self.OperationMode == "Shotmachine" and self.current_screen == 'main':
-            textboxRect = pygame.Rect(275, self.screeninfo.current_h - 250, self.screeninfo.current_w - 550, 250)
-            textboxSurf = pygame.draw.rect(self.screen, (0, 0, 0, 0), textboxRect)
-            self.updatelist.append(textboxRect)
+            # textboxRect = pygame.Rect(275, self.screeninfo.current_h - 250, self.screeninfo.current_w - 550, 250)
+            # textboxSurf = pygame.draw.rect(self.screen, (0, 0, 0, 0), textboxRect)
+            # self.updatelist.append(textboxRect)
 
             if self.EnableBarcodeScanner:
 
@@ -393,8 +393,8 @@ class ShotmachineInterface:
                 self.textRect.center = (self.screeninfo.current_w // 2, self.screeninfo.current_h - 200)
                 self.screen.blit(self.text, self.textRect)
                 self.updatelist.append(self.textRect)
-            self.ShotglassSimbol()
-            self.CameraSimbol()
+            # self.ShotglassSimbol()
+            # self.CameraSimbol()
         else:
             self.NoUserTextFlash = False
         self.From_interface.put('NoUser')
@@ -410,8 +410,8 @@ class ShotmachineInterface:
                 self.textRect.center = (self.screeninfo.current_w // 2, self.screeninfo.current_h - 200)
                 self.screen.blit(self.text, self.textRect)
                 self.updatelist.append(self.textRect)
-            self.ShotglassSimbol()
-            self.CameraSimbol()
+            # self.ShotglassSimbol()
+            # self.CameraSimbol()
         self.From_interface.put('NoUser')
 
     def DisplayMissingShotglass(self):
@@ -491,7 +491,7 @@ class ShotmachineInterface:
         Roll_1_posx = 610
         Roll_2_posx = 965
         Roll_3_posx = 1320
-        Roll_posy = 300
+        Roll_posy = 500  # was 300 before removing bottom bar
         Roll_width = 300
         Roll_height = 420  # Must be less than 2x width
 
@@ -567,11 +567,11 @@ class ShotmachineInterface:
                         self.reset_timeoutBarcode()
                 elif "Shotglass:" in self.ReceiveBuffer:
                     self.shotglassStatus = bool(int(self.ReceiveBuffer[-1:]))
-                    self.ShotglassSimbol()
+                #     self.ShotglassSimbol()
                     if self.shotglassStatus:
                         self.ResetMissingShotglass()
-                elif 'Missing_Shotglass' in self.ReceiveBuffer:
-                    self.DisplayMissingShotglass()
+                # elif 'Missing_Shotglass' in self.ReceiveBuffer:
+                #     self.DisplayMissingShotglass()
                 else:
                     self.logger.info("Unknown command from interface " + self.ReceiveBuffer)
                     self.From_interface.put('Cant_make_shot')
@@ -609,7 +609,7 @@ class ShotmachineInterface:
                 self.updatelist.append(self.roller2.update_roller())
                 self.updatelist.append(self.roller3.update_roller())
 
-                self.updatelist.append(self.update_timeoutBarcode())
+                # self.updatelist.append(self.update_timeoutBarcode())
 
             if self.current_screen == 'config':
                 self.updatelist.append(

@@ -230,7 +230,7 @@ class Shotmachine_controller:
                 pass
 
     # def check_alive(self):
-    # return not self.quitprogram
+    # return not self.quitprogram q
 
 
 ToInterfQueue = queue.Queue()
