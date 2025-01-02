@@ -493,7 +493,7 @@ class ShotmachineInterface:
         Roll_1_posx = 610 #610
         Roll_2_posx = 965 #965
         Roll_3_posx = 1320 #1320
-        Roll_posy = 500  # was 300 before removing bottom bar
+        Roll_posy = 500  # was 300 before removing bottom bar #540
         Roll_width = 300 #300
         Roll_height = 420  # 420 Must be less than 2x width
 
