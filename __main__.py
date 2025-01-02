@@ -52,8 +52,8 @@ HandleShotmachine = {
         "EnableShot0": True,  # False als pomp 0 niet aan mag, True als deze wel mag
         "EnableShot1": True,  # enz...
         "EnableShot2": True,
-        "EnableShot3": True,
-        "EnableShot4": True
+        "EnableShot3": False,
+        "EnableShot4": False
     },
     "Hardware": {
         "OnOffSwitch": 27,
@@ -90,6 +90,7 @@ class Shotmachine_controller:
 
         self.Shotglass = False
         self.Shothendel = False
+        self.ShutdownPi = False
         self.possibleShots = list(range(0, 5))
         if not HandleShotmachine["Settings"]["EnableShot4"]:
             self.possibleShots.remove(4)
@@ -114,6 +115,12 @@ class Shotmachine_controller:
         self.thread.start()
 
     def run(self):
+        try:
+            time.sleep(5)
+            reset_queue = self.ToMainQueue.get(block=True, timeout=0.1)
+            reset_queue = ""
+        except queue.Empty:
+            pass
 
         while not self.quitprogram:
             if self.fotoknop:
@@ -173,7 +180,11 @@ class Shotmachine_controller:
 
             try:
                 s = self.ToMainQueue.get(block=True, timeout=0.1)
-                if s == "Quit":
+                if s == "OnOffSwitch_released" or s == "Quit":
+                    self.ShutdownPi = True
+                    logger.info("Shutdown command recieved in main")
+                    self.ToIOQueue.put("Ready")
+                    #if s == "Quit":
                     self.quitprogram = True
                     self.ToIOQueue.put("Flashlight 0")  # turn off all leds on machine
                     time.sleep(0.1)
@@ -185,6 +196,7 @@ class Shotmachine_controller:
                     time.sleep(0.1)
                     self.ToDBSyncQueue.put("Quit")
                     self.ToIOQueue.put("Quit")
+                    self.ToInterfQueue.put("Quit")
                     self.ToPhotoUploaderQueue.put("Quit")
                     logger.info("main quit")
                 elif "ShotglassState" in s:

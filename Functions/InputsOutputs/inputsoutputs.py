@@ -28,6 +28,7 @@ class InputsOutputs:
         self.ResetArduinoPin = self.HandleShotmachine["Hardware"]["ResetArduino"]
         self.SPISSPin = self.HandleShotmachine["Hardware"]["SPISSPin"]
         # self.party_id = self.HandleShotmachine["Settings"]["PartyId"]
+        self.OnOffSwitchPin = self.HandleShotmachine["Hardware"]["OnOffSwitch"]
 
         # import required libraries depending on the current platform
         if self.HandleShotmachine["Settings"]["OnRaspberry"]:
@@ -51,6 +52,7 @@ class InputsOutputs:
         self.CheckShotglass = True
         self.ShotHendelState = False
         self.ShotHendelSend = False
+        self.OnOffSwitchSend = False
         self.FotoKnopState = False
         self.FotoKnopSend = False
         self.ConfigSwitchState = False
@@ -79,6 +81,7 @@ class InputsOutputs:
         self.GPIO.setup(self.HendelSwitch, GPIO.IN)
         self.GPIO.setup(self.FotoSwitch, GPIO.IN)
         self.GPIO.setup(self.ConfigSwitchPin, GPIO.IN)
+        self.GPIO.setup(self.OnOffSwitchPin, GPIO.IN)
 
         # set GPIO pins
         self.GPIO.output(self.EnableI2COutputPin, 0)
@@ -182,13 +185,13 @@ class InputsOutputs:
                     except OSError:
                         self.MCPConnected = False
                     if self.shotnumber == 0:
-                        time.sleep(5)  # 8
+                        time.sleep(6)  # 8
                     elif self.shotnumber == 1:
                         time.sleep(6)  # 4
                     elif self.shotnumber == 2:
-                        time.sleep(6)  # 5
-                    elif self.shotnumber == 3:
                         time.sleep(5)  # 5
+                    elif self.shotnumber == 3:
+                        time.sleep(6)  # 5
                     elif self.shotnumber == 4:
                         time.sleep(6)  # 4
                     try:
@@ -204,10 +207,44 @@ class InputsOutputs:
             if self.FlushPump:
                 self.logger.info('Spoelen van pomp: ' + str(self.flushnumber))
                 if self.EnableI2COutput and self.MCPConnected:
-                    self.MCP.output(self.flushnumber, 0)
-                    time.sleep(10)
-                    # TODO add possibility to stop on command
-                    self.MCP.output(self.flushnumber, 1)
+                    if self.flushnumber < 5:
+                        self.MCP.output(self.flushnumber, 0)
+                        time.sleep(10)
+                        # TODO add possibility to stop on command
+                        self.MCP.output(self.flushnumber, 1)
+                    elif self.flushnumber == 6: # alles 10 seconde aan
+                        self.MCP.output(0, 0)
+                        time.sleep(10)
+                        self.MCP.output(0, 1)
+                        self.MCP.output(1, 0)
+                        time.sleep(10)
+                        self.MCP.output(1, 1)
+                        self.MCP.output(2, 0)
+                        time.sleep(10)
+                        self.MCP.output(2, 1)
+                        self.MCP.output(3, 0)
+                        time.sleep(10)
+                        self.MCP.output(3, 1)
+                        self.MCP.output(4, 0)
+                        time.sleep(10)
+                        self.MCP.output(4, 1)
+                        
+                    elif self.flushnumber == 7: # alles 1 minuut
+                        self.MCP.output(0, 0)
+                        time.sleep(60)
+                        self.MCP.output(0, 1)
+                        self.MCP.output(1, 0)
+                        time.sleep(60)
+                        self.MCP.output(1, 1)
+                        self.MCP.output(2, 0)
+                        time.sleep(60)
+                        self.MCP.output(2, 1)
+                        self.MCP.output(3, 0)
+                        time.sleep(60)
+                        self.MCP.output(3, 1)
+                        self.MCP.output(4, 0)
+                        time.sleep(60)
+                        self.MCP.output(4, 1)
                 self.FlushPump = False
                 time.sleep(1)
                 self.ToMainQueue.put("Klaar met spoelen")
@@ -226,6 +263,7 @@ class InputsOutputs:
             if not self.busy:
                 self.checkshothandle()
                 self.checkfotoknop()
+                self.checkOnOffSwitch()
                 # self.checkArduinoReset()
 
         # cleanup GPIO and pumps and close program 
@@ -378,6 +416,18 @@ class InputsOutputs:
             self.busy = True
         if not self.ShotHendelState:
             self.ShotHendelSend = False
+            
+    def checkOnOffSwitch(self):
+        # Controleer de aan/uit schakelaar
+        self.OnOffSwitchState = self.GPIO.input(self.OnOffSwitchPin)
+        # self.logger.info(self.OnOffSwitchState)
+        if not self.OnOffSwitchSend and self.OnOffSwitchState:
+            self.logger.info('On/Off Switch switched off')
+            self.ToMainQueue.put("OnOffSwitch_released")
+            self.OnOffSwitchSend = True
+            self.busy = True
+        if not self.OnOffSwitchState:
+            self.OnOffSwitchSend = False
 
     def checkArduinoReset(self):
         # reset function fro arduino, work in progress

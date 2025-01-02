@@ -85,6 +85,7 @@ class ShotmachineInterface:
         self.screen.blit(self.background_image, [0, 0])
         FullScreenRect = pygame.Rect(0, 0, self.screeninfo.current_w, self.screeninfo.current_h)
         pygame.display.update(FullScreenRect)
+        pygame.mouse.set_visible(False)
         boundingboxes = []
         number = randint(1, 100)
         self.roller1.stop_roller_direct(number)
@@ -216,6 +217,7 @@ class ShotmachineInterface:
 
     def load_config_screen(self):
         self.screen.fill(self.GRAY)
+        pygame.mouse.set_visible(True)
         try:
             CPUtemp_raw = psutil.sensors_temperatures()
             try:
@@ -478,7 +480,7 @@ class ShotmachineInterface:
         self.timeoutValuePhoto = 5  # amount of seconds before the user is kicked out after a photo
 
         # Init some system variables, do not change those
-        self.shotglassStatus = False
+        self.shotglassStatus = True
         self.cameraScreenStarted = False
         self.timeout_start = time.time()
         self.CurrentTimeoutValue = self.timeoutValue
@@ -488,12 +490,12 @@ class ShotmachineInterface:
         self.updatelist = []
 
         # Define positions and size of rollers
-        Roll_1_posx = 610
-        Roll_2_posx = 965
-        Roll_3_posx = 1320
+        Roll_1_posx = 610 #610
+        Roll_2_posx = 965 #965
+        Roll_3_posx = 1320 #1320
         Roll_posy = 500  # was 300 before removing bottom bar
-        Roll_width = 300
-        Roll_height = 420  # Must be less than 2x width
+        Roll_width = 300 #300
+        Roll_height = 420  # 420 Must be less than 2x width
 
         # Initialize program
         self.logger = logging.getLogger(__name__)
@@ -502,6 +504,7 @@ class ShotmachineInterface:
         self.screensize = [self.screeninfo.current_w, self.screeninfo.current_h]
         # self.screen = pygame.display.set_mode(self.screensize, (pygame.DOUBLEBUF | pygame.HWSURFACE))
         self.screen = pygame.display.set_mode((0,0), (pygame.FULLSCREEN|pygame.DOUBLEBUF|pygame.HWSURFACE))
+        pygame.mouse.set_pos([0,0])
 
         self.logger.info("Set screensize to: " + str(self.screensize[0]) + "x" + str(self.screensize[1]))
         pygame.display.set_caption(Appname)
@@ -532,6 +535,8 @@ class ShotmachineInterface:
         # set text on bottom of screen to init value
         self.NoUserText()
         self.stop_timeoutBarcode()
+        pygame.mouse.set_pos([1920,1080])
+        pygame.mouse.set_visible(False)
 
         time.sleep(0.5)
         self.logger.info('Interface initialised')
@@ -572,6 +577,9 @@ class ShotmachineInterface:
                         self.ResetMissingShotglass()
                 # elif 'Missing_Shotglass' in self.ReceiveBuffer:
                 #     self.DisplayMissingShotglass()
+                elif "Quit" in self.ReceiveBuffer:
+                    self.From_interface.put('Quit')
+                    self.run = False
                 else:
                     self.logger.info("Unknown command from interface " + self.ReceiveBuffer)
                     self.From_interface.put('Cant_make_shot')
@@ -624,6 +632,10 @@ class ShotmachineInterface:
                     self.button("Spoel pomp 3", 400, 400, 150, 50, self.RED, self.GREEN, self.flush_pump, 3))
                 self.updatelist.append(
                     self.button("Spoel pomp 4", 400, 450, 150, 50, self.RED, self.GREEN, self.flush_pump, 4))
+                self.updatelist.append(
+                    self.button("Spoelen alles 10 sec", 400, 500, 150, 50, self.RED, self.GREEN, self.flush_pump, 6))
+                self.updatelist.append(
+                    self.button("Spoelen alles 1 min", 400, 550, 150, 50, self.RED, self.GREEN, self.flush_pump, 7))
 
             if self.current_screen == 'livecamera':
                 self.CameraRunTime = time.time() - self.CameraStartTime
