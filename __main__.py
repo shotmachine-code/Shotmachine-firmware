@@ -47,13 +47,13 @@ HandleShotmachine = {
         "EnableDBSync": False,  # database synchronisatie
         "EnableBarcodeScanner": False,  # duh
         "EnablePhotoUploader": False,  # tja, wat zou dit nou zijn..
-        "PartyId": 6,  # feest ID, per feest instelbaar
+        "PartyId": 7,  # feest ID, per feest instelbaar
         "MachineId": 1,  # niet aanpassen!
         "EnableShot0": True,  # False als pomp 0 niet aan mag, True als deze wel mag
         "EnableShot1": True,  # enz...
         "EnableShot2": True,
-        "EnableShot3": False,
-        "EnableShot4": False
+        "EnableShot3": True,
+        "EnableShot4": True
     },
     "Hardware": {
         "OnOffSwitch": 27,

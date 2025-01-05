@@ -6,6 +6,7 @@ import glob
 import time
 import datetime
 #from Functions.GooglePhotos.google_photos_functions import googlePhotoUploader
+from Functions.PhotoUploader.google_photos_functions import googlePhotoUploader
 from Functions.Database import database_connection
 import logging
 import pysftp
@@ -13,7 +14,11 @@ import xml.etree.ElementTree as ET
 import shutil
 
 #Album_Id = 'AOivGk9mA_hdf1F75tg5n3GxCN_BHFHY-Z2-rnWZXQTLFRoeq6FpMBfyatxwjfFOiWDnNxPfLF_5'
+#Album_Id = 'AF1QipMK-gU7j2q3BlDKjxhQ_Nr5tPwrXhGF9e6RkuPD'
+Album_Id = 'AOivGk-LGHTCvhw6L5NcOSpFbLYez9wafktpnpUQ0av4uqQxm4Yme-hTLCblvVchNOdAKgRikfHh'
 #album_name = 'Housewarming Lisa 2'
+album_name = 'Uploaded'
+
 #Create_new_album = False
 
 class photo_uploader():
@@ -39,15 +44,15 @@ class photo_uploader():
         
         done = False
         
-        GooglePhotoUploader = False         ### Old uploader, can probably be removed
-        sftpUploader = True
+        GooglePhotoUploader = True         ### Old uploader, can probably be removed
+        sftpUploader = False
 
         if GooglePhotoUploader:     ### Old uploader, can probably be removed
             while not done:
                 try:
                     self.logger.info("Start Google photo uploader")
-
-                    self.AlbumId = self.db_conn.GetGoogleAlbumId(self.party_id)
+                    self.AlbumId = Album_Id
+                    #self.AlbumId = self.db_conn.GetGoogleAlbumId(self.party_id)
                     self.logger.info("Google photo uploader album ID: " + self.AlbumId)
 
                     if self.AlbumId == None:
@@ -145,17 +150,17 @@ class photo_uploader():
 
     ### Old uploader, can probably be removed
     def uploaderThreadGoogle(self):
-        print("6")
+        #print("6")
         while self.run:
             try:
-                print("7")
+                #print("7")
                 Task = self.ToDoQueue.get(block=True, timeout=1)
-                print("8")
+                #print("8")
                 print(Task)
                 if Task == "Quit":
                     self.run = False
                 elif Task != "":
-                    print("9")
+                    #print("9")
                     ts = time.time()
                     timestamp = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
                     Filename = Task.split(':')[0]
@@ -166,13 +171,16 @@ class photo_uploader():
                     print('photoname: ' + photoname)
                     time.sleep(5)
                     response = self.googlePhotoHandle.uploadPicture(Filename, photoname)
-                    print("10")
+                    #print("10")
                     if not response:
                         print("upload failed")
                         self.ToDoQueue.put(Filename + ":" + Barcode)
-                    print("upload success")
-                    self.db_conn.SetPhotoToUser(self.party_id, Barcode, Filename, timestamp)
-                    print("photo written to db")
+                    else:
+                        print("upload success")
+                        #self.db_conn.SetPhotoToUser(self.party_id, Barcode, Filename, timestamp)
+                        #print("photo written to db")
+                        shutil.move(Filename, (self.UploadedFolder + "/" + photoname))
+                        self.logger.info("photo moved to uploaded folder under: " + (self.UploadedFolder + "/" + photoname))
 
             except queue.Empty:
                 continue

@@ -130,33 +130,33 @@ class database_connection():
             return "Error"
 
 
-    #def GetGoogleAlbumId(self, partyId):            ### Old uploader, can probably be removed
-    #    sql_get_google_album_id = "SELECT google_photoalbum_id FROM parties WHERE id={};"
-    #    db = pymysql.connect(self.localMysqlIP, self.localMysqlUser, self.localMysqlPass, "shotmachine")
+    def GetGoogleAlbumId(self, partyId):            ### Old uploader, can probably be removed
+        sql_get_google_album_id = "SELECT google_photoalbum_id FROM parties WHERE id={};"
+        db = pymysql.connect(self.localMysqlIP, self.localMysqlUser, self.localMysqlPass, "shotmachine")
 
-    #    cursor = db.cursor(pymysql.cursors.Cursor)
-    #    cursor.execute(sql_get_google_album_id.format(str(partyId)))
-    #    answer = cursor.fetchone()
-    #    albumId = str(answer[0])
-    #    cursor.close()
-    #    db.close()
-    #    return albumId
+        cursor = db.cursor(pymysql.cursors.Cursor)
+        cursor.execute(sql_get_google_album_id.format(str(partyId)))
+        answer = cursor.fetchone()
+        albumId = str(answer[0])
+        cursor.close()
+        db.close()
+        return albumId
 
-    #def SetGoogleAlbumId(self, partyID, Album_Id, albumurl):     ### Old uploader, can probably be removed
-    #    sql_write_Google_album_data = "INSERT INTO parties (google_photoalbum_id, google_photoshareable_url) VALUES (%s, %s) WHERE id=%s;"
-    #    try:
-    #        db = pymysql.connect(self.localMysqlIP, self.localMysqlUser, self.localMysqlPass, "shotmachine")
-    #        cursor.execute(sql_write_Google_album_data, (Album_Id, albumurl, partyID))
-    #        db.commit()
-    #        cursor.close()
-    #        db.close()
-    #    except:
-    #        self.logger.warning("Unexpected error:", sys.exc_info()[0])
-    #        try:
-    #            db.rollback()
-    #            db.close()
-    #        except:
-    #            pass
+    def SetGoogleAlbumId(self, partyID, Album_Id, albumurl):     ### Old uploader, can probably be removed
+        sql_write_Google_album_data = "INSERT INTO parties (google_photoalbum_id, google_photoshareable_url) VALUES (%s, %s) WHERE id=%s;"
+        try:
+            db = pymysql.connect(self.localMysqlIP, self.localMysqlUser, self.localMysqlPass, "shotmachine")
+            cursor.execute(sql_write_Google_album_data, (Album_Id, albumurl, partyID))
+            db.commit()
+            cursor.close()
+            db.close()
+        except:
+            self.logger.warning("Unexpected error:", sys.exc_info()[0])
+            try:
+                db.rollback()
+                db.close()
+            except:
+                pass
 
     def SetPhotoToUser(self, barcode, imagename, timestamp): #partyid
         self.logger.info("start writing photo to db")

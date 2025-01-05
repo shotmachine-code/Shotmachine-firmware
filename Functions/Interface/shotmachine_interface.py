@@ -502,8 +502,8 @@ class ShotmachineInterface:
         pygame.init()
         self.screeninfo = pygame.display.Info()
         self.screensize = [self.screeninfo.current_w, self.screeninfo.current_h]
-        # self.screen = pygame.display.set_mode(self.screensize, (pygame.DOUBLEBUF | pygame.HWSURFACE))
-        self.screen = pygame.display.set_mode((0,0), (pygame.FULLSCREEN|pygame.DOUBLEBUF|pygame.HWSURFACE))
+        self.screen = pygame.display.set_mode(self.screensize, (pygame.DOUBLEBUF | pygame.HWSURFACE))
+        # self.screen = pygame.display.set_mode((0,0), (pygame.FULLSCREEN|pygame.DOUBLEBUF|pygame.HWSURFACE))
         pygame.mouse.set_pos([0,0])
 
         self.logger.info("Set screensize to: " + str(self.screensize[0]) + "x" + str(self.screensize[1]))
