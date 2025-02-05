@@ -34,8 +34,8 @@ class ShotmachineInterface:
         self.NoUserTextBlack = False
         self.NoUserTextFlashCounter = 0
 
-        # self.OperationMode = "PhotoBooth"
-        self.OperationMode = "Shotmachine"
+        self.OperationMode = "PhotoBooth"
+        # self.OperationMode = "Shotmachine"
 
         self.TakenPhotosDir = 'TakenImages/NotUploaded'
 
@@ -101,7 +101,8 @@ class ShotmachineInterface:
         self.screen.fill(self.BLACK)
         self.screen.blit(self.background_image, [0, 0])
         FullScreenRect = pygame.Rect(0, 0, self.screeninfo.current_w, self.screeninfo.current_h)
-        pygame.display.update(FullScreenRect)
+        #pygame.display.update(FullScreenRect)
+        self.updatelist.append(FullScreenRect)
 
         self.update_photobooth_picture(1, True, True)
 
@@ -126,15 +127,16 @@ class ShotmachineInterface:
 
             PhotoPath = os.path.join(self.TakenPhotosDir, self.FileList[PhotoNumber])
             PhotoSurface = pygame.image.load(PhotoPath).convert()
-            PictureSize = (1280, 720)  # (845, 475)
+            PictureSize = (1024, 760)  # (845, 475)
             PhotoSurfaceScaled = pygame.transform.scale(PhotoSurface, PictureSize)
             PhotoRect = PhotoSurfaceScaled.get_rect()
+            Position = 3
             if Position == 1:
                 PhotoRect.center = (700, 400)  # (500, 250)
             elif Position == 2:
                 PhotoRect.center = (1420, 280)  # (1420, 280)
             elif Position == 3:
-                PhotoRect.center = (960, 780)  # (960, 780)
+                PhotoRect.center = (960, 500)  # (960, 780)
             else:
                 PhotoRect.center = (0, 0)
 
@@ -143,23 +145,37 @@ class ShotmachineInterface:
 
         if _StartTimer:
             if Position == 1:
-                self.timer_PhotoBoothPhotoRefresh_1 = Timer(8, self.update_photobooth_picture, [1, True, False])  # 20
+                if hasattr(self,'timer_PhotoBoothPhotoRefresh_1'):
+                    self.timer_PhotoBoothPhotoRefresh_1.cancel()
+                self.timer_PhotoBoothPhotoRefresh_1 = Timer(8, self.update_photobooth_picture, [1, True, False])  # 20                
                 self.timer_PhotoBoothPhotoRefresh_1.start()
             elif Position == 2:
+                if hasattr(self,'timer_PhotoBoothPhotoRefresh_2'):
+                    self.timer_PhotoBoothPhotoRefresh_2.cancel()
                 self.timer_PhotoBoothPhotoRefresh_2 = Timer(20, self.update_photobooth_picture, [2, True, False])
                 self.timer_PhotoBoothPhotoRefresh_2.start()
             elif Position == 3:
-                self.timer_PhotoBoothPhotoRefresh_3 = Timer(20, self.update_photobooth_picture, [3, True, False])
+                if hasattr(self,'timer_PhotoBoothPhotoRefresh_3'):
+                    self.timer_PhotoBoothPhotoRefresh_3.cancel()
+                self.timer_PhotoBoothPhotoRefresh_3 = Timer(7, self.update_photobooth_picture, [3, True, False])
                 self.timer_PhotoBoothPhotoRefresh_3.start()
 
     def load_live_camera_screen(self):
         # stop photoboot function if needed
-        try:
+        if hasattr(self,'timer_PhotoBoothPhotoRefresh_1'):
             self.timer_PhotoBoothPhotoRefresh_1.cancel()
+        if hasattr(self,'timer_PhotoBoothPhotoRefresh_2'):
             self.timer_PhotoBoothPhotoRefresh_2.cancel()
+        if hasattr(self,'timer_PhotoBoothPhotoRefresh_3'):
             self.timer_PhotoBoothPhotoRefresh_3.cancel()
-        except:
-            pass
+            
+        #try:
+        #    self.timer_PhotoBoothPhotoRefresh_1.cancel()
+        #    
+        #except:
+        #    pass
+        #self.timer_PhotoBoothPhotoRefresh_2.cancel()
+        #    self.timer_PhotoBoothPhotoRefresh_3.cancel()
         self.screen.fill(self.WHITE)
         self.camera.start()
         self.CameraStartTime = time.time()
@@ -502,8 +518,8 @@ class ShotmachineInterface:
         pygame.init()
         self.screeninfo = pygame.display.Info()
         self.screensize = [self.screeninfo.current_w, self.screeninfo.current_h]
-        self.screen = pygame.display.set_mode(self.screensize, (pygame.DOUBLEBUF | pygame.HWSURFACE))
-        # self.screen = pygame.display.set_mode((0,0), (pygame.FULLSCREEN|pygame.DOUBLEBUF|pygame.HWSURFACE))
+        #self.screen = pygame.display.set_mode(self.screensize, (pygame.DOUBLEBUF | pygame.HWSURFACE))
+        self.screen = pygame.display.set_mode((0,0), (pygame.FULLSCREEN|pygame.DOUBLEBUF|pygame.HWSURFACE))
         pygame.mouse.set_pos([0,0])
 
         self.logger.info("Set screensize to: " + str(self.screensize[0]) + "x" + str(self.screensize[1]))

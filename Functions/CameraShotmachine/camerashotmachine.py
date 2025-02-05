@@ -8,6 +8,7 @@ import os
 import logging
 import platform
 import pygame
+from exif import Image
 
 currentOS = platform.system()
 currentArch = platform.architecture()
@@ -178,6 +179,12 @@ class CameraShotmachine:
                 self.save_image_name = os.path.join(self.StoragePath, datetimestring + '.jpg')
                 FrameToSave = np.fliplr(frame)
                 cv2.imwrite(self.save_image_name, FrameToSave)
+                
+                # add EXIF info to image
+                #with open(self.save_image_name, 'rb') as image_file:
+                #    my_image = Image(image_file)
+                #    print(dir(my_image))
+                    
                 self.logger.info('Image saved in: ' + self.save_image_name)
                 self.success_save = True
 
@@ -234,7 +241,7 @@ class CameraShotmachine:
             self.captured_image = cv2.flip(self.captured_image, 1)
             # self.image = cv2.cvtColor(self.captured_image, cv2.COLOR_BGR2RGB)
             #self.image = np.rot90(self.image)
-            self.image = cv2.resize(self.captured_image, dsize=(1362, 1080), interpolation=cv2.INTER_CUBIC)
+            self.image = cv2.resize(self.captured_image, dsize=(1455, 1080), interpolation=cv2.INTER_CUBIC)
             self.image = np.rot90(self.image)
 
             self.cameraImagefullSurf = pygame.surfarray.make_surface(self.image)
