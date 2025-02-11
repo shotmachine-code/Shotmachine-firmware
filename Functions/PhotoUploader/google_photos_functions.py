@@ -36,7 +36,7 @@ class googlePhotoUploader():
                 flow = InstalledAppFlow.from_client_secrets_file(
                     './Functions/PhotoUploader/client_id.json', scopes)
                 creds = flow.run_local_server()
-            print(creds)
+            #print(creds)
             # Save the credentials for the next run
             with open('./Functions/PhotoUploader/credentials.json', 'w') as token:
                 token.write(creds.to_json())
@@ -207,7 +207,7 @@ class googlePhotoUploader():
                 }
             }
         )
-        print(response.text)
+        #print(response.text)
         '''
         print('Create new album')
         url_create = 'https://photoslibrary.googleapis.com/v1/albums'

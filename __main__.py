@@ -8,6 +8,7 @@ from Functions.InputsOutputs import inputsoutputs
 from Functions.Database import database_connection
 # from Functions.PhotoUploader.PhotoUploader import PhotoUploader
 from Functions.PhotoUploader import photo_uploader
+from urllib import request
 
 import platform
 import random
@@ -23,6 +24,14 @@ else:
 # onRaspberry = False
 
 
+
+try:
+    request.urlopen('https://www.google.com/', timeout=1)
+    InternetConnection = True
+    #print('Internet')
+except request.URLError as err: 
+    InternetConnection = False
+    #print('No internet')
 Logdate = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
 
 if not (os.path.isdir("Logs/")):
@@ -42,11 +51,12 @@ logger.info("Start")
 HandleShotmachine = {
     "Settings": {
         "OnRaspberry": onRaspberry,
+        "InternetConnection": InternetConnection,
         "EnableSPI": True,  # for leds
         "EnableI2C": True,  # for shotdetector & pumps
         "EnableDBSync": False,  # database synchronisatie
         "EnableBarcodeScanner": False,  # duh
-        "EnablePhotoUploader": False,  # tja, wat zou dit nou zijn..
+        "EnablePhotoUploader": True,  # tja, wat zou dit nou zijn..
         "PartyId": 7,  # feest ID, per feest instelbaar
         "MachineId": 1,  # niet aanpassen!
         "EnableShot0": True,  # False als pomp 0 niet aan mag, True als deze wel mag
@@ -88,7 +98,7 @@ class Shotmachine_controller:
 
         self.quitprogram = False
 
-        self.Shotglass = False
+        self.Shotglass = True
         self.Shothendel = False
         self.ShutdownPi = False
         self.possibleShots = list(range(0, 5))
@@ -136,9 +146,9 @@ class Shotmachine_controller:
 
             if self.Shothendel:
                 self.Shothendel = False
-                self.ToInterfQueue.put('Start_roll')
+                # self.ToInterfQueue.put('Start_roll')
                 if self.Shotglass and ((self.username != "") or not self.EnableBarcodeScanner):
-                    # self.ToInterfQueue.put('Start_roll')
+                    self.ToInterfQueue.put('Start_roll')
                     logger.info("start roller")
                 elif not self.Shotglass and ((self.username != "") or not self.EnableBarcodeScanner):
                     logger.warning("Shot requested, but no shotglass present")

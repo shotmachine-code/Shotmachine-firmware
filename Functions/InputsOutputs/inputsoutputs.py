@@ -37,6 +37,7 @@ class InputsOutputs:
             from spidev import SpiDev
             from smbus import SMBus
             self.OnRaspberry = True
+            #print(self.OnRaspberry)
         else:
             from Functions.GPIOEmulator.ShotmachineIOEmulator import GPIO
             # from Functions.GPIOEmulator.ShotmachineIOEmulator import MCP230XX
@@ -44,6 +45,7 @@ class InputsOutputs:
             from Functions.GPIOEmulator.ShotmachineIOEmulator import SMBus
             from Functions.GPIOEmulator.ShotmachineIOEmulator import usb_core_emu
             self.OnRaspberry = False
+            #print(self.OnRaspberry)
 
         # prepare general variables
         self.makeshot = False
@@ -51,10 +53,10 @@ class InputsOutputs:
         self.shotglass = False
         self.CheckShotglass = True
         self.ShotHendelState = False
-        self.ShotHendelSend = False
-        self.OnOffSwitchSend = False
+        self.ShotHendelSend = True
+        self.OnOffSwitchSend = True
         self.FotoKnopState = False
-        self.FotoKnopSend = False
+        self.FotoKnopSend = True
         self.ConfigSwitchState = False
         self.ConfigSwitchStateSend = False
         self.flashlightState = 1
@@ -162,6 +164,9 @@ class InputsOutputs:
             elif "Flashlight" in self.recievebuffer:
                 self.flashlightState = int(self.recievebuffer[-1:])
                 self.setflashlight = True
+            #elif "Busy" in self.recievebuffer:
+                #self.busy = True
+                #self.logger.info('Machine busy, stop checking inputs')
             elif "Ready" in self.recievebuffer:
                 self.busy = False
                 self.logger.info('Machine ready, checking inputs')

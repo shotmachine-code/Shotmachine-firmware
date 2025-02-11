@@ -28,6 +28,7 @@ class photo_uploader():
         self.HandleShotmachine = _HandleShotmachine
 
         self.party_id = str(self.HandleShotmachine["Settings"]["PartyId"])
+        self.InternetConnection = str(self.HandleShotmachine["Settings"]["InternetConnection"])
         
         self.logger = logging.getLogger(__name__)
         self.db_conn = database_connection.database_connection(self.HandleShotmachine)
@@ -37,15 +38,22 @@ class photo_uploader():
             os.mkdir(MainUploadedFolder)
             self.logger.info("Created main folder for uploaded images: " + MainUploadedFolder)
         
-        self.UploadedFolder = MainUploadedFolder + "/"+ self.party_id
+        #self.UploadedFolder = MainUploadedFolder + "/"+ self.party_id
+        self.UploadedFolder = MainUploadedFolder
         if not (os.path.isdir(self.UploadedFolder)):
             os.mkdir(self.UploadedFolder)
             self.logger.info("Created folder for uploaded images of this party: " + self.UploadedFolder)
         
         done = False
         
-        GooglePhotoUploader = True         ### Old uploader, can probably be removed
-        sftpUploader = False
+        if self.InternetConnection == "True":
+            GooglePhotoUploader = True         
+            sftpUploader = False
+            self.logger.info("Internet connection working, start uploader")
+        else:
+            GooglePhotoUploader = False         
+            sftpUploader = False
+            self.logger.info("No internet connection working, do not start uploader")
 
         if GooglePhotoUploader:     ### Old uploader, can probably be removed
             while not done:
@@ -148,39 +156,52 @@ class photo_uploader():
         self.logger.info("Uploader thread closed")
 
 
-    ### Old uploader, can probably be removed
+    
     def uploaderThreadGoogle(self):
         #print("6")
         while self.run:
             try:
                 #print("7")
                 Task = self.ToDoQueue.get(block=True, timeout=1)
-                #print("8")
-                print(Task)
-                if Task == "Quit":
-                    self.run = False
-                elif Task != "":
-                    #print("9")
-                    ts = time.time()
-                    timestamp = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
-                    Filename = Task.split(':')[0]
-                    print("Filename: " + Filename)
-                    Barcode = Task.split(':')[1]
-                    print("Barcode: " + Barcode)
-                    photoname = Filename.split('/')[-1]
-                    print('photoname: ' + photoname)
-                    time.sleep(5)
-                    response = self.googlePhotoHandle.uploadPicture(Filename, photoname)
-                    #print("10")
-                    if not response:
-                        print("upload failed")
-                        self.ToDoQueue.put(Filename + ":" + Barcode)
-                    else:
-                        print("upload success")
-                        #self.db_conn.SetPhotoToUser(self.party_id, Barcode, Filename, timestamp)
-                        #print("photo written to db")
-                        shutil.move(Filename, (self.UploadedFolder + "/" + photoname))
-                        self.logger.info("photo moved to uploaded folder under: " + (self.UploadedFolder + "/" + photoname))
-
+                #print(Task)
             except queue.Empty:
-                continue
+                #continue
+                Task = ""
+                pass
+            filelist = glob.glob("/home/pi/Shotmachine/Shotmachine-firmware/TakenImages/NotUploaded/*.jpg")
+            #print(filelist)
+            #print("8")
+            #print(Task)
+            if Task == "Quit":
+                self.run = False
+            #elif Task != "":
+            if len(filelist) > 0:
+                self.logger.info('Start with uploading')
+                    
+                Filename = filelist[0].split('firmware/')[1]
+                photoname = filelist[0].split('/')[-1]
+                
+                self.logger.info('Start uploading: ' + photoname)
+                    
+                #ts = time.time()
+                #timestamp = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
+                #Filename = Task.split(':')[0]
+                #print("Filename: " + Filename)
+                #Barcode = Task.split(':')[1]
+                #print("Barcode: " + Barcode)
+                #photoname = Filename.split('/')[-1]
+                #print('photoname: ' + photoname)
+                time.sleep(5)
+                response = self.googlePhotoHandle.uploadPicture(Filename, photoname)
+                #print("10")
+                if not response:
+                    self.logger.info("Upload failed")
+                    self.ToDoQueue.put(Filename + ":" + Barcode)
+                else:
+                    self.logger.info("Upload success")
+                    #self.db_conn.SetPhotoToUser(self.party_id, Barcode, Filename, timestamp)
+                    #print("photo written to db")
+                    shutil.move(Filename, (self.UploadedFolder + "/" + photoname))
+                    self.logger.info("Photo moved to uploaded folder under: " + (self.UploadedFolder + "/" + photoname))
+
+            

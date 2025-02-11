@@ -8,7 +8,7 @@ import os
 import logging
 import platform
 import pygame
-from exif import Image
+from exif import Image, DATETIME_STR_FORMAT
 
 currentOS = platform.system()
 currentArch = platform.architecture()
@@ -246,12 +246,31 @@ class CameraShotmachine:
 
             self.cameraImagefullSurf = pygame.surfarray.make_surface(self.image)
 
-            # Save image to file
+            # Prepare to save image to file
             datetimestring = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
             self.save_image_name = os.path.join(self.StoragePath, datetimestring + '.jpg')
             self.captured_image = cv2.cvtColor(self.captured_image, cv2.COLOR_BGR2RGB)
             self.captured_image = cv2.flip(self.captured_image, 1)
-            cv2.imwrite(self.save_image_name, self.captured_image)
+            #cv2.imwrite(self.save_image_name, self.captured_image)
+            
+            # Add Exif data
+            status, image_jpg_coded = cv2.imencode('.jpg', self.captured_image)
+            #print('successful jpg encoding: %s' % status)
+            image_jpg_coded_bytes = image_jpg_coded.tobytes()
+            exif_jpg = Image(image_jpg_coded_bytes)
+            exif_jpg["copyright"] = "Shotmachine.nl"
+            exif_jpg["make"] = "Shotmachine.nl"
+            exif_jpg["software"] = "Shotmachine.nl"
+            exif_jpg["image_description"] = "Shotmachine.nl"
+            
+            exif_jpg.datetime_original = datetime.datetime.now().strftime(DATETIME_STR_FORMAT)
+            with open(self.save_image_name, 'wb') as new_image_file:
+                new_image_file.write(exif_jpg.get_file())
+            
+            
+            #
+            
+            
             self.logger.info('Image saved in: ' + self.save_image_name)
             self.success_save = True
 

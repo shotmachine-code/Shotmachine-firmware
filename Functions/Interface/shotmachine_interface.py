@@ -6,6 +6,8 @@ import time
 import subprocess
 import logging
 import psutil
+import shutil
+import datetime
 from random import randint
 from threading import Timer
 from Functions.Interface.roller import Roller
@@ -34,10 +36,11 @@ class ShotmachineInterface:
         self.NoUserTextBlack = False
         self.NoUserTextFlashCounter = 0
 
-        self.OperationMode = "PhotoBooth"
-        # self.OperationMode = "Shotmachine"
+        # self.OperationMode = "PhotoBooth"
+        self.OperationMode = "Shotmachine"
 
-        self.TakenPhotosDir = 'TakenImages/NotUploaded'
+        self.TakenPhotosDirNU = 'TakenImages/NotUploaded'
+        self.TakenPhotosDirU = 'TakenImages/Uploaded'
 
         self.db_conn = database_connection.database_connection(self.HandleShotmachine)
 
@@ -114,18 +117,71 @@ class ShotmachineInterface:
 
         self.logger.info('Photobooth screen loaded')
 
-    def update_photobooth_picture(self, Position, _StartTimer, _ReloadFilelist):
-        if _ReloadFilelist or len(self.FileList) == 0:
+    def fotomap_legen(self):
+        #if _ReloadFilelist or len(self.FileList) == 0:
             # print("Reload file list")
-            self.FileList = sorted(os.listdir(self.TakenPhotosDir))
+            
+        FileListNU = sorted(os.listdir(self.TakenPhotosDirNU))
+        FileListU = sorted(os.listdir(self.TakenPhotosDirU))
+        
+        if (len(FileListNU) + len(FileListU))==0:
+            self.logger.info("No photos to move")
+        else:
+            #print('Make new folder to move files')
+        
+            datetimestring = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+            FolderPath = os.path.join('TakenImages/_old', datetimestring)
+            os.mkdir(FolderPath)
+            FolderPathNU = os.path.join(FolderPath, 'NotUploaded')
+            os.mkdir(FolderPathNU)
+            FolderPathU = os.path.join(FolderPath, 'Uploaded')
+            os.mkdir(FolderPathU)
+            self.logger.info("Created new folder: " + FolderPath)
+        
+            for i in range(len(FileListNU)):
+                PhotoPath = os.path.join(self.TakenPhotosDirNU, FileListNU[i])
+                shutil.move(PhotoPath, (FolderPathNU + '/'+ FileListNU[i]))
+                #print('move ' + PhotoPath)
+        
+            for i in range(len(FileListU)):
+                PhotoPath = os.path.join(self.TakenPhotosDirU, FileListU[i])
+                shutil.move(PhotoPath, (FolderPathU + '/'+ FileListU[i]))
+                #print('move ' + PhotoPath)
+            self.logger.info("Moved " + str(len(FileListNU) + len(FileListU)) + ' photos')
+        '''
+        self.FileListNU = sorted(os.listdir(self.TakenPhotosDirNU)) 
+        self.FileListU = sorted(os.listdir(self.TakenPhotosDirU))
+        self.FileList = self.FileListNU + self.FileListU
+        self.NrNUFiles = len(self.FileListNU)
         if len(self.FileList) != 0:
             if not self.showLastImage:
                 PhotoNumber = randint(0, len(self.FileList) - 1)
             else:
                 PhotoNumber = len(self.FileList) - 1
                 self.showLastImage = False
+            if PhotoNumber < self.NrNUFiles:
+                PhotoPath = os.path.join(self.TakenPhotosDirNU, self.FileList[PhotoNumber])
+            else:
+                PhotoPath = os.path.join(self.TakenPhotosDirU, self.FileList[PhotoNumber])
+        '''
 
-            PhotoPath = os.path.join(self.TakenPhotosDir, self.FileList[PhotoNumber])
+    def update_photobooth_picture(self, Position, _StartTimer, _ReloadFilelist):
+        #if _ReloadFilelist or len(self.FileList) == 0:
+            # print("Reload file list")
+        self.FileListNU = sorted(os.listdir(self.TakenPhotosDirNU)) 
+        self.FileListU = sorted(os.listdir(self.TakenPhotosDirU))
+        self.FileList = self.FileListNU + self.FileListU
+        self.NrNUFiles = len(self.FileListNU)
+        if len(self.FileList) != 0:
+            if not self.showLastImage:
+                PhotoNumber = randint(0, len(self.FileList) - 1)
+            else:
+                PhotoNumber = len(self.FileList) - 1
+                self.showLastImage = False
+            if PhotoNumber < self.NrNUFiles:
+                PhotoPath = os.path.join(self.TakenPhotosDirNU, self.FileList[PhotoNumber])
+            else:
+                PhotoPath = os.path.join(self.TakenPhotosDirU, self.FileList[PhotoNumber])
             PhotoSurface = pygame.image.load(PhotoPath).convert()
             PictureSize = (1024, 760)  # (845, 475)
             PhotoSurfaceScaled = pygame.transform.scale(PhotoSurface, PictureSize)
@@ -416,6 +472,21 @@ class ShotmachineInterface:
         else:
             self.NoUserTextFlash = False
         self.From_interface.put('NoUser')
+        
+    def SwitchNotOnMessage(self):
+        if (self.OperationMode == "Shotmachine" or self.OperationMode == "PhotoBooth") and self.current_screen == 'main':
+            textboxRect = pygame.Rect(275, self.screeninfo.current_h - 250, self.screeninfo.current_w - 550, 250)
+            textboxSurf = pygame.draw.rect(self.screen, (0, 0, 0, 0), textboxRect)
+            self.updatelist.append(textboxRect)
+            
+            self.text = self.textfont.render('Power schakelaar nog niet aan', True, self.WHITE, self.BLACK)
+            self.textRect = self.text.get_rect()
+            self.textRect.center = (self.screeninfo.current_w // 2, self.screeninfo.current_h - 200)
+            self.screen.blit(self.text, self.textRect)
+            self.updatelist.append(self.textRect)
+            # self.ShotglassSimbol()
+            # self.CameraSimbol()
+        #self.From_interface.put('NoUser')
 
     def FlashNoUserText(self):
         if self.OperationMode == "Shotmachine" and self.current_screen == 'main':
@@ -518,8 +589,8 @@ class ShotmachineInterface:
         pygame.init()
         self.screeninfo = pygame.display.Info()
         self.screensize = [self.screeninfo.current_w, self.screeninfo.current_h]
-        #self.screen = pygame.display.set_mode(self.screensize, (pygame.DOUBLEBUF | pygame.HWSURFACE))
-        self.screen = pygame.display.set_mode((0,0), (pygame.FULLSCREEN|pygame.DOUBLEBUF|pygame.HWSURFACE))
+        self.screen = pygame.display.set_mode(self.screensize, (pygame.DOUBLEBUF | pygame.HWSURFACE))
+        #self.screen = pygame.display.set_mode((0,0), (pygame.FULLSCREEN|pygame.DOUBLEBUF|pygame.HWSURFACE))
         pygame.mouse.set_pos([0,0])
 
         self.logger.info("Set screensize to: " + str(self.screensize[0]) + "x" + str(self.screensize[1]))
@@ -531,7 +602,7 @@ class ShotmachineInterface:
                                                              self.screensize)
 
         # Init camera
-        self.camera = camerashotmachine.CameraShotmachine(storagepath=self.TakenPhotosDir,
+        self.camera = camerashotmachine.CameraShotmachine(storagepath=self.TakenPhotosDirNU,
                                                           HandleShotmachine=self.HandleShotmachine)
         self.cameraSwitchedToPhoto = False
 
@@ -547,7 +618,10 @@ class ShotmachineInterface:
         elif self.OperationMode == "PhotoBooth":
             self.load_photobooth_screen()
             self.current_screen = 'PhotoBooth'
-
+        
+        
+        #self.SwitchNotOnMessage()
+        
         # set text on bottom of screen to init value
         self.NoUserText()
         self.stop_timeoutBarcode()
@@ -638,6 +712,8 @@ class ShotmachineInterface:
             if self.current_screen == 'config':
                 self.updatelist.append(
                     self.button("Wifi settings", 150, 250, 150, 50, self.RED, self.GREEN, self.start_WIFI_config))
+                self.updatelist.append(
+                    self.button("Fotomap legen", 150, 300, 150, 50, self.RED, self.GREEN, self.fotomap_legen))
                 self.updatelist.append(
                     self.button("Spoel pomp 0", 400, 250, 150, 50, self.RED, self.GREEN, self.flush_pump, 0))
                 self.updatelist.append(
