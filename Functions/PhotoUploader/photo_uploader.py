@@ -13,11 +13,10 @@ import pysftp
 import xml.etree.ElementTree as ET
 import shutil
 
-#Album_Id = 'AOivGk9mA_hdf1F75tg5n3GxCN_BHFHY-Z2-rnWZXQTLFRoeq6FpMBfyatxwjfFOiWDnNxPfLF_5'
-#Album_Id = 'AF1QipMK-gU7j2q3BlDKjxhQ_Nr5tPwrXhGF9e6RkuPD'
+
 Album_Id = 'AOivGk-LGHTCvhw6L5NcOSpFbLYez9wafktpnpUQ0av4uqQxm4Yme-hTLCblvVchNOdAKgRikfHh'
-#album_name = 'Housewarming Lisa 2'
 album_name = 'Uploaded'
+#Album_Id = None
 
 #Create_new_album = False
 
@@ -56,26 +55,29 @@ class photo_uploader():
             self.logger.info("No internet connection working, do not start uploader")
 
         if GooglePhotoUploader:     ### Old uploader, can probably be removed
-            while not done:
-                try:
-                    self.logger.info("Start Google photo uploader")
-                    self.AlbumId = Album_Id
-                    #self.AlbumId = self.db_conn.GetGoogleAlbumId(self.party_id)
-                    self.logger.info("Google photo uploader album ID: " + self.AlbumId)
+            #while not done:
+            #try:
+                self.logger.info("Start Google photo uploader")
+                self.AlbumId = Album_Id
+                #self.AlbumId = self.db_conn.GetGoogleAlbumId(self.party_id)
+                #self.logger.info("Google photo uploader album ID: " + self.AlbumId)
+                self.googlePhotoHandle = googlePhotoUploader(self.AlbumId)
+                if self.AlbumId == None:
+                    self.logger.info("No album ID known, create new album")
+                    
+                    #(albumurl, self.AlbumId) = googlePhotoUploader.create_album("Uploaded")
+                    (albumurl, self.AlbumId) = self.googlePhotoHandle.create_album(album_name)
+                    #self.db_conn.SetGoogleAlbumId(self.party_id, self.AlbumId, albumurl)
+                self.logger.info("Google photo uploader album ID: " + self.AlbumId)
+                #self.googlePhotoHandle = googlePhotoUploader(self.AlbumId)
 
-                    if self.AlbumId == None:
-                        self.logger.info("No album ID known, create new album")
-                        (albumurl, self.AlbumId) = googlePhotoHandle.create_album(album_name)
-                        self.db_conn.SetGoogleAlbumId(self.party_id, self.AlbumId, albumurl)
-                    self.googlePhotoHandle = googlePhotoUploader(self.AlbumId)
-
-                    self.run = True
-                    self.thread = threading.Thread(target=self.uploaderThreadGoogle)
-                    self.thread.start()
-                    done = True
-                    self.logger.info("Google photo uploader succesfully started")
-                except:
-                    self.logger.warning("Error in starting google photo uploader, try again")
+                self.run = True
+                self.thread = threading.Thread(target=self.uploaderThreadGoogle)
+                self.thread.start()
+                done = True
+                self.logger.info("Google photo uploader succesfully started")
+            #except:
+                #self.logger.warning("Error in starting google photo uploader, try again")
 
 
         if sftpUploader:

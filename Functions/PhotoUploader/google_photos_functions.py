@@ -2,6 +2,7 @@ import json
 import requests
 import time
 import os
+import logging
 import pandas as pd
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -18,7 +19,7 @@ class googlePhotoUploader():
         #          'https://www.googleapis.com/auth/photoslibrary.sharing']
 #        scopes = ['https://www.googleapis.com/auth/photoslibrary.appendonly']
         self.albumId = _albumId
-        
+        self.logger = logging.getLogger(__name__)
         scopes=['https://www.googleapis.com/auth/photoslibrary.readonly',
                 'https://www.googleapis.com/auth/photoslibrary.appendonly']
 
@@ -198,6 +199,7 @@ class googlePhotoUploader():
 
 
     def create_album(self, album_name):
+        self.logger.info("Create album: " + album_name)
         response = self.authed_session.post(
             'https://photoslibrary.googleapis.com/v1/albums', 
             headers = { 'content-type': 'application/json' },
