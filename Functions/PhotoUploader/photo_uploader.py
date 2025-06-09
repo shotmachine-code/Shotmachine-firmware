@@ -56,7 +56,7 @@ class photo_uploader():
 
         if GooglePhotoUploader:     ### Old uploader, can probably be removed
             #while not done:
-            #try:
+            try:
                 self.logger.info("Start Google photo uploader")
                 self.AlbumId = Album_Id
                 #self.AlbumId = self.db_conn.GetGoogleAlbumId(self.party_id)
@@ -76,8 +76,9 @@ class photo_uploader():
                 self.thread.start()
                 done = True
                 self.logger.info("Google photo uploader succesfully started")
-            #except:
-                #self.logger.warning("Error in starting google photo uploader, try again")
+            except Exception as err:
+                self.logger.warning("Error in getting valid credentials, try resetting via shortcut on desktop")
+                self.logger.warning(err)
 
 
         if sftpUploader:

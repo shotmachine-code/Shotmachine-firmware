@@ -52,6 +52,8 @@ HandleShotmachine = {
     "Settings": {
         "OnRaspberry": onRaspberry,
         "InternetConnection": InternetConnection,
+        "OperationMode": "PhotoBooth",
+        #"OperationMode": "Shotmachine",
         "EnableSPI": True,  # for leds
         "EnableI2C": True,  # for shotdetector & pumps
         "EnableDBSync": False,  # database synchronisatie

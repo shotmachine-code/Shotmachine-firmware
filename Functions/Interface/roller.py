@@ -34,6 +34,7 @@ class Roller:
                 continue
         if len(filelist) < 4:
             self.logger.error('Error: Not enough roll images in folder. Need al least 4 images')
+            raise IndexError('Not enough roll images in folder. Need al least 4 images')
         self.n_roll_images = len(self.Roll_images)
         self.rollerheight = self.Roll_images[0].get_height()
 

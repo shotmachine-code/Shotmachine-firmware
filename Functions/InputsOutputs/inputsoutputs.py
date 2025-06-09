@@ -29,6 +29,9 @@ class InputsOutputs:
         self.SPISSPin = self.HandleShotmachine["Hardware"]["SPISSPin"]
         # self.party_id = self.HandleShotmachine["Settings"]["PartyId"]
         self.OnOffSwitchPin = self.HandleShotmachine["Hardware"]["OnOffSwitch"]
+        self.OperationMode = self.HandleShotmachine["Settings"]["OperationMode"]
+        self.LedSignalPin = self.HandleShotmachine["Hardware"]["LedSignal"]
+        
 
         # import required libraries depending on the current platform
         if self.HandleShotmachine["Settings"]["OnRaspberry"]:
@@ -84,11 +87,22 @@ class InputsOutputs:
         self.GPIO.setup(self.FotoSwitch, GPIO.IN)
         self.GPIO.setup(self.ConfigSwitchPin, GPIO.IN)
         self.GPIO.setup(self.OnOffSwitchPin, GPIO.IN)
+        self.GPIO.setup(self.LedSignalPin, GPIO.OUT)
+        
 
         # set GPIO pins
         self.GPIO.output(self.EnableI2COutputPin, 0)
         self.GPIO.output(self.ResetArduinoPin, 0)
         self.GPIO.output(self.SPISSPin, 0)
+        
+        if self.OperationMode == "Shotmachine":
+            self.GPIO.output(self.LedSignalPin, 1)
+            self.logger.info('Enable shotbutton light')
+        else:
+            self.GPIO.output(self.LedSignalPin, 0)
+            self.logger.info('Disable shotbutton light')
+            
+            
         time.sleep(0.1)
 
         # init MCP IO extender

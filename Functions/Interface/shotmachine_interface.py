@@ -36,8 +36,11 @@ class ShotmachineInterface:
         self.NoUserTextBlack = False
         self.NoUserTextFlashCounter = 0
 
+        self.OperationMode = self.HandleShotmachine["Settings"]["OperationMode"]
+        
+        # Verplaats naar _main__.py volgende regeld niet meer uncommenten!
         # self.OperationMode = "PhotoBooth"
-        self.OperationMode = "Shotmachine"
+        # self.OperationMode = "Shotmachine"
 
         self.TakenPhotosDirNU = 'TakenImages/NotUploaded'
         self.TakenPhotosDirU = 'TakenImages/Uploaded'
@@ -596,40 +599,55 @@ class ShotmachineInterface:
         self.logger.info("Set screensize to: " + str(self.screensize[0]) + "x" + str(self.screensize[1]))
         pygame.display.set_caption(Appname)
         clock = pygame.time.Clock()
-        background_file = os.listdir(Background_image_dir)
-        background_path = os.path.join(Background_image_dir, background_file[0])
-        self.background_image = pygame.transform.smoothscale(pygame.image.load(background_path).convert(),
+        
+        try:
+            background_file = os.listdir(Background_image_dir)
+            background_path = os.path.join(Background_image_dir, background_file[0])
+            self.background_image = pygame.transform.smoothscale(pygame.image.load(background_path).convert(),
                                                              self.screensize)
+        except IndexError:
+            self.From_interface.put('Quit')
+            self.logger.info("No background image in folder, quit")
+            self.run = False
+        
 
         # Init camera
         self.camera = camerashotmachine.CameraShotmachine(storagepath=self.TakenPhotosDirNU,
                                                           HandleShotmachine=self.HandleShotmachine)
         self.cameraSwitchedToPhoto = False
 
-        # Init rollers
-        self.roller1 = Roller(Roll_1_posx, Roll_posy, Roll_height, Roll_width, Roll_Images_dir)
-        self.roller2 = Roller(Roll_2_posx, Roll_posy, Roll_height, Roll_width, Roll_Images_dir)
-        self.roller3 = Roller(Roll_3_posx, Roll_posy, Roll_height, Roll_width, Roll_Images_dir)
+        try:
+            # Init rollers
+            self.roller1 = Roller(Roll_1_posx, Roll_posy, Roll_height, Roll_width, Roll_Images_dir)
+            self.roller2 = Roller(Roll_2_posx, Roll_posy, Roll_height, Roll_width, Roll_Images_dir)
+            self.roller3 = Roller(Roll_3_posx, Roll_posy, Roll_height, Roll_width, Roll_Images_dir)
+        except IndexError:
+            self.From_interface.put('Quit')
+            self.logger.info("No, or not enough, roll images in folder, quit")
+            self.run = False
+        
 
-        # Create screen
-        if self.OperationMode == "Shotmachine":
-            self.load_main_screen()
-            self.current_screen = 'main'
-        elif self.OperationMode == "PhotoBooth":
-            self.load_photobooth_screen()
-            self.current_screen = 'PhotoBooth'
-        
-        
-        #self.SwitchNotOnMessage()
-        
-        # set text on bottom of screen to init value
-        self.NoUserText()
-        self.stop_timeoutBarcode()
-        pygame.mouse.set_pos([1920,1080])
-        pygame.mouse.set_visible(False)
+        if self.run:
+            
+            # Create screen
+            if self.OperationMode == "Shotmachine":
+                self.load_main_screen()
+                self.current_screen = 'main'
+            elif self.OperationMode == "PhotoBooth":
+                self.load_photobooth_screen()
+                self.current_screen = 'PhotoBooth'
+            
+            
+            #self.SwitchNotOnMessage()
+            
+            # set text on bottom of screen to init value
+            self.NoUserText()
+            self.stop_timeoutBarcode()
+            pygame.mouse.set_pos([1920,1080])
+            pygame.mouse.set_visible(False)
 
-        time.sleep(0.5)
-        self.logger.info('Interface initialised')
+            time.sleep(0.5)
+            self.logger.info('Interface initialised')
 
         # -------- Main Program Loop -----------
         while self.run:
@@ -776,8 +794,17 @@ class ShotmachineInterface:
             self.timer_PhotoBoothPhotoRefresh_1.cancel()
             self.timer_PhotoBoothPhotoRefresh_2.cancel()
             self.timer_PhotoBoothPhotoRefresh_3.cancel()
-
         except:
             pass
+        try:
+            if hasattr(self,'timer_PhotoBoothPhotoRefresh_1'):
+                self.timer_PhotoBoothPhotoRefresh_1.cancel()
+            if hasattr(self,'timer_PhotoBoothPhotoRefresh_2'):
+                self.timer_PhotoBoothPhotoRefresh_2.cancel()
+            if hasattr(self,'timer_PhotoBoothPhotoRefresh_3'):
+                self.timer_PhotoBoothPhotoRefresh_3.cancel()
+        except:
+            pass
+            
         pygame.quit()
         self.logger.info('Interface stopped')
