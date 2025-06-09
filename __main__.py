@@ -15,6 +15,8 @@ import random
 import datetime
 import os
 
+import json
+
 currentOS = platform.system()
 currentArch = platform.architecture()
 if currentOS == 'Linux' and currentArch[0] != '64bit':
@@ -48,6 +50,64 @@ logger = logging.getLogger(__name__)
 
 logger.info("Start")
 
+
+try:
+    with open('HardwareSettings.json', 'r') as openfile:
+        HardwareSettings = json.load(openfile)
+except:
+    # fallback settings
+    logger.warning("HardwareSettings.json not found, use fallback settings and create new file")
+    HardwareSettings = {
+        "OnOffSwitch": 27,
+        "ConfigSwitch": 21,
+        "SpoelSwitch": 16,
+        "HendelSwitch": 23,
+        "FotoSwitch": 24,
+        "EnableI2COutput": 4,
+        "OnOffLed": 17,
+        "ResetArduino": 13,
+        "LedConfig": 20,
+        "LedSpoel": 12,
+        "LedSignal": 25,
+        "SPISSPin": 6
+    }
+    with open("HardwareSettings.json", "w") as outfile:
+        json.dump(HardwareSettings, outfile)
+
+try:
+    with open('SoftwareSettings.json', 'r') as openfile:
+        SoftwareSettings = json.load(openfile)
+except:   
+    # fallback settings  
+    logger.warning("SoftwareSettings.json not found, use fallback settings and create new file")   
+    SoftwareSettings = {
+        "OnRaspberry": onRaspberry,
+        "InternetConnection": InternetConnection,
+        "OperationMode": "PhotoBooth",
+        #"OperationMode": "Shotmachine",
+        "EnableSPI": True,  # for leds
+        "EnableI2C": True,  # for shotdetector & pumps
+        "EnableDBSync": False,  # database synchronisatie
+        "EnableBarcodeScanner": False,  # duh
+        "EnablePhotoUploader": True,  # tja, wat zou dit nou zijn..
+        "PartyId": 7,  # feest ID, per feest instelbaar
+        "MachineId": 1,  # niet aanpassen!
+        "EnableShot0": True,  # False als pomp 0 niet aan mag, True als deze wel mag
+        "EnableShot1": True,  # enz...
+        "EnableShot2": True,
+        "EnableShot3": True,
+        "EnableShot4": True
+    }
+    with open("SoftwareSettings.json", "w") as outfile:
+        json.dump(SoftwareSettings, outfile)
+
+HandleShotmachine = {
+    "Settings": SoftwareSettings,
+    "Hardware": HardwareSettings,
+    "Logger": logger
+}
+    
+'''    
 HandleShotmachine = {
     "Settings": {
         "OnRaspberry": onRaspberry,
@@ -83,6 +143,16 @@ HandleShotmachine = {
     },
     "Logger": logger
 }
+'''
+#print(HandleShotmachine)
+#print(HandleShotmachineJson)
+
+'''
+with open("HardwareSettings.json", "w") as outfile:
+    json.dump(HandleShotmachine['Hardware'], outfile)
+with open("SoftwareSettings.json", "w") as outfile:
+    json.dump(HandleShotmachine['Settings'], outfile)
+'''
 
 
 class Shotmachine_controller:
@@ -246,6 +316,53 @@ class Shotmachine_controller:
                     if imagename != "No Image":
                         logger.info("recieved Image in main:" + imagename + " for user: " + self.barcode)
                         self.ToPhotoUploaderQueue.put(imagename + ":" + self.barcode)
+                elif 'Switch to mode: Photobooth' in s:
+                    # Shutdown interface and IO subprogram
+                    logger.info("Switch to Photobooth mode, via main")
+                    self.ToIOQueue.put("Quit")
+                    #self.ToInterfQueue.put("Quit")
+                    
+                    time.sleep(5)
+                    
+                    # Change settings and store to file
+                    HandleShotmachine["Settings"]["OperationMode"] = "PhotoBooth"
+                    #HandleShotmachine["Settings"]["OperationMode"]: "Shotmachine"  
+                    with open("SoftwareSettings.json", "w") as outfile:
+                        json.dump(HandleShotmachine['Settings'], outfile)
+                    #print(HandleShotmachine)
+                    
+                    # Restart interface and IO subprogram
+                    inputsoutputs.InputsOutputs(HandleShotmachine,
+                        ToMainQueue,
+                        ToIOQueue)
+                    shotmachine_interface.ShotmachineInterface("Interface_main",
+                        ToInterfQueue,
+                        ToMainQueue,
+                        HandleShotmachine)
+                elif 'Switch to mode: Shotmachine' in s:
+                    # Shutdown interface and IO subprogram
+                    logger.info("Switch to Shotmachine mode, via main")
+                    self.ToIOQueue.put("Quit")
+                    #self.ToInterfQueue.put("Quit")
+                    
+                    time.sleep(5)
+                    
+                    # Change settings and store to file
+                    #HandleShotmachine["Settings"]["OperationMode"]: "PhotoBooth"
+                    HandleShotmachine["Settings"]["OperationMode"] = "Shotmachine"  
+                    with open("SoftwareSettings.json", "w") as outfile:
+                        json.dump(HandleShotmachine['Settings'], outfile)
+                    
+                    #print(HandleShotmachine)
+                    # Restart interface and IO subprogram
+                    inputsoutputs.InputsOutputs(HandleShotmachine,
+                        ToMainQueue,
+                        ToIOQueue)
+                    shotmachine_interface.ShotmachineInterface("Interface_main",
+                        ToInterfQueue,
+                        ToMainQueue,
+                        HandleShotmachine)    
+                    
                 else:
                     logger.warning("Unknown command to main: " + s)
                 # s = ""

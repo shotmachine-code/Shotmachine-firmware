@@ -91,6 +91,16 @@ class CameraShotmachine:
             self.save_image_name = "Test mode, no picture taken"
 
         self.logger.info('Camera class started')
+        
+    def __del__(self):
+        try:
+            self.logger.info('Try to close camera')
+            self.camera.close()
+        except Exception as err:
+            self.logger.info('closing camera did not work')
+            self.logger.info(err)
+            
+        
 
     def start(self):
         # start the camera so it starts producing images

@@ -38,6 +38,7 @@ class ShotmachineInterface:
 
         self.OperationMode = self.HandleShotmachine["Settings"]["OperationMode"]
         
+        
         # Verplaats naar _main__.py volgende regeld niet meer uncommenten!
         # self.OperationMode = "PhotoBooth"
         # self.OperationMode = "Shotmachine"
@@ -85,6 +86,19 @@ class ShotmachineInterface:
 
     def flush_pump(self, number):
         self.From_interface.put('Flush:' + str(number))
+        
+    def SwitchToShotmachineMode(self):
+        self.logger.info('Start switching to Shotmachine mode')
+        #self.From_interface.put('Quit')
+        self.From_interface.put('Switch to mode: Shotmachine')  
+        self.run = False
+    
+    def SwitchToPhotoboothMode(self):
+        self.logger.info('Start switching to Photobooth mode')
+        #self.From_interface.put('Quit')
+        self.From_interface.put('Switch to mode: Photobooth')  
+        self.run = False
+        
 
     def load_main_screen(self):
         self.screen.fill(self.BLACK)
@@ -171,53 +185,57 @@ class ShotmachineInterface:
     def update_photobooth_picture(self, Position, _StartTimer, _ReloadFilelist):
         #if _ReloadFilelist or len(self.FileList) == 0:
             # print("Reload file list")
-        self.FileListNU = sorted(os.listdir(self.TakenPhotosDirNU)) 
-        self.FileListU = sorted(os.listdir(self.TakenPhotosDirU))
-        self.FileList = self.FileListNU + self.FileListU
-        self.NrNUFiles = len(self.FileListNU)
-        if len(self.FileList) != 0:
-            if not self.showLastImage:
-                PhotoNumber = randint(0, len(self.FileList) - 1)
-            else:
-                PhotoNumber = len(self.FileList) - 1
-                self.showLastImage = False
-            if PhotoNumber < self.NrNUFiles:
-                PhotoPath = os.path.join(self.TakenPhotosDirNU, self.FileList[PhotoNumber])
-            else:
-                PhotoPath = os.path.join(self.TakenPhotosDirU, self.FileList[PhotoNumber])
-            PhotoSurface = pygame.image.load(PhotoPath).convert()
-            PictureSize = (1024, 760)  # (845, 475)
-            PhotoSurfaceScaled = pygame.transform.scale(PhotoSurface, PictureSize)
-            PhotoRect = PhotoSurfaceScaled.get_rect()
-            Position = 3
-            if Position == 1:
-                PhotoRect.center = (700, 400)  # (500, 250)
-            elif Position == 2:
-                PhotoRect.center = (1420, 280)  # (1420, 280)
-            elif Position == 3:
-                PhotoRect.center = (960, 500)  # (960, 780)
-            else:
-                PhotoRect.center = (0, 0)
+        try:
+            self.FileListNU = sorted(os.listdir(self.TakenPhotosDirNU)) 
+            self.FileListU = sorted(os.listdir(self.TakenPhotosDirU))
+            self.FileList = self.FileListNU + self.FileListU
+            self.NrNUFiles = len(self.FileListNU)
+            if len(self.FileList) != 0:
+                if not self.showLastImage:
+                    PhotoNumber = randint(0, len(self.FileList) - 1)
+                else:
+                    PhotoNumber = len(self.FileList) - 1
+                    self.showLastImage = False
+                if PhotoNumber < self.NrNUFiles:
+                    PhotoPath = os.path.join(self.TakenPhotosDirNU, self.FileList[PhotoNumber])
+                else:
+                    PhotoPath = os.path.join(self.TakenPhotosDirU, self.FileList[PhotoNumber])
+                PhotoSurface = pygame.image.load(PhotoPath).convert()
+                PictureSize = (1024, 760)  # (845, 475)
+                PhotoSurfaceScaled = pygame.transform.scale(PhotoSurface, PictureSize)
+                PhotoRect = PhotoSurfaceScaled.get_rect()
+                Position = 3
+                if Position == 1:
+                    PhotoRect.center = (700, 400)  # (500, 250)
+                elif Position == 2:
+                    PhotoRect.center = (1420, 280)  # (1420, 280)
+                elif Position == 3:
+                    PhotoRect.center = (960, 500)  # (960, 780)
+                else:
+                    PhotoRect.center = (0, 0)
 
-            self.screen.blit(PhotoSurfaceScaled, PhotoRect)
-            self.updatelist.append(PhotoRect)
+                self.screen.blit(PhotoSurfaceScaled, PhotoRect)
+                self.updatelist.append(PhotoRect)
 
-        if _StartTimer:
-            if Position == 1:
-                if hasattr(self,'timer_PhotoBoothPhotoRefresh_1'):
-                    self.timer_PhotoBoothPhotoRefresh_1.cancel()
-                self.timer_PhotoBoothPhotoRefresh_1 = Timer(8, self.update_photobooth_picture, [1, True, False])  # 20                
-                self.timer_PhotoBoothPhotoRefresh_1.start()
-            elif Position == 2:
-                if hasattr(self,'timer_PhotoBoothPhotoRefresh_2'):
-                    self.timer_PhotoBoothPhotoRefresh_2.cancel()
-                self.timer_PhotoBoothPhotoRefresh_2 = Timer(20, self.update_photobooth_picture, [2, True, False])
-                self.timer_PhotoBoothPhotoRefresh_2.start()
-            elif Position == 3:
-                if hasattr(self,'timer_PhotoBoothPhotoRefresh_3'):
-                    self.timer_PhotoBoothPhotoRefresh_3.cancel()
-                self.timer_PhotoBoothPhotoRefresh_3 = Timer(7, self.update_photobooth_picture, [3, True, False])
-                self.timer_PhotoBoothPhotoRefresh_3.start()
+            if _StartTimer:
+                if Position == 1:
+                    if hasattr(self,'timer_PhotoBoothPhotoRefresh_1'):
+                        self.timer_PhotoBoothPhotoRefresh_1.cancel()
+                    self.timer_PhotoBoothPhotoRefresh_1 = Timer(8, self.update_photobooth_picture, [1, True, False])  # 20                
+                    self.timer_PhotoBoothPhotoRefresh_1.start()
+                elif Position == 2:
+                    if hasattr(self,'timer_PhotoBoothPhotoRefresh_2'):
+                        self.timer_PhotoBoothPhotoRefresh_2.cancel()
+                    self.timer_PhotoBoothPhotoRefresh_2 = Timer(20, self.update_photobooth_picture, [2, True, False])
+                    self.timer_PhotoBoothPhotoRefresh_2.start()
+                elif Position == 3:
+                    if hasattr(self,'timer_PhotoBoothPhotoRefresh_3'):
+                        self.timer_PhotoBoothPhotoRefresh_3.cancel()
+                    self.timer_PhotoBoothPhotoRefresh_3 = Timer(7, self.update_photobooth_picture, [3, True, False])
+                    self.timer_PhotoBoothPhotoRefresh_3.start()
+        except pygame.error:
+            self.logger.info('update photobooth image ging niet goed, stop refresh')
+            
 
     def load_live_camera_screen(self):
         # stop photoboot function if needed
@@ -595,6 +613,8 @@ class ShotmachineInterface:
         self.screen = pygame.display.set_mode(self.screensize, (pygame.DOUBLEBUF | pygame.HWSURFACE))
         #self.screen = pygame.display.set_mode((0,0), (pygame.FULLSCREEN|pygame.DOUBLEBUF|pygame.HWSURFACE))
         pygame.mouse.set_pos([0,0])
+        
+        self.logger.info("Start interface in mode: " + self.OperationMode)
 
         self.logger.info("Set screensize to: " + str(self.screensize[0]) + "x" + str(self.screensize[1]))
         pygame.display.set_caption(Appname)
@@ -651,6 +671,11 @@ class ShotmachineInterface:
 
         # -------- Main Program Loop -----------
         while self.run:
+            #if self.ReceiveBuffer == "Quit":
+            #    self.From_interface.put('Quit')
+            #    self.run = False
+            #    self.ReceiveBuffer = ''
+            
             if not self.ReceiveBuffer == '' and not self.current_screen == 'config':
                 if self.ReceiveBuffer == 'Take_picture':
                     if ((self.EnableBarcodeScanner and not (self.currentUser == "")) or not self.EnableBarcodeScanner):
@@ -686,7 +711,7 @@ class ShotmachineInterface:
                 # elif 'Missing_Shotglass' in self.ReceiveBuffer:
                 #     self.DisplayMissingShotglass()
                 elif "Quit" in self.ReceiveBuffer:
-                    self.From_interface.put('Quit')
+                    #self.From_interface.put('Quit')
                     self.run = False
                 else:
                     self.logger.info("Unknown command from interface " + self.ReceiveBuffer)
@@ -695,7 +720,7 @@ class ShotmachineInterface:
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    self.From_interface.put('Quit')
+                    #self.From_interface.put('Quit')
                     self.logger.info("interface quit")
                     self.run = False
                 if event.type == pygame.KEYDOWN:
@@ -746,6 +771,12 @@ class ShotmachineInterface:
                     self.button("Spoelen alles 10 sec", 400, 500, 150, 50, self.RED, self.GREEN, self.flush_pump, 6))
                 self.updatelist.append(
                     self.button("Spoelen alles 1 min", 400, 550, 150, 50, self.RED, self.GREEN, self.flush_pump, 7))
+                self.updatelist.append(
+                    self.button("Wissel naar Photobooth mode", 150, 350, 150, 50, self.RED, self.GREEN, self.SwitchToPhotoboothMode))  
+                self.updatelist.append(
+                    self.button("Wissel naar Shotmachine mode", 150, 400, 150, 50, self.RED, self.GREEN, self.SwitchToShotmachineMode)) 
+                    
+                    
 
             if self.current_screen == 'livecamera':
                 self.CameraRunTime = time.time() - self.CameraStartTime
@@ -790,19 +821,29 @@ class ShotmachineInterface:
             self.updatelist = []
 
         # Close everything down
+        #try:
+        #    self.timer_PhotoBoothPhotoRefresh_1.cancel()
+        #    self.timer_PhotoBoothPhotoRefresh_2.cancel()
+        #    self.timer_PhotoBoothPhotoRefresh_3.cancel()
+        #except:
+        #    pass
         try:
+            del(self.camera)
+        except Exception as err:
+            self.logger.info(err)  
+        try:
+            #if hasattr(self,'timer_PhotoBoothPhotoRefresh_1'):
             self.timer_PhotoBoothPhotoRefresh_1.cancel()
-            self.timer_PhotoBoothPhotoRefresh_2.cancel()
-            self.timer_PhotoBoothPhotoRefresh_3.cancel()
         except:
             pass
         try:
-            if hasattr(self,'timer_PhotoBoothPhotoRefresh_1'):
-                self.timer_PhotoBoothPhotoRefresh_1.cancel()
-            if hasattr(self,'timer_PhotoBoothPhotoRefresh_2'):
-                self.timer_PhotoBoothPhotoRefresh_2.cancel()
-            if hasattr(self,'timer_PhotoBoothPhotoRefresh_3'):
-                self.timer_PhotoBoothPhotoRefresh_3.cancel()
+            #if hasattr(self,'timer_PhotoBoothPhotoRefresh_2'):
+            self.timer_PhotoBoothPhotoRefresh_2.cancel()
+        except:
+            pass
+        try:
+         #   if hasattr(self,'timer_PhotoBoothPhotoRefresh_3'):
+            self.timer_PhotoBoothPhotoRefresh_3.cancel()
         except:
             pass
             

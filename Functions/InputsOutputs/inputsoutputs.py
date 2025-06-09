@@ -156,6 +156,14 @@ class InputsOutputs:
         # wrap up init
         self.logger.info('Input Output program started')
 
+    def __del__(self):
+        if self.EnableI2COutput:
+            self.bus.close()
+        if self.EnableSPI:
+            self.spi.close()
+        self.GPIO.cleanup()
+                
+
     def queue_watcher(self):
         # Watch queue from interface and process commands
         # self.run = True
@@ -333,6 +341,11 @@ class InputsOutputs:
                     self.MCPConnected = False
 
             time.sleep(1)
+        try:
+            del(self.MCP)
+            self.MCPConnected = False
+        except:
+            pass
 
     def barcodeReaderThreat(self):
         # import required libraries for barcode scanner
