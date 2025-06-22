@@ -452,12 +452,18 @@ class InputsOutputs:
     def checkOnOffSwitch(self):
         # Controleer de aan/uit schakelaar
         self.OnOffSwitchState = self.GPIO.input(self.OnOffSwitchPin)
+        
         # self.logger.info(self.OnOffSwitchState)
         if not self.OnOffSwitchSend and self.OnOffSwitchState:
-            self.logger.info('On/Off Switch switched off')
-            self.ToMainQueue.put("OnOffSwitch_released")
-            self.OnOffSwitchSend = True
-            self.busy = True
+            time.sleep(1)
+            self.OnOffSwitchState = self.GPIO.input(self.OnOffSwitchPin)
+            if self.OnOffSwitchState:   
+                self.logger.info('On/Off Switch switched off')
+                self.ToMainQueue.put("OnOffSwitch_released")
+                self.OnOffSwitchSend = True
+                self.busy = True
+            else:
+                self.logger.info('On/Off Switch was bounching')
         if not self.OnOffSwitchState:
             self.OnOffSwitchSend = False
 

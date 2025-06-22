@@ -6,6 +6,7 @@ import time
 import subprocess
 import logging
 import psutil
+import glob
 import shutil
 import datetime
 from random import randint
@@ -325,9 +326,17 @@ class ShotmachineInterface:
         cputemp_surface = self.myfont.render(cputemp, False, (0, 0, 0))
         self.screen.blit(cputemp_surface, (100, 100))
 
-        last_sync = self.db_conn.getLastSyncTime()
-        lastSyncMessage_surf = self.myfont.render("last db sync: " + str(last_sync), False, (0, 0, 0))
-        self.screen.blit(lastSyncMessage_surf, (100, 200))
+        #last_sync = self.db_conn.getLastSyncTime()
+        #lastSyncMessage_surf = self.myfont.render("last db sync: " + str(last_sync), False, (0, 0, 0))
+        #self.screen.blit(lastSyncMessage_surf, (100, 200))
+        
+        filelist_NU = glob.glob("/home/pi/Shotmachine/Shotmachine-firmware/TakenImages/NotUploaded/*.jpg")
+        filelist_U = glob.glob("/home/pi/Shotmachine/Shotmachine-firmware/TakenImages/Uploaded/*.jpg")
+        n_images = len(filelist_NU) + len(filelist_U)
+        n_images_surf = self.myfont.render("Number of images taken: " + str(n_images), False, (0, 0, 0))
+        to_upload_surf = self.myfont.render("Number of images yet to upload: " + str(len(filelist_NU)), False, (0, 0, 0))
+        self.screen.blit(n_images_surf, (100, 180))
+        self.screen.blit(to_upload_surf, (100, 200))
 
         quitmessage_surf = self.myfont.render('press q to quit', False, (0, 0, 0))
         self.screen.blit(quitmessage_surf, (300, 100))
@@ -610,8 +619,8 @@ class ShotmachineInterface:
         pygame.init()
         self.screeninfo = pygame.display.Info()
         self.screensize = [self.screeninfo.current_w, self.screeninfo.current_h]
-        self.screen = pygame.display.set_mode(self.screensize, (pygame.DOUBLEBUF | pygame.HWSURFACE))
-        #self.screen = pygame.display.set_mode((0,0), (pygame.FULLSCREEN|pygame.DOUBLEBUF|pygame.HWSURFACE))
+        #self.screen = pygame.display.set_mode(self.screensize, (pygame.DOUBLEBUF | pygame.HWSURFACE))
+        self.screen = pygame.display.set_mode((0,0), (pygame.FULLSCREEN|pygame.DOUBLEBUF|pygame.HWSURFACE))
         pygame.mouse.set_pos([0,0])
         
         self.logger.info("Start interface in mode: " + self.OperationMode)

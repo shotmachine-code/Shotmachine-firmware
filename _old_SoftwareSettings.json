@@ -1,1 +1,0 @@
-{"OnRaspberry": true, "InternetConnection": true, "OperationMode": "PhotoBooth", "EnableSPI": true, "EnableI2C": true, "EnableDBSync": false, "EnableBarcodeScanner": false, "EnablePhotoUploader": true, "PartyId": 7, "MachineId": 1, "EnableShot0": true, "EnableShot1": true, "EnableShot2": true, "EnableShot3": true, "EnableShot4": true}
